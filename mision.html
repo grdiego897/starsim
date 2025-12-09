@@ -253,8 +253,7 @@
             flex-direction: column;
             gap: 15px;
             margin-bottom: 40px;
-            align-items: flex-end;
-            /* Align labels to right or center? Screenshot shows them aligned right of the label text */
+            align-items: center;
             width: 100%;
             max-width: 400px;
         }
@@ -262,7 +261,7 @@
         .control-group {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: center;
             gap: 15px;
             width: 100%;
         }
@@ -271,6 +270,8 @@
             font-weight: 700;
             font-size: 1rem;
             color: #fff;
+            width: 90px;
+            text-align: right;
         }
 
         .control-group select,
@@ -598,7 +599,7 @@
         <div class="grok-popup" id="grokPopup">
             <img src="img/grok-full.png" alt="Grok" class="grok-logo-full">
 
-            <form class="grok-input-container" action="/your-server-endpoint" method="POST">
+            <form class="grok-input-container" id="grokSearchForm">
 
                 <textarea class="grok-input" name="user_message" placeholder="¿Qué quieres saber?" required></textarea>
 
@@ -612,7 +613,25 @@
             </form>
         </div>
     </aside>
+    <script>
+        document.getElementById('grokSearchForm').addEventListener('submit', function (e) {
+            // A. Evitamos que el formulario se envíe de la forma tradicional (recarga de pág)
+            e.preventDefault();
 
+            // B. Obtenemos el texto del textarea
+            const input = document.getElementsByClassName('grok-input')[0].value;
+
+            // C. Transformamos el texto: 
+            // .trim() quita espacios al inicio/final
+            // .replace(/\s+/g, '+') cambia todos los espacios internos por '+'
+            const formattedText = input.trim().replace(/\s+/g, '+');
+
+            // D. Redirigimos a la URL deseada
+            // NOTA: He asumido que el parámetro de búsqueda es 'q', quedando ?q=...
+            // Si la URL exacta debe ser diferente, edita la línea de abajo.
+            window.open("https://grok.com/?q=" + formattedText);
+        });
+    </script>
     <main class="main-content">
         <header>
             <div class="user-profile">
@@ -662,7 +681,6 @@
                             <option value="haven">Haven</option>
                             <option value="axiom">Axiom</option>
                             <option value="orbital-reef">Orbital Reef</option>
-                            <option value="Starlab">Starlab</option>
                             <option value="gateway">Gateway</option>
                             <option value="luna">Luna</option>
                             <option value="terminus">Terminus</option>
@@ -678,7 +696,7 @@
                             <div class="field-row">
                                 <label>Nave</label>
                                 <select id="ship-select">
-                                    <option value="starship">Starship V3</option>
+                                    <option value="starship">Starship</option>
                                     <option value="dragon">Crew Dragon</option>
                                     <option value="falcon-fairing">Fairing</option>
                                 </select>
@@ -686,7 +704,7 @@
                             <div class="field-row">
                                 <label>Booster</label>
                                 <select id="booster-select">
-                                    <option value="superheavy">Super Heavy V3</option>
+                                    <option value="superheavy">Super Heavy</option>
                                     <option value="falcon9">Falcon 9</option>
                                     <option value="falconheavy">Falcon Heavy</option>
                                 </select>
@@ -733,8 +751,10 @@
                                 <label>Sitio</label>
                                 <select>
                                     <option>39A</option>
-                                    <option>SLC-40</option>
                                     <option>OLM-1</option>
+                                    <option>Océano Pacífico</option>
+                                    <option>Océano Atlántico (América)</option>
+                                    <option>Océano Atlántico (Europa)</option>
                                 </select>
                             </div>
                         </div>
@@ -748,16 +768,18 @@
                                 <label>Tipo</label>
                                 <select>
                                     <option>Torre</option>
-                                    <option>ASDS</option>
-                                    <option>RTLS</option>
+                                    <option>Drone ship</option>
                                 </select>
                             </div>
                             <div class="field-row">
                                 <label>ID</label>
-                                <select>
-                                    <option>1</option>
-                                    <option>Mechazilla</option>
-                                    <option>OCISLY</option>
+                                <select id="landing-id-select">
+                                    <option value="1">1</option>
+                                    <option value="mechazilla">Mechazilla</option>
+                                    <option value="ytml">You'll Thank Me Later</option>
+                                    <option value="ocisly">Of Course I Still Love You</option>
+                                    <option value="jrti">Just Read the Instructions</option>
+                                    <option value="asog">A Shortfall Of Gravitas</option>
                                 </select>
                             </div>
                         </div>
@@ -784,113 +806,144 @@
     </main>
 
     <script>
-        // Sidebar Toggle
-        const sidebar = document.getElementById('sidebar');
-        const toggle = document.getElementById('toggleSidebar');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar Toggle
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('toggleSidebar');
 
-        toggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
+            if (sidebar && toggle) {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
 
-        // Grok Popup Logic
-        const grokTrigger = document.getElementById('grokTrigger');
-        const grokPopup = document.getElementById('grokPopup');
+            // Grok Popup Logic
+            const grokTrigger = document.getElementById('grokTrigger');
+            const grokPopup = document.getElementById('grokPopup');
 
-        grokTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            grokPopup.classList.toggle('active');
-        });
+            if (grokTrigger && grokPopup) {
+                grokTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    grokPopup.classList.toggle('active');
+                });
 
-        document.addEventListener('click', (e) => {
-            if (!grokPopup.contains(e.target) && !grokTrigger.contains(e.target)) {
-                grokPopup.classList.remove('active');
+                document.addEventListener('click', (e) => {
+                    if (!grokPopup.contains(e.target) && !grokTrigger.contains(e.target)) {
+                        grokPopup.classList.remove('active');
+                    }
+                });
+            }
+
+            // Dynamic Image Logic
+            const shipSelect = document.getElementById('ship-select');
+            const boosterSelect = document.getElementById('booster-select');
+            const vehicleImg = document.getElementById('vehicle-img');
+
+            const destSelect = document.getElementById('destination-select');
+            const landingIdSelect = document.getElementById('landing-id-select');
+            const destImg = document.getElementById('destination-img');
+
+            // Mapping options to images
+            const vehicleMap = {
+                'starship': 'img/vehicles/starshiprender.png',
+                'dragon': 'img/vehicles/falcon9.png',
+                'falcon-fairing': 'img/vehicles/falconheavy.png',
+                'superheavy': 'img/vehicles/starshiprender.png',
+                'falcon9': 'img/vehicles/falcon9.png',
+                'falconheavy': 'img/vehicles/falconheavy.png'
+            };
+
+            const destMap = {
+                'leo': 'img/destination/ocisly.png',
+                'haven': 'img/destination/haven.png',
+                'axiom': 'img/destination/axiom.png',
+                'orbital-reef': 'img/destination/orbital-reef.png',
+                'gateway': 'img/destination/gateway.png',
+                'luna': 'img/destination/luna.png',
+                'terminus': 'img/destination/terminus.png',
+            };
+
+            // Update Vehicle Image
+            function updateVehicle() {
+                if (!shipSelect || !boosterSelect || !vehicleImg) return;
+
+                const ship = shipSelect.value;
+                const booster = boosterSelect.value;
+
+                if (ship === 'starship' || booster === 'superheavy') {
+                    vehicleImg.src = vehicleMap['starship'];
+                } else if (booster === 'falconheavy') {
+                    vehicleImg.src = vehicleMap['falconheavy'];
+                } else {
+                    vehicleImg.src = vehicleMap['falcon9'];
+                }
+            }
+
+            // Update Destination Image
+            function updateDestination() {
+                if (!destSelect || !destImg) return;
+
+                const destVal = destSelect.value;
+
+                if (destVal === 'leo') {
+                    // Default for LEO 
+                    let selectedImg = 'img/destination/ocisly.png';
+
+                    if (landingIdSelect) {
+                        const landingVal = landingIdSelect.value;
+                        // Check if the selected landing ID is a known droneship
+                        // mechazilla is excluded as it has no image yet, defaulting to ocisly
+                        const validDroneships = ['ocisly', 'jrti', 'ytml', 'asog'];
+                        if (validDroneships.includes(landingVal)) {
+                            selectedImg = `img/destination/${landingVal}.png`;
+                        }
+                    }
+                    destImg.src = selectedImg;
+                } else {
+                    if (destMap[destVal]) {
+                        destImg.src = destMap[destVal];
+                    }
+                }
+            }
+
+            // Listeners
+            if (shipSelect && boosterSelect) {
+                shipSelect.addEventListener('change', updateVehicle);
+                boosterSelect.addEventListener('change', updateVehicle);
+                // Initialize
+                updateVehicle();
+            }
+
+            if (destSelect) {
+                destSelect.addEventListener('change', updateDestination);
+                if (landingIdSelect) {
+                    landingIdSelect.addEventListener('change', updateDestination);
+                }
+                // Initialize
+                updateDestination();
+            }
+
+            // Dynamic Map Logic
+            const portSelect = document.getElementById('port-select');
+            const mapIframe = document.getElementById('map-iframe');
+
+            const mapUrls = {
+                'starbase': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14831.0227489655!2d-97.19523020151937!3d25.989574683826845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb1632384e2d5%3A0xa8d0c7f6e909dc99!2sStarbase%2C%20TX%2078521%2C%20USA!5e1!3m2!1sen!2ses!4v1765238920803!5m2!1sen!2ses',
+                'cape': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d276461.93649158103!2d-80.8547461299503!3d28.359112144778454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e0a5ab39504c9b%3A0xbb0bb0f57a55d19e!2sCape%20Canaveral%2C%20FL%2032920%2C%20USA!5e1!3m2!1sen!2ses!4v1765239198537!5m2!1sen!2ses',
+                'vandenberg': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52250.60942475514!2d-120.62246497216124!3d34.7508491873727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80ec187640266049%3A0x367e9b086307374b!2sVandenberg%20Space%20Force%20Base!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
+                'kourou': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63654.58287652755!2d-52.8021486790757!3d5.197960782352163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8d123e7208d7c07b%3A0xf54ec2a66e44b826!2sGuiana%20Space%20Centre!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
+                'azores': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4912583.663972047!2d-26.469947018335617!3d37.70125852088543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb67910ee97539cf%3A0x87d46041de4ed19e!2sAtlantic%20Spaceport%20Consortium!5e1!3m2!1sen!2ses!4v1765239451252!5m2!1sen!2ses'
+            };
+
+            if (portSelect && mapIframe) {
+                portSelect.addEventListener('change', () => {
+                    const val = portSelect.value;
+                    if (mapUrls[val]) {
+                        mapIframe.src = mapUrls[val];
+                    }
+                });
             }
         });
-
-        // Dynamic Image Logic
-        const shipSelect = document.getElementById('ship-select');
-        const boosterSelect = document.getElementById('booster-select');
-        const vehicleImg = document.getElementById('vehicle-img');
-
-        const destSelect = document.getElementById('destination-select');
-        const destImg = document.getElementById('destination-img');
-
-        // Mapping options to images
-        // Vehicles: falcon9.png, falconheavy.png, starshiprender.png
-        const vehicleMap = {
-            'starship': 'img/vehicles/starshiprender.png',
-            'dragon': 'img/vehicles/falcon9.png', // Assuming dragon flies on F9 for visual simplicity or using F9 image
-            'falcon-fairing': 'img/vehicles/falconheavy.png', // Placeholder mapping
-            'superheavy': 'img/vehicles/starshiprender.png',
-            'falcon9': 'img/vehicles/falcon9.png',
-            'falconheavy': 'img/vehicles/falconheavy.png'
-        };
-
-        // Destination: haven.png, ocisly.png, terminus.png
-        const destMap = {
-            'leo': 'img/destination/ocisly.png',
-            'haven': 'img/destination/haven.png',
-            'axiom': 'img/destination/axiom.png',
-            'orbital-reef': 'img/destination/orbital-reef.png',
-            'gateway': 'img/destination/gateway.png',
-            'luna': 'img/destination/luna.png',
-            'terminus': 'img/destination/terminus.png',
-        };
-
-        // Update Vehicle Image
-        function updateVehicle() {
-            // Priority to Booster selection if Ship is generic? 
-            // The screenshot has "Nave" and "Booster". 
-            // In reality, the visual shows the whole stack or the main vehicle.
-            // Let's make "Booster" control the image mostly as it defines the stack look often?
-            // Or "Nave" (Ship). Starship is a ship.
-
-            const ship = shipSelect.value;
-            const booster = boosterSelect.value;
-
-            // Logic: if Starship is selected, show starshiprender.
-            // If Falcon 9 or Dragon, show falcon9.
-            // If Falcon Heavy, show falconheavy.
-
-            if (ship === 'starship' || booster === 'superheavy') {
-                vehicleImg.src = vehicleMap['starship'];
-            } else if (booster === 'falconheavy') {
-                vehicleImg.src = vehicleMap['falconheavy'];
-            } else {
-                vehicleImg.src = vehicleMap['falcon9'];
-            }
-        }
-
-        shipSelect.addEventListener('change', updateVehicle);
-        boosterSelect.addEventListener('change', updateVehicle);
-
-        // Update Destination Image
-        destSelect.addEventListener('change', () => {
-            const val = destSelect.value;
-            if (destMap[val]) {
-                destImg.src = destMap[val];
-            }
-        });
-
-        // Dynamic Map Logic
-        const portSelect = document.getElementById('port-select');
-        const mapIframe = document.getElementById('map-iframe');
-
-        const mapUrls = {
-            'starbase': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14831.0227489655!2d-97.19523020151937!3d25.989574683826845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb1632384e2d5%3A0xa8d0c7f6e909dc99!2sStarbase%2C%20TX%2078521%2C%20USA!5e1!3m2!1sen!2ses!4v1765238920803!5m2!1sen!2ses',
-            'cape': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d276461.93649158103!2d-80.8547461299503!3d28.359112144778454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e0a5ab39504c9b%3A0xbb0bb0f57a55d19e!2sCape%20Canaveral%2C%20FL%2032920%2C%20USA!5e1!3m2!1sen!2ses!4v1765239198537!5m2!1sen!2ses',
-            'vandenberg': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52250.60942475514!2d-120.62246497216124!3d34.7508491873727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80ec187640266049%3A0x367e9b086307374b!2sVandenberg%20Space%20Force%20Base!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
-            'kourou': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63654.58287652755!2d-52.8021486790757!3d5.197960782352163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8d123e7208d7c07b%3A0xf54ec2a66e44b826!2sGuiana%20Space%20Centre!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
-            'azores': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4912583.663972047!2d-26.469947018335617!3d37.70125852088543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb67910ee97539cf%3A0x87d46041de4ed19e!2sAtlantic%20Spaceport%20Consortium!5e1!3m2!1sen!2ses!4v1765239451252!5m2!1sen!2ses'
-        };
-
-        portSelect.addEventListener('change', () => {
-            const val = portSelect.value;
-            if (mapUrls[val]) {
-                mapIframe.src = mapUrls[val];
-            }
-        });
-
     </script>
 </body>
 

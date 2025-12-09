@@ -151,23 +151,72 @@
             /* margin-right: auto;    */
         }
 
+        /* SE AJUSTA LA PÍLDORA DE NOTIFICACIÓN PARA QUE SE CENTRE RELATIVO AL HEADER DE ANCHO COMPLETO */
         header {
+            position: relative;
+            /* Needed for absolute centering of child */
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 40px;
         }
 
-        /* SE AJUSTA LA PÍLDORA DE NOTIFICACIÓN PARA QUE SE CENTRE RELATIVO AL HEADER DE ANCHO COMPLETO */
         .notification-pill {
-            background-color: #444;
+            background-color: #333;
+            /* Dark grey similar to screenshot */
             padding: 8px 30px;
             border-radius: 20px;
             font-size: 0.9rem;
             color: #ccc;
-            margin-left: auto;
-            margin-right: auto;
-            /* SE ELIMINA EL TRANSFORM: translateX(50%) */
+
+            /* Absolute centering */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            /* Initially hidden with opacity 0 if waiting for JS, 
+               but our CSS has opacity:0 by default only in keyframes if we didn't set it on the base class. 
+               Let's ensure it's hidden initially if not active. */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            /* Faster entry */
+            opacity: 1;
+            /* Ensure visibility at end */
+            pointer-events: auto;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+                pointer-events: none;
+            }
         }
 
         .user-profile {
@@ -621,8 +670,11 @@
     <main class="main-content">
 
         <header>
-            <div></div>
+            <div></div> <!-- Spacer for flex alignment if needed, or remove if causing issues with centering -->
 
+            <div id="notificationPill" class="notification-pill">
+                Bienvenido
+            </div>
 
             <div class="user-profile">
                 <span class="user-name">Gallardo</span>
@@ -772,6 +824,49 @@
         document.addEventListener('click', (e) => {
             if (!grokPopup.contains(e.target) && !grokTrigger.contains(e.target)) {
                 grokPopup.classList.remove('active');
+            }
+        });
+
+        // --- Notification Logic ---
+        const notificationPill = document.getElementById('notificationPill');
+
+        function showNotification(message, duration = 3000) {
+            if (!notificationPill) return;
+
+            // Update text
+            notificationPill.innerText = message;
+
+            // Allow re-triggering animation
+            notificationPill.classList.remove('fade-out');
+            notificationPill.classList.remove('fade-in');
+
+            // Trigger reflow/repaint to restart animation
+            void notificationPill.offsetWidth;
+
+            notificationPill.classList.add('fade-in');
+
+            // Set timeout for auto-hide
+            setTimeout(() => {
+                notificationPill.classList.remove('fade-in');
+                notificationPill.classList.add('fade-out');
+            }, duration);
+        }
+
+        // Expose globally
+        window.showNotification = showNotification;
+
+        // Check for 'welcome' param on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('welcome')) {
+                // Remove the param so it doesn't persist on refresh if desired, 
+                // but for now keeping it simple or using History API to clean up URL.
+                // We'll just show the notification.
+
+                // Optional: Clean URL
+                // window.history.replaceState({}, document.title, window.location.pathname);
+
+                showNotification("Bienvenido", 2000);
             }
         });
     </script>
