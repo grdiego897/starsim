@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starbase: Control de Misión</title>
+    <title>Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --bg-color: #000000;
@@ -32,7 +34,7 @@
 
         /* --- CLASES PARA IMÁGENES --- */
         /* Estas clases controlan el tamaño de tus iconos PNG/JPG/SVG */
-        
+
         .logo-img {
             width: 120px;
             margin-bottom: 50px;
@@ -52,25 +54,29 @@
         }
 
         .card-icon-img {
-            width: 8em;  /* Tamaño iconos tarjetas grandes */
+            width: 8em;
+            /* Tamaño iconos tarjetas grandes */
             height: 8em;
             object-fit: contain;
-            opacity: 0.8; /* Un poco transparente para que no brille tanto si es blanco puro */
+            opacity: 0.8;
+            /* Un poco transparente para que no brille tanto si es blanco puro */
         }
 
         .weather-icon-img {
-            width: 5em; /* Tamaño icono del sol */
+            width: 5em;
+            /* Tamaño icono del sol */
             height: 5em;
             object-fit: contain;
         }
 
         .action-icon-img {
-            width: 12px; /* Tamaño iconos botones editar/borrar */
+            width: 12px;
+            /* Tamaño iconos botones editar/borrar */
             height: 12px;
             margin-right: 6px;
             vertical-align: middle;
         }
-        
+
         .crown-icon-img {
             width: 16px;
             height: auto;
@@ -94,7 +100,10 @@
             border-right: 1px solid #111;
         }
 
-        .nav-menu ul { list-style: none; }
+        .nav-menu ul {
+            list-style: none;
+        }
+
         .nav-menu li {
             margin-bottom: 30px;
             display: flex;
@@ -103,6 +112,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
+
         .nav-menu li::before {
             content: '';
             display: inline-block;
@@ -112,7 +122,10 @@
             border-radius: 50%;
             margin-right: 15px;
         }
-        .nav-menu li:hover { color: var(--text-muted); }
+
+        .nav-menu li:hover {
+            color: var(--text-muted);
+        }
 
         .logo-bottom-container {
             width: 50px;
@@ -128,7 +141,7 @@
         .main-content {
             flex: 1;
             /* SE AJUSTA EL PADDING DEL MAIN CONTENT PARA EL ESPACIO LATERAL */
-            padding: 30px 50px; 
+            padding: 30px 50px;
             overflow-y: auto;
 
             /* **IMPORTANTE** SE ELIMINA EL MAX-WIDTH Y MARGIN DE AQUÍ PARA QUE EL HEADER SE ESTIRE */
@@ -163,7 +176,9 @@
             gap: 15px;
         }
 
-        .user-name { font-weight: 600; }
+        .user-name {
+            font-weight: 600;
+        }
 
         /* Dashboard Grid */
         .dashboard-grid {
@@ -183,13 +198,17 @@
             min-height: 100px;
         }
 
-        .card-info { text-align: right; }
+        .card-info {
+            text-align: right;
+        }
+
         .card-label {
             display: block;
             font-size: 0.9rem;
             color: #ccc;
             margin-bottom: 5px;
         }
+
         .card-value {
             font-size: 2.5rem;
             font-weight: 300;
@@ -218,6 +237,7 @@
             color: #ccc;
             line-height: 1.4;
         }
+
         .mission-title span {
             display: block;
             font-size: 1.4rem;
@@ -231,17 +251,23 @@
             padding: 10px 20px;
             border-radius: 10px;
         }
+
         .time-unit {
             text-align: center;
             padding: 0 15px;
             border-right: 1px solid #444;
         }
-        .time-unit:last-child { border-right: none; }
+
+        .time-unit:last-child {
+            border-right: none;
+        }
+
         .time-unit span {
             display: block;
             font-size: 1.8rem;
             font-weight: 300;
         }
+
         .time-unit label {
             font-size: 0.6rem;
             text-transform: uppercase;
@@ -257,6 +283,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .weather-grid {
             display: grid;
             grid-template-columns: auto auto;
@@ -272,13 +299,26 @@
             border-radius: 15px;
             overflow: hidden;
         }
+
         .program-header {
             padding: 20px;
             border-bottom: 1px solid #333;
         }
-        .table-container { width: 100%; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background-color: #666; color: #eee; }
+
+        .table-container {
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #666;
+            color: #eee;
+        }
+
         th {
             text-align: left;
             padding: 12px 20px;
@@ -286,12 +326,16 @@
             font-size: 0.9rem;
             text-transform: uppercase;
         }
+
         td {
             padding: 15px 20px;
             border-bottom: 1px solid #333;
             vertical-align: middle;
         }
-        tr:last-child td { border-bottom: none; }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
 
         .badge {
             padding: 5px 15px;
@@ -303,8 +347,16 @@
             text-align: center;
             min-width: 100px;
         }
-        .badge-scheduled { background-color: #999; color: #111; }
-        .badge-confirmed { background-color: var(--accent-green); color: #fff; }
+
+        .badge-scheduled {
+            background-color: #999;
+            color: #111;
+        }
+
+        .badge-confirmed {
+            background-color: var(--accent-green);
+            color: #fff;
+        }
 
         .btn-action {
             border: none;
@@ -317,269 +369,413 @@
             display: inline-flex;
             align-items: center;
         }
-        .btn-edit { background-color: #444; }
-        .btn-delete { background-color: var(--accent-red); }
-        .actions-cell { text-align: right; }
+
+        .btn-edit {
+            background-color: #444;
+        }
+
+        .btn-delete {
+            background-color: var(--accent-red);
+        }
+
+        .actions-cell {
+            text-align: right;
+        }
 
         /* --- MODIFICACIÓN DE CSS PARA CENTRAR EL MENÚ --- */
 
-.nav-menu {
-    /* Permite que el menú crezca para centrar verticalmente si hay mucho espacio */
-    flex-grow: 1; 
-    display: flex;
-    justify-content: center; /* Centra el contenido verticalmente */
-    flex-direction: column;
-}
+        .nav-menu {
+            /* Permite que el menú crezca para centrar verticalmente si hay mucho espacio */
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            /* Centra el contenido verticalmente */
+            flex-direction: column;
+        }
 
-.nav-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto; /* Centra el bloque <ul> horizontalmente dentro del .nav-menu */
-}
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            /* Centra el bloque <ul> horizontalmente dentro del .nav-menu */
+        }
 
-.nav-menu li {
-    /* ... (Mantener estilos existentes) */
-    /* Asegúrate de que los elementos <li> sigan siendo flex para mantener el punto (::before) y el texto */
-    display: flex;
-    align-items: center;
-}
+        .nav-menu li {
+            /* ... (Mantener estilos existentes) */
+            /* Asegúrate de que los elementos <li> sigan siendo flex para mantener el punto (::before) y el texto */
+            display: flex;
+            align-items: center;
+        }
 
-/* SIDEBAR COLAPSABLE */
-.sidebar {
-    transition: width 0.4s ease;
-    width: 250px;
-    padding: 30px;
-}
+        /* SIDEBAR COLAPSABLE */
+        .sidebar {
+            transition: width 0.4s ease;
+            width: 250px;
+            padding: 30px;
+        }
 
-.sidebar.collapsed {
-    width: 80px;
-    padding: 30px 15px;
-}
+        .sidebar.collapsed {
+            width: 80px;
+            padding: 30px 15px;
+        }
 
-.logo-wrapper {
-    cursor: pointer;
-    text-align: center;
-    margin-bottom: 50px;
-}
+        .logo-wrapper {
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 50px;
+        }
 
-.sidebar.collapsed .logo-img {
-    width: 50px;
-}
+        .sidebar.collapsed .logo-img {
+            width: 50px;
+        }
 
-/* Menú siempre centrado verticalmente */
-.nav-menu {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+        /* Menú siempre centrado verticalmente */
+        .nav-menu {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-.nav-menu li span {
-    transition: opacity 0.2s ease 0.1s;
-}
+        .nav-menu li span {
+            transition: opacity 0.2s ease 0.1s;
+        }
 
-.sidebar.collapsed .nav-menu li span {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-}
+        .sidebar.collapsed .nav-menu li span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
 
-.sidebar.collapsed .nav-menu li {
-    justify-content: center;
-}
+        .sidebar.collapsed .nav-menu li {
+            justify-content: center;
+        }
 
-.sidebar.collapsed .nav-menu li::before {
-    margin-right: 0;
-    margin-left: 10px;
-}
+        .sidebar.collapsed .nav-menu li::before {
+            margin-right: 0;
+            margin-left: 10px;
+        }
 
-/* Tooltip cuando está colapsado */
-.sidebar.collapsed .nav-menu li:hover::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 90px;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    z-index: 10;
-}
+        /* Tooltip cuando está colapsado */
+        .sidebar.collapsed .nav-menu li:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 90px;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 10;
+        }
 
-    /* CLASE CORREGIDA PARA CENTRAR EL DASHBOARD */
-    .dashboard-container{
-        width: 100%;
-        max-width: 1100px; /* Ancho deseado para el contenido central */
-        margin: 0 auto; /* Centrado automático */
-    }
+        /* CLASE CORREGIDA PARA CENTRAR EL DASHBOARD */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1100px;
+            /* Ancho deseado para el contenido central */
+            margin: 0 auto;
+            /* Centrado automático */
+        }
 
+        /* --- GROK POPUP --- */
+        .grok-popup {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            width: 280px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .grok-popup.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .grok-logo-full {
+            width: 100px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .grok-input-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 120px;
+            position: relative;
+        }
+
+        .grok-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+        }
+
+        .grok-input::placeholder {
+            color: #666;
+        }
+
+        .grok-send-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .grok-send-btn:hover {
+            transform: scale(1.1);
+            background-color: #fff;
+        }
+
+        .grok-send-icon {
+            width: 12px;
+            height: 12px;
+        }
+
+        .logo-bottom-container {
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logo-bottom-container:hover {
+            background: #333;
+        }
     </style>
 </head>
+
+
 <body>
 
-<aside class="sidebar" id="sidebar">
-    <div>
-        <div class="logo-wrapper" id="toggleSidebar">
-            <img src="img/logo.png" alt="SpaceX Logo" class="logo-img">
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="logo-wrapper" id="toggleSidebar">
+                <img src="img/logo.png" alt="SpaceX Logo" class="logo-img">
+            </div>
+
+            <nav class="nav-menu">
+                <ul>
+                    <li onclick="window.location.href='panel.html'" data-text="Panel"><span>Panel</span></li>
+                    <li onclick="window.location.href='program.html'" data-text="Programa"><span>Programa</span></li>
+                    <li onclick="window.location.href='mision.html'" data-text="Mision"><span>Nueva Misión</span></li>
+                </ul>
+            </nav>
         </div>
 
-        <nav class="nav-menu">
-            <ul>
-                <li data-text="Panel"><span>Panel</span></li>
-                <li data-text="Programa"><span>Programa</span></li>
-                <li data-text="Configuraciones"><span>Configuraciones</span></li>
-                <li data-text="Usuario"><span>Usuario</span></li>
-            </ul>
-        </nav>
-    </div>
+        <div class="logo-bottom-container" id="grokTrigger">
+            <img src="img/grok.png" alt="Grok" class="sidebar-bottom-icon">
+        </div>
 
-    <div class="logo-bottom-container">
-        <img src="img/grok.png" alt="Grok" class="sidebar-bottom-icon">
-    </div>
-</aside>
+        <!-- Grok Popup -->
+        <div class="grok-popup" id="grokPopup">
+            <img src="img/grok-full.png" alt="Grok" class="grok-logo-full">
+
+            <form class="grok-input-container" action="/your-server-endpoint" method="POST">
+
+                <textarea class="grok-input" name="user_message" placeholder="¿Qué quieres saber?" required></textarea>
+
+                <button type="submit" class="grok-send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round" class="grok-send-icon">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </aside>
 
     <main class="main-content">
-        
-        <header>
-            <div></div> 
 
-            
+        <header>
+            <div></div>
+
+
             <div class="user-profile">
                 <span class="user-name">Gallardo</span>
-                <img src="img/crownic.png" alt="Crown" class="crown-icon-img">
+                <img src="img/ic/crownic.png" alt="Crown" class="crown-icon-img">
                 <img src="img/avatar.jpg" alt="User" class="avatar-img">
             </div>
         </header>
 
         <div class="dashboard-container">
-        <section class="dashboard-grid">
-            <div class="card">
-                <div class="card-icon">
-                    <img src="img/starshipic.png" alt="Launch" class="card-icon-img">
-                </div>
-                <div class="card-info">
-                    <span class="card-label">Lanzamientos<br>pendientes</span>
-                    <span class="card-value">3</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">
-                    <img src="img/padic.png" alt="Pads" class="card-icon-img">
-                </div>
-                <div class="card-info">
-                    <span class="card-label">Pads</span>
-                    <span class="card-value">2/4</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">
-                    <img src="img/successic.png" alt="Stats" class="card-icon-img">
-                </div>
-                <div class="card-info">
-                    <span class="card-label">Tasa de Éxito</span>
-                    <span class="card-value">98%</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="middle-section">
-            <div class="countdown-card">
-                <div class="mission-title">
-                    <h3>Misión<br><span>Starship<br>IFT-12</span></h3>
-                </div>
-                <div class="timer">
-                    <div class="time-unit"><span>5</span><label>DÍAS</label></div>
-                    <div class="time-unit"><span>17</span><label>HORAS</label></div>
-                    <div class="time-unit"><span>10</span><label>MIN</label></div>
-                    <div class="time-unit"><span>42</span><label>SEG</label></div>
-                </div>
-            </div>
-
-            <div class="weather-card">
-                <div class="weather-info">
-                    <h3>Pronóstico</h3>
-                    <div class="weather-grid">
-                        <span>Viento</span> <span>17km/h</span>
-                        <span>Precipitación</span> <span>3%</span>
-                        <span>Viabilidad:</span> <span>97%</span>
+            <section class="dashboard-grid">
+                <div class="card">
+                    <div class="card-icon">
+                        <img src="img/ic/starshipic.png" alt="Launch" class="card-icon-img">
+                    </div>
+                    <div class="card-info">
+                        <span class="card-label">Lanzamientos<br>pendientes</span>
+                        <span class="card-value">3</span>
                     </div>
                 </div>
-                <div class="weather-icon-wrapper">
-                    <img src="img/sunic.png" alt="Sunny" class="weather-icon-img">
-                </div>
-            </div>
-        </section>
 
-        <section class="program-section">
-            <div class="program-header">
-                <h3>Programa próximo</h3>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>MISIÓN</th>
-                            <th>FECHA</th>
-                            <th>ESTADO</th>
-                            <th class="actions-cell">ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Falcon 9 - Starlink</td>
-                            <td>12:15 - 10 Octubre</td>
-                            <td><span class="badge badge-scheduled">Programado</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-edit">
-                                    <img src="img/icon-edit.png" class="action-icon-img"> Editar
-                                </button>
-                                <button class="btn-action btn-delete">
-                                    <img src="img/icon-trash.png" class="action-icon-img"> Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Starship HLS - Alpha</td>
-                            <td>17:25 - 10 Octubre</td>
-                            <td><span class="badge badge-confirmed">Confirmado</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-edit">
-                                    <img src="img/icon-edit.png" class="action-icon-img"> Editar
-                                </button>
-                                <button class="btn-action btn-delete">
-                                    <img src="img/icon-trash.png" class="action-icon-img"> Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Crew Dragon - ISS</td>
-                            <td>09:50 - 11 Octubre</td>
-                            <td><span class="badge badge-scheduled">Programado</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-edit">
-                                    <img src="img/icon-edit.png" class="action-icon-img"> Editar
-                                </button>
-                                <button class="btn-action btn-delete">
-                                    <img src="img/icon-trash.png" class="action-icon-img"> Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                <div class="card">
+                    <div class="card-icon">
+                        <img src="img/ic/padic.png" alt="Pads" class="card-icon-img">
+                    </div>
+                    <div class="card-info">
+                        <span class="card-label">Pads</span>
+                        <span class="card-value">2/4</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <img src="img/ic/successic.png" alt="Stats" class="card-icon-img">
+                    </div>
+                    <div class="card-info">
+                        <span class="card-label">Tasa de Éxito</span>
+                        <span class="card-value">98%</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="middle-section">
+                <div class="countdown-card">
+                    <div class="mission-title">
+                        <h3>Misión<br><span>Starship<br>IFT-12</span></h3>
+                    </div>
+                    <div class="timer">
+                        <div class="time-unit"><span>5</span><label>DÍAS</label></div>
+                        <div class="time-unit"><span>17</span><label>HORAS</label></div>
+                        <div class="time-unit"><span>10</span><label>MIN</label></div>
+                        <div class="time-unit"><span>42</span><label>SEG</label></div>
+                    </div>
+                </div>
+
+                <div class="weather-card">
+                    <div class="weather-info">
+                        <h3>Pronóstico</h3>
+                        <div class="weather-grid">
+                            <span>Viento</span> <span>17km/h</span>
+                            <span>Precipitación</span> <span>3%</span>
+                            <span>Viabilidad:</span> <span>97%</span>
+                        </div>
+                    </div>
+                    <div class="weather-icon-wrapper">
+                        <img src="img/ic/sunic.png" alt="Sunny" class="weather-icon-img">
+                    </div>
+                </div>
+            </section>
+
+            <section class="program-section">
+                <div class="program-header">
+                    <h3>Programa próximo</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>MISIÓN</th>
+                                <th>FECHA</th>
+                                <th>ESTADO</th>
+                                <th class="actions-cell">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Falcon 9 - Starlink</td>
+                                <td>12:15 - 10 Octubre</td>
+                                <td><span class="badge badge-scheduled">Programado</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit">
+                                        <img src="img/ic/icon-edit.png" class="action-icon-img"> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete">
+                                        <img src="img/ic/icon-trash.png" class="action-icon-img"> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Starship HLS - Alpha</td>
+                                <td>17:25 - 10 Octubre</td>
+                                <td><span class="badge badge-confirmed">Confirmado</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit">
+                                        <img src="img/ic/icon-edit.png" class="action-icon-img"> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete">
+                                        <img src="img/ic/icon-trash.png" class="action-icon-img"> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Crew Dragon - ISS</td>
+                                <td>09:50 - 11 Octubre</td>
+                                <td><span class="badge badge-scheduled">Programado</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit">
+                                        <img src="img/ic/icon-edit.png" class="action-icon-img"> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete">
+                                        <img src="img/ic/icon-trash.png" class="action-icon-img"> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     </main>
     <script>
-    const sidebar = document.getElementById('sidebar');
-    const toggle = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('toggleSidebar');
 
-    toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-    });
-</script>
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Grok Popup Logic
+        const grokTrigger = document.getElementById('grokTrigger');
+        const grokPopup = document.getElementById('grokPopup');
+
+        grokTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            grokPopup.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!grokPopup.contains(e.target) && !grokTrigger.contains(e.target)) {
+                grokPopup.classList.remove('active');
+            }
+        });
+    </script>
 </body>
+
+
 </html>

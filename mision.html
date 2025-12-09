@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Misión</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1c1c;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --input-bg: #333333;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+            /* Prevent body scroll if we want a fixed app-like feel */
+        }
+
+        /* --- SIDEBAR (Reused) --- */
+        .sidebar {
+            width: 250px;
+            padding: 30px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid #111;
+            transition: width 0.4s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+            padding: 30px 15px;
+        }
+
+        .logo-wrapper {
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo-img {
+            width: 120px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .sidebar.collapsed .logo-img {
+            width: 50px;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .nav-menu li {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            padding-left: 20px;
+        }
+
+        .nav-menu li.active,
+        .nav-menu li:hover {
+            color: var(--text-main);
+        }
+
+        .nav-menu li::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+            opacity: 0.5;
+            /* Dim dot by default */
+        }
+
+        .nav-menu li.active::before,
+        .nav-menu li:hover::before {
+            opacity: 1;
+        }
+
+        .nav-menu li span {
+            transition: opacity 0.2s ease 0.1s;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .nav-menu li span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .nav-menu li {
+            justify-content: center;
+            padding-left: 0;
+        }
+
+        .sidebar.collapsed .nav-menu li::before {
+            margin-right: 0;
+        }
+
+        .sidebar-bottom-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .logo-bottom-container {
+            width: 50px;
+            height: 50px;
+            background: #222;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logo-bottom-container:hover {
+            background: #333;
+        }
+
+        /* --- MAIN CONTENT LAYOUT --- */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Header (Profile) */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            z-index: 10;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .crown-icon-img {
+            width: 16px;
+            height: auto;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #555;
+        }
+
+        /* --- MISSION LAYOUT GRID --- */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            /* Left (Vehicle), Center (Form), Right (Destination) */
+            height: 100%;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* Center Column - Form */
+        .col-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .mission-header-title {
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .mission-code-box {
+            background-color: #3a3a3a;
+            /* Lighter dark bg */
+            padding: 15px 10px;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 1px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .form-row-top {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+            align-items: flex-end;
+            /* Align labels to right or center? Screenshot shows them aligned right of the label text */
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .control-group label {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .control-group select,
+        .control-group input {
+            background-color: #999;
+            /* Grey background as per image */
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            color: #000;
+            font-weight: 500;
+            width: 160px;
+            height: 30px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            background-color: #aaa;
+        }
+
+        /* Columns for details */
+        .details-columns {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .details-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .section-title {
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .field-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .field-row label {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .field-row select,
+        .field-row input {
+            background-color: #444;
+            /* Darker grey for these inputs */
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            width: 140px;
+        }
+
+        .btn-advanced {
+            margin-top: 30px;
+            background-color: #aaa;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+
+        .btn-advanced:hover {
+            background-color: #ccc;
+        }
+
+        /* Left/Right Columns (Images) */
+        .col-left,
+        .col-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 100px;
+            height: 100%;
+            position: relative;
+        }
+
+        .vehicle-display {
+            height: 55vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vehicle-img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+        }
+
+        .destination-display {
+            height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .destination-img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        /* Bottom Elements */
+        .map-wrapper {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            height: 150px;
+            background-color: #222;
+            border: 1px solid #444;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border-radius: 4px;
+        }
+
+        .map-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-launch-wrapper {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 100px;
+            height: 80px;
+            background-color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-launch {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            filter: invert(0);
+            /* Black logo on white bg */
+        }
+
+        .compass-logo {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+                height: auto;
+                padding-top: 80px;
+                /* Space for header */
+            }
+
+            .col-left,
+            .col-center,
+            .col-right {
+                height: auto;
+                margin-bottom: 40px;
+            }
+
+            .sidebar {
+                position: fixed;
+            }
+
+            .main-content {
+                margin-left: 80px;
+                /* Assumes collapsed sidebar mobile */
+                width: calc(100% - 80px);
+            }
+        }
+
+        /* --- GROK POPUP --- */
+        .grok-popup {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            width: 280px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .grok-popup.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .grok-logo-full {
+            width: 100px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .grok-input-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 120px;
+            position: relative;
+        }
+
+        .grok-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+        }
+
+        .grok-input::placeholder {
+            color: #666;
+        }
+
+        .grok-send-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .grok-send-btn:hover {
+            transform: scale(1.1);
+            background-color: #fff;
+        }
+
+        .grok-send-icon {
+            width: 12px;
+            height: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="logo-wrapper" id="toggleSidebar">
+                <img src="img/logo.png" alt="SpaceX Logo" class="logo-img">
+            </div>
+
+            <nav class="nav-menu">
+                <ul>
+                    <li onclick="window.location.href='panel.html'" data-text="Panel"><span>Panel</span></li>
+                    <li onclick="window.location.href='program.html'" data-text="Programa"><span>Programa</span></li>
+                    <li onclick="window.location.href='mision.html'" data-text="Mision"><span>Nueva Misión</span></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="logo-bottom-container" id="grokTrigger">
+            <img src="img/grok.png" alt="Grok" class="sidebar-bottom-icon">
+        </div>
+
+        <!-- Grok Popup -->
+        <div class="grok-popup" id="grokPopup">
+            <img src="img/grok-full.png" alt="Grok" class="grok-logo-full">
+
+            <form class="grok-input-container" action="/your-server-endpoint" method="POST">
+
+                <textarea class="grok-input" name="user_message" placeholder="¿Qué quieres saber?" required></textarea>
+
+                <button type="submit" class="grok-send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round" class="grok-send-icon">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <div class="user-profile">
+                <span class="user-name">Gallardo</span>
+                <!-- Using img/ic/crownic.png if available, else img/crownic.png as per panel.html even if broken there. I'll try img/ic/crownic.png as I saw it in list_dir -->
+                <img src="img/ic/crownic.png" alt="Crown" class="crown-icon-img">
+                <img src="img/avatar.jpg" alt="User" class="avatar-img">
+            </div>
+        </header>
+
+        <div class="mission-grid">
+            <!-- Left: Vehicle -->
+            <div class="col-left">
+                <div class="vehicle-display">
+                    <img id="vehicle-img" src="img/vehicles/starshiprender.png" alt="Vehicle" class="vehicle-img">
+                </div>
+
+                <!-- Map placeholder bottom left -->
+                <!-- Since we don't have map image, using a placeholder colored div or map iframe if possible. 
+                      User showed a map in screenshot. I'll make a generic map container. -->
+                <div class="map-wrapper">
+                    <!-- Using Google Static Maps generic URL or just a div with text if no API key. 
+                          Or maybe I should verify if there is a map image I missed?
+                          I will leave it as a styled box for now, maybe with an iframe to a simple map embed. -->
+                    <iframe id="map-iframe"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14364.57689849567!2d-97.16140509650454!3d25.996163359676575!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb5e47858c2a7%3A0x6700e5728a4a504b!2sSpaceX%20Starbase!5e1!3m2!1sen!2sus!4v1733702400000!5m2!1sen!2sus"
+                        width="100%" height="100%" style="border:0; filter: invert(0.9) hue-rotate(180deg);"
+                        allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- Center: Controls -->
+            <div class="col-center">
+                <div class="mission-header-title">MISIÓN</div>
+                <input type="text" class="mission-code-box" placeholder="Nombre">
+
+                <div class="form-row-top">
+                    <div class="control-group">
+                        <label>Programa</label>
+                        <input type="text" id="program-select" placeholder="Programa">
+                    </div>
+                    <div class="control-group">
+                        <label>Destino</label>
+                        <select id="destination-select">
+                            <option value="leo">LEO</option>
+                            <option value="haven">Haven</option>
+                            <option value="axiom">Axiom</option>
+                            <option value="orbital-reef">Orbital Reef</option>
+                            <option value="Starlab">Starlab</option>
+                            <option value="gateway">Gateway</option>
+                            <option value="luna">Luna</option>
+                            <option value="terminus">Terminus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="details-columns">
+                    <!-- Vehicles Column -->
+                    <div class="details-col">
+                        <div class="section-title">VEHÍCULO</div>
+                        <div class="field-rows">
+                            <div class="field-row">
+                                <label>Nave</label>
+                                <select id="ship-select">
+                                    <option value="starship">Starship V3</option>
+                                    <option value="dragon">Crew Dragon</option>
+                                    <option value="falcon-fairing">Fairing</option>
+                                </select>
+                            </div>
+                            <div class="field-row">
+                                <label>Booster</label>
+                                <select id="booster-select">
+                                    <option value="superheavy">Super Heavy V3</option>
+                                    <option value="falcon9">Falcon 9</option>
+                                    <option value="falconheavy">Falcon Heavy</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cargo Column -->
+                    <div class="details-col">
+                        <div class="section-title">CARGA</div>
+                        <div class="field-rows">
+                            <div class="field-row">
+                                <label>Tipo</label>
+                                <select>
+                                    <option>Cargo</option>
+                                    <option>Crew</option>
+                                    <option>Fuel</option>
+                                </select>
+                            </div>
+                            <div class="field-row">
+                                <label>Masa</label>
+                                <input type="text" value="2 T">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-columns">
+                    <!-- Launch Column -->
+                    <div class="details-col">
+                        <div class="section-title">LANZAMIENTO</div>
+                        <div class="field-rows">
+                            <div class="field-row">
+                                <label>Puerto</label>
+                                <select id="port-select">
+                                    <option value="starbase">Starbase</option>
+                                    <option value="cape">Cabo Cañaveral</option>
+                                    <option value="vandenberg">Vandenberg</option>
+                                    <option value="kourou">Kourou</option>
+                                    <option value="azores">Azores</option>
+                                </select>
+                            </div>
+                            <div class="field-row">
+                                <label>Sitio</label>
+                                <select>
+                                    <option>39A</option>
+                                    <option>SLC-40</option>
+                                    <option>OLM-1</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Landing Column -->
+                    <div class="details-col">
+                        <div class="section-title">ATERRIZAJE</div>
+                        <div class="field-rows">
+                            <div class="field-row">
+                                <label>Tipo</label>
+                                <select>
+                                    <option>Torre</option>
+                                    <option>ASDS</option>
+                                    <option>RTLS</option>
+                                </select>
+                            </div>
+                            <div class="field-row">
+                                <label>ID</label>
+                                <select>
+                                    <option>1</option>
+                                    <option>Mechazilla</option>
+                                    <option>OCISLY</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-advanced">AVANZADA</button>
+            </div>
+
+            <!-- Right: Destination -->
+            <div class="col-right">
+                <div class="destination-display">
+                    <img id="destination-img" src="img/destination/ocisly.png" alt="Destination"
+                        class="destination-img">
+                </div>
+
+                <!-- Launch Logo Box bottom right -->
+                <div class="logo-launch-wrapper">
+                    <!-- Using launch.png which seems appropriate -->
+                    <img src="img/ic/launch.png" class="logo-launch">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('toggleSidebar');
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Grok Popup Logic
+        const grokTrigger = document.getElementById('grokTrigger');
+        const grokPopup = document.getElementById('grokPopup');
+
+        grokTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            grokPopup.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!grokPopup.contains(e.target) && !grokTrigger.contains(e.target)) {
+                grokPopup.classList.remove('active');
+            }
+        });
+
+        // Dynamic Image Logic
+        const shipSelect = document.getElementById('ship-select');
+        const boosterSelect = document.getElementById('booster-select');
+        const vehicleImg = document.getElementById('vehicle-img');
+
+        const destSelect = document.getElementById('destination-select');
+        const destImg = document.getElementById('destination-img');
+
+        // Mapping options to images
+        // Vehicles: falcon9.png, falconheavy.png, starshiprender.png
+        const vehicleMap = {
+            'starship': 'img/vehicles/starshiprender.png',
+            'dragon': 'img/vehicles/falcon9.png', // Assuming dragon flies on F9 for visual simplicity or using F9 image
+            'falcon-fairing': 'img/vehicles/falconheavy.png', // Placeholder mapping
+            'superheavy': 'img/vehicles/starshiprender.png',
+            'falcon9': 'img/vehicles/falcon9.png',
+            'falconheavy': 'img/vehicles/falconheavy.png'
+        };
+
+        // Destination: haven.png, ocisly.png, terminus.png
+        const destMap = {
+            'leo': 'img/destination/ocisly.png',
+            'haven': 'img/destination/haven.png',
+            'axiom': 'img/destination/axiom.png',
+            'orbital-reef': 'img/destination/orbital-reef.png',
+            'gateway': 'img/destination/gateway.png',
+            'luna': 'img/destination/luna.png',
+            'terminus': 'img/destination/terminus.png',
+        };
+
+        // Update Vehicle Image
+        function updateVehicle() {
+            // Priority to Booster selection if Ship is generic? 
+            // The screenshot has "Nave" and "Booster". 
+            // In reality, the visual shows the whole stack or the main vehicle.
+            // Let's make "Booster" control the image mostly as it defines the stack look often?
+            // Or "Nave" (Ship). Starship is a ship.
+
+            const ship = shipSelect.value;
+            const booster = boosterSelect.value;
+
+            // Logic: if Starship is selected, show starshiprender.
+            // If Falcon 9 or Dragon, show falcon9.
+            // If Falcon Heavy, show falconheavy.
+
+            if (ship === 'starship' || booster === 'superheavy') {
+                vehicleImg.src = vehicleMap['starship'];
+            } else if (booster === 'falconheavy') {
+                vehicleImg.src = vehicleMap['falconheavy'];
+            } else {
+                vehicleImg.src = vehicleMap['falcon9'];
+            }
+        }
+
+        shipSelect.addEventListener('change', updateVehicle);
+        boosterSelect.addEventListener('change', updateVehicle);
+
+        // Update Destination Image
+        destSelect.addEventListener('change', () => {
+            const val = destSelect.value;
+            if (destMap[val]) {
+                destImg.src = destMap[val];
+            }
+        });
+
+        // Dynamic Map Logic
+        const portSelect = document.getElementById('port-select');
+        const mapIframe = document.getElementById('map-iframe');
+
+        const mapUrls = {
+            'starbase': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14831.0227489655!2d-97.19523020151937!3d25.989574683826845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb1632384e2d5%3A0xa8d0c7f6e909dc99!2sStarbase%2C%20TX%2078521%2C%20USA!5e1!3m2!1sen!2ses!4v1765238920803!5m2!1sen!2ses',
+            'cape': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d276461.93649158103!2d-80.8547461299503!3d28.359112144778454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e0a5ab39504c9b%3A0xbb0bb0f57a55d19e!2sCape%20Canaveral%2C%20FL%2032920%2C%20USA!5e1!3m2!1sen!2ses!4v1765239198537!5m2!1sen!2ses',
+            'vandenberg': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52250.60942475514!2d-120.62246497216124!3d34.7508491873727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80ec187640266049%3A0x367e9b086307374b!2sVandenberg%20Space%20Force%20Base!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
+            'kourou': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63654.58287652755!2d-52.8021486790757!3d5.197960782352163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8d123e7208d7c07b%3A0xf54ec2a66e44b826!2sGuiana%20Space%20Centre!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
+            'azores': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4912583.663972047!2d-26.469947018335617!3d37.70125852088543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb67910ee97539cf%3A0x87d46041de4ed19e!2sAtlantic%20Spaceport%20Consortium!5e1!3m2!1sen!2ses!4v1765239451252!5m2!1sen!2ses'
+        };
+
+        portSelect.addEventListener('change', () => {
+            const val = portSelect.value;
+            if (mapUrls[val]) {
+                mapIframe.src = mapUrls[val];
+            }
+        });
+
+    </script>
+</body>
+
+</html>
