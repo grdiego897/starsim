@@ -45,39 +45,14 @@
             position: relative;
         }
 
-        /* Header (Profile) */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        /* Header (Profile) - Replaced by header.js */
+        #header-container {
             position: absolute;
             top: 30px;
-            right: 40px;
+            left: 0;
+            width: 100%;
+            padding: 0 40px;
             z-index: 10;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-name {
-            font-weight: 600;
-        }
-
-        .crown-icon-img {
-            width: 16px;
-            height: auto;
-        }
-
-        .avatar-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #555;
         }
 
         /* --- MISSION LAYOUT GRID --- */
@@ -361,15 +336,9 @@
 <body>
     <div id="sidebar-container"></div>
     <script src="js/main.js" defer></script>
+    <script src="js/header.js" defer></script>
     <main class="main-content">
-        <header>
-            <div class="user-profile">
-                <span class="user-name">Gallardo</span>
-                <!-- Using img/ic/crownic.png if available, else img/crownic.png as per panel.html even if broken there. I'll try img/ic/crownic.png as I saw it in list_dir -->
-                <img src="img/ic/crownic.png" alt="Crown" class="crown-icon-img">
-                <img src="img/avatar.jpg" alt="User" class="avatar-img">
-            </div>
-        </header>
+        <div id="header-container"></div>
 
         <div class="mission-grid">
             <!-- Left: Vehicle -->
