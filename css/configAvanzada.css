@@ -1,0 +1,333 @@
+:root {
+    --bg-color: #000000;
+    --card-bg: #1c1c1c;
+    /* Dark grey card background */
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --input-bg: #333333;
+    /* Darker input background */
+    --input-sys-bg: #999;
+    /* Lighter system-like input bg mentioned in mision.html */
+    --accent-btn: #aaa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+#header-container {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    padding: 0 40px;
+    z-index: 10;
+}
+
+/* --- TOP SECTION: DESCRIPTION --- */
+/* --- TOP SECTION: DESCRIPTION --- */
+.description-panel {
+    margin-top: 100px;
+    /* Space for absolute header */
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px 30px;
+    margin-bottom: 50px;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+.panel-title {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.desc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 200px;
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
+}
+
+.desc-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+.desc-col label {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.styled-textarea {
+    background-color: #3b3b3b;
+    /* Slightly lighter than card bg */
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    color: #ccc;
+    height: 100%;
+    resize: none;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.desc-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: flex-start;
+    padding-top: 25px;
+    /* Align with textareas visually */
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.styled-input {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Specific inputs logic from image */
+.small-input {
+    width: 50px;
+}
+
+
+/* --- BOTTOM SECTION --- */
+.bottom-section {
+    display: flex;
+    gap: 40px;
+    flex: 1;
+    /* Take remaining space */
+    min-height: 0;
+    /* Allow shrinking */
+    /* Removed fixed height 400px */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.vehicle-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+}
+
+#vehicle-blueprint {
+    max-width: none;
+    max-height: none;
+    height: 40vw;
+    /* Reduced slightly to fit */
+    width: auto;
+    object-fit: contain;
+    transform: rotate(90deg);
+}
+
+.cargo-bay-panel {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 30px;
+    width: 45%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.cargo-list-wrapper {
+    flex: 1.5;
+    overflow-y: auto;
+    padding-right: 15px;
+}
+
+#cargo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cargo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #cdcdcd;
+    /* Light grey item bg */
+    border-radius: 6px;
+    padding: 8px 15px;
+    color: black;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.item-qty {
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+.vertical-divider {
+    width: 2px;
+    background-color: #444;
+    margin: 0 20px;
+}
+
+.cargo-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    text-align: center;
+}
+
+.cargo-controls h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.add-btn {
+    width: 120px;
+    height: 50px;
+    background-color: #aaa;
+    border: none;
+    border-radius: 8px;
+    font-size: 2rem;
+    font-weight: 300;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background-color: #fff;
+}
+
+.cargo-stats {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* --- FOOTER --- */
+.footer-actions {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.btn-back {
+    background-color: #aaa;
+    border: none;
+    padding: 12px 50px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #000;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #ccc;
+}
+
+/* CSS for Config Avanzada Inputs */
+.item-name-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: black;
+    font-weight: 600;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.item-name-input::placeholder {
+    color: #555;
+    font-weight: 400;
+}
+
+.item-qty-input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: black;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: right;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    margin-left: 10px;
+}
+
+/* Hide number spinner arrows for cleaner look, widely supported */
+.item-qty-input::-webkit-outer-spin-button,
+.item-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.item-qty-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.cargo-item:focus-within {
+    background-color: #e0e0e0;
+    /* Highlight slightly on focus */
+}

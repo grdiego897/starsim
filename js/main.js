@@ -23,9 +23,18 @@ function initSidebarLogic() {
     // 2. Sidebar Toggle Logic
     const sidebar = document.getElementById('sidebar');
     const toggle = document.getElementById('toggleSidebar');
+
     if (sidebar && toggle) {
+        // Apply persisted state
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+
         toggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
+            const currentState = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', currentState);
         });
     }
 

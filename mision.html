@@ -31,7 +31,6 @@
             display: flex;
             min-height: 100vh;
             overflow: hidden;
-            /* Prevent body scroll if we want a fixed app-like feel */
         }
 
         /* --- MAIN CONTENT LAYOUT --- */
@@ -365,7 +364,7 @@
             <!-- Center: Controls -->
             <div class="col-center">
                 <div class="mission-header-title">MISIÓN</div>
-                <input type="text" class="mission-code-box" placeholder="Nombre">
+                <input type="text" id="mission-name-input" class="mission-code-box" placeholder="Nombre">
 
                 <div class="form-row-top">
                     <div class="control-group">
@@ -416,7 +415,7 @@
                         <div class="field-rows">
                             <div class="field-row">
                                 <label>Tipo</label>
-                                <select>
+                                <select id="cargo-type-select">
                                     <option>Cargo</option>
                                     <option>Crew</option>
                                     <option>Fuel</option>
@@ -424,7 +423,7 @@
                             </div>
                             <div class="field-row">
                                 <label>Masa</label>
-                                <input type="text" value="2 T">
+                                <input type="text" id="cargo-mass-input" placeholder="Cifra y Unidad">
                             </div>
                         </div>
                     </div>
@@ -447,7 +446,7 @@
                             </div>
                             <div class="field-row">
                                 <label>Sitio</label>
-                                <select>
+                                <select id="launch-site-select">
                                     <option>39A</option>
                                     <option>OLM-1</option>
                                     <option>Océano Pacífico</option>
@@ -464,7 +463,7 @@
                         <div class="field-rows">
                             <div class="field-row">
                                 <label>Tipo</label>
-                                <select>
+                                <select id="landing-type-select">
                                     <option>Torre</option>
                                     <option>Drone ship</option>
                                 </select>
@@ -484,7 +483,7 @@
                     </div>
                 </div>
 
-                <button class="btn-advanced">AVANZADA</button>
+                <button class="btn-advanced" onclick="goToAdvanced()">AVANZADA</button>
             </div>
 
             <!-- Right: Destination -->
@@ -615,7 +614,59 @@
                     }
                 });
             }
+
+            // --- State Persistence Logic ---
+            const fields = [
+                'mission-name-input', 'program-select', 'destination-select',
+                'ship-select', 'booster-select', 'cargo-type-select',
+                'cargo-mass-input', 'port-select', 'launch-site-select',
+                'landing-type-select', 'landing-id-select'
+            ];
+
+            function loadState() {
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const val = localStorage.getItem(id);
+                        if (val !== null) el.value = val;
+                    }
+                });
+
+                // Update visuals based on loaded state
+                updateVehicle();
+                updateDestination();
+
+                // Update map manually since setting value doesn't trigger change event
+                if (portSelect && mapUrls[portSelect.value] && mapIframe) {
+                    mapIframe.src = mapUrls[portSelect.value];
+                }
+            }
+
+            function setupPersistence() {
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('input', () => {
+                            localStorage.setItem(id, el.value);
+                        });
+                        el.addEventListener('change', () => {
+                            localStorage.setItem(id, el.value);
+                        });
+                    }
+                });
+            }
+
+            setupPersistence();
+            loadState();
         });
+
+        function goToAdvanced() {
+            const vehicleImg = document.getElementById('vehicle-img');
+            if (vehicleImg) {
+                localStorage.setItem('selectedVehicleSrc', vehicleImg.src);
+            }
+            window.location.href = 'configAvanzada.html';
+        }
     </script>
 </body>
 
