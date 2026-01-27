@@ -1,0 +1,328 @@
+:root {
+    --bg-color: #000000;
+    --card-bg: #1c1c1c;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --input-bg: #333333;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Evitar selección y arrastre de imágenes globalmente */
+img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Diseño del contenido principal */
+.main-content {
+    flex: 1;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Encabezado (perfil) - Reemplazado por header.js */
+#header-container {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    padding: 0 40px;
+    z-index: 10;
+}
+
+/* Grid de diseño de misión */
+.mission-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    /* Izquierda (Vehículo), Centro (Formulario), Derecha (Destino) */
+    height: 100%;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Columna central - Formulario */
+.col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.mission-header-title {
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.mission-code-box {
+    background-color: #3a3a3a;
+    /* Fondo oscuro claro */
+    padding: 15px 10px;
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 1px;
+    min-width: 300px;
+    text-align: center;
+}
+
+.form-row-top {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.control-group label {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+    width: 90px;
+    text-align: right;
+}
+
+.control-group select,
+.control-group input {
+    background-color: #999;
+    /* Fondo gris como en la imagen */
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: #000;
+    font-weight: 500;
+    width: 160px;
+    height: 30px;
+    cursor: pointer;
+    outline: none;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+    background-color: #aaa;
+}
+
+/* Columnas para detalles */
+.details-columns {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.details-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-title {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.field-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.field-row label {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.field-row select,
+.field-row input {
+    background-color: #444;
+    /* Fondo gris más oscuro para estos inputs */
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    width: 140px;
+}
+
+.btn-advanced {
+    margin-top: 30px;
+    background-color: #aaa;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #000;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+
+.btn-advanced:hover {
+    background-color: #ccc;
+}
+
+/* Columnas izquierda/derecha (imágenes) */
+.col-left,
+.col-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 100px;
+    height: 100%;
+    position: relative;
+}
+
+.vehicle-display {
+    height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vehicle-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+}
+
+.destination-display {
+    height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.destination-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* Elementos inferiores */
+.map-wrapper {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 200px;
+    height: 150px;
+    background-color: #222;
+    border: 1px solid #444;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border-radius: 4px;
+}
+
+.map-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.logo-launch-wrapper {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    width: 100px;
+    height: 80px;
+    background-color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-launch {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    filter: invert(0);
+    /* Logo negro sobre fondo blanco */
+}
+
+.compass-logo {
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+    .mission-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+        height: auto;
+        padding-top: 80px;
+        /* Espacio para el encabezado */
+    }
+
+    .col-left,
+    .col-center,
+    .col-right {
+        height: auto;
+        margin-bottom: 40px;
+    }
+
+    .main-content {
+        margin-left: 80px;
+        /* Asume sidebar colapsado en móvil */
+        width: calc(100% - 80px);
+    }
+}

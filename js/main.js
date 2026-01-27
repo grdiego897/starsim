@@ -3,13 +3,41 @@ function loadSidebar() {
         .then(response => response.text())
         .then(data => {
             document.getElementById('sidebar-container').innerHTML = data;
-            // Initialize logic AFTER injecting the HTML
+            // Inicializar lógica DESPUÉS de inyectar el HTML
             initSidebarLogic();
         });
 }
 
+// Función para limpiar datos de misión del localStorage
+function clearMissionData() {
+    // Campos de mision.js
+    const misionFields = [
+        'mission-name-input', 'program-select', 'destination-select',
+        'ship-select', 'booster-select', 'cargo-type-select',
+        'cargo-mass-input', 'port-select', 'launch-site-select',
+        'landing-type-select', 'landing-id-select', 'selectedVehicleSrc'
+    ];
+
+    // Campos de configAvanzada.js
+    const configFields = [
+        'objectives-main', 'objectives-secondary', 'duration-input',
+        'crew-input', 'cargoItems'
+    ];
+
+    // Limpiar todos los campos de misión
+    [...misionFields, ...configFields].forEach(key => {
+        localStorage.removeItem(key);
+    });
+}
+
+// Función para navegar a Nueva Misión (limpia datos primero)
+function goToNewMission() {
+    clearMissionData();
+    window.location.href = 'mision.html';
+}
+
 function initSidebarLogic() {
-    // 1. Grok Form Logic
+    // 1. Lógica del formulario Grok
     const grokForm = document.getElementById('grokSearchForm');
     if (grokForm) {
         grokForm.addEventListener('submit', function (e) {
@@ -20,12 +48,12 @@ function initSidebarLogic() {
         });
     }
 
-    // 2. Sidebar Toggle Logic
+    // 2. Lógica del toggle del sidebar
     const sidebar = document.getElementById('sidebar');
     const toggle = document.getElementById('toggleSidebar');
 
     if (sidebar && toggle) {
-        // Apply persisted state
+        // Aplicar estado persistido
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (isCollapsed) {
             sidebar.classList.add('collapsed');
@@ -38,7 +66,7 @@ function initSidebarLogic() {
         });
     }
 
-    // 3. Grok Popup Logic
+    // 3. Lógica del popup de Grok
     const grokTrigger = document.getElementById('grokTrigger');
     const grokPopup = document.getElementById('grokPopup');
     if (grokTrigger && grokPopup) {
@@ -55,5 +83,5 @@ function initSidebarLogic() {
     }
 }
 
-// Start the process
+// Iniciar el proceso
 loadSidebar();

@@ -6,353 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Misión</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1c;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --input-bg: #333333;
-            --accent-green: #2ecc71;
-            --accent-red: #e74c3c;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* --- MAIN CONTENT LAYOUT --- */
-        .main-content {
-            flex: 1;
-            padding: 30px 40px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        /* Header (Profile) - Replaced by header.js */
-        #header-container {
-            position: absolute;
-            top: 30px;
-            left: 0;
-            width: 100%;
-            padding: 0 40px;
-            z-index: 10;
-        }
-
-        /* --- MISSION LAYOUT GRID --- */
-        .mission-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            /* Left (Vehicle), Center (Form), Right (Destination) */
-            height: 100%;
-            gap: 20px;
-            align-items: center;
-        }
-
-        /* Center Column - Form */
-        .col-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-        }
-
-        .mission-header-title {
-            text-transform: uppercase;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .mission-code-box {
-            background-color: #3a3a3a;
-            /* Lighter dark bg */
-            padding: 15px 10px;
-            border: none;
-            outline: none;
-            border-radius: 12px;
-            margin-bottom: 40px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: white;
-            letter-spacing: 1px;
-            min-width: 300px;
-            text-align: center;
-        }
-
-        .form-row-top {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 40px;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .control-group label {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #fff;
-            width: 90px;
-            text-align: right;
-        }
-
-        .control-group select,
-        .control-group input {
-            background-color: #999;
-            /* Grey background as per image */
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            color: #000;
-            font-weight: 500;
-            width: 160px;
-            height: 30px;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .control-group select:focus,
-        .control-group input:focus {
-            background-color: #aaa;
-        }
-
-        /* Columns for details */
-        .details-columns {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .details-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .section-title {
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .field-rows {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .field-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .field-row label {
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .field-row select,
-        .field-row input {
-            background-color: #444;
-            /* Darker grey for these inputs */
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 4px;
-            width: 140px;
-        }
-
-        .btn-advanced {
-            margin-top: 30px;
-            background-color: #aaa;
-            border: none;
-            padding: 12px 40px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #000;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.2s;
-        }
-
-        .btn-advanced:hover {
-            background-color: #ccc;
-        }
-
-        /* Left/Right Columns (Images) */
-        .col-left,
-        .col-right {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 100px;
-            height: 100%;
-            position: relative;
-        }
-
-        .vehicle-display {
-            height: 55vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .vehicle-img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
-        }
-
-        .destination-display {
-            height: 40vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .destination-img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-        }
-
-        /* Bottom Elements */
-        .map-wrapper {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 200px;
-            height: 150px;
-            background-color: #222;
-            border: 1px solid #444;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            border-radius: 4px;
-        }
-
-        .map-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .logo-launch-wrapper {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            width: 100px;
-            height: 80px;
-            background-color: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-launch {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-            filter: invert(0);
-            /* Black logo on white bg */
-        }
-
-        .compass-logo {
-            position: absolute;
-            bottom: 40px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .mission-grid {
-                grid-template-columns: 1fr;
-                overflow-y: auto;
-                height: auto;
-                padding-top: 80px;
-                /* Space for header */
-            }
-
-            .col-left,
-            .col-center,
-            .col-right {
-                height: auto;
-                margin-bottom: 40px;
-            }
-
-            .main-content {
-                margin-left: 80px;
-                /* Assumes collapsed sidebar mobile */
-                width: calc(100% - 80px);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/mision.css">
 </head>
 
 <body>
     <div id="sidebar-container"></div>
     <script src="js/main.js" defer></script>
     <script src="js/header.js" defer></script>
+    <script src="js/mision.js" defer></script>
     <main class="main-content">
         <div id="header-container"></div>
 
         <div class="mission-grid">
-            <!-- Left: Vehicle -->
+            <!-- Izquierda: Vehículo -->
             <div class="col-left">
                 <div class="vehicle-display">
                     <img id="vehicle-img" src="img/vehicles/starshiprender.png" alt="Vehicle" class="vehicle-img">
                 </div>
 
-                <!-- Map placeholder bottom left -->
-                <!-- Since we don't have map image, using a placeholder colored div or map iframe if possible. 
-                      User showed a map in screenshot. I'll make a generic map container. -->
+                <!-- Mapa en esquina inferior izquierda -->
+                <!-- Como no hay imagen del mapa, usando un div coloreado o iframe. -->
                 <div class="map-wrapper">
-                    <!-- Using Google Static Maps generic URL or just a div with text if no API key. 
-                          Or maybe I should verify if there is a map image I missed?
-                          I will leave it as a styled box for now, maybe with an iframe to a simple map embed. -->
+                    <!-- Usando URL genérica de Google Static Maps -->
                     <iframe id="map-iframe"
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14364.57689849567!2d-97.16140509650454!3d25.996163359676575!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb5e47858c2a7%3A0x6700e5728a4a504b!2sSpaceX%20Starbase!5e1!3m2!1sen!2sus!4v1733702400000!5m2!1sen!2sus"
                         width="100%" height="100%" style="border:0; filter: invert(0.9) hue-rotate(180deg);"
@@ -361,7 +38,7 @@
                 </div>
             </div>
 
-            <!-- Center: Controls -->
+            <!-- Centro: Controles -->
             <div class="col-center">
                 <div class="mission-header-title">MISIÓN</div>
                 <input type="text" id="mission-name-input" class="mission-code-box" placeholder="Nombre">
@@ -386,7 +63,7 @@
                 </div>
 
                 <div class="details-columns">
-                    <!-- Vehicles Column -->
+                    <!-- Columna de vehículos -->
                     <div class="details-col">
                         <div class="section-title">VEHÍCULO</div>
                         <div class="field-rows">
@@ -409,7 +86,7 @@
                         </div>
                     </div>
 
-                    <!-- Cargo Column -->
+                    <!-- Columna de carga -->
                     <div class="details-col">
                         <div class="section-title">CARGA</div>
                         <div class="field-rows">
@@ -430,7 +107,7 @@
                 </div>
 
                 <div class="details-columns">
-                    <!-- Launch Column -->
+                    <!-- Columna de lanzamiento -->
                     <div class="details-col">
                         <div class="section-title">LANZAMIENTO</div>
                         <div class="field-rows">
@@ -457,7 +134,7 @@
                         </div>
                     </div>
 
-                    <!-- Landing Column -->
+                    <!-- Columna de aterrizaje -->
                     <div class="details-col">
                         <div class="section-title">ATERRIZAJE</div>
                         <div class="field-rows">
@@ -486,188 +163,21 @@
                 <button class="btn-advanced" onclick="goToAdvanced()">AVANZADA</button>
             </div>
 
-            <!-- Right: Destination -->
+            <!-- Derecha: Destino -->
             <div class="col-right">
                 <div class="destination-display">
                     <img id="destination-img" src="img/destination/ocisly.png" alt="Destination"
                         class="destination-img">
                 </div>
 
-                <!-- Launch Logo Box bottom right -->
+                <!-- Caja de logo de lanzamiento abajo a la derecha -->
+                <!-- Usando launch.png -->
                 <div class="logo-launch-wrapper">
-                    <!-- Using launch.png which seems appropriate -->
                     <img src="img/ic/launch.png" class="logo-launch">
                 </div>
             </div>
         </div>
     </main>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // Dynamic Image Logic
-            const shipSelect = document.getElementById('ship-select');
-            const boosterSelect = document.getElementById('booster-select');
-            const vehicleImg = document.getElementById('vehicle-img');
-
-            const destSelect = document.getElementById('destination-select');
-            const landingIdSelect = document.getElementById('landing-id-select');
-            const destImg = document.getElementById('destination-img');
-
-            // Mapping options to images
-            const vehicleMap = {
-                'starship': 'img/vehicles/starshiprender.png',
-                'dragon': 'img/vehicles/falcon9.png',
-                'falcon-fairing': 'img/vehicles/falconheavy.png',
-                'superheavy': 'img/vehicles/starshiprender.png',
-                'falcon9': 'img/vehicles/falcon9.png',
-                'falconheavy': 'img/vehicles/falconheavy.png'
-            };
-
-            const destMap = {
-                'leo': 'img/destination/ocisly.png',
-                'haven': 'img/destination/haven.png',
-                'axiom': 'img/destination/axiom.png',
-                'orbital-reef': 'img/destination/orbital-reef.png',
-                'gateway': 'img/destination/gateway.png',
-                'luna': 'img/destination/luna.png',
-                'terminus': 'img/destination/terminus.png',
-            };
-
-            // Update Vehicle Image
-            function updateVehicle() {
-                if (!shipSelect || !boosterSelect || !vehicleImg) return;
-
-                const ship = shipSelect.value;
-                const booster = boosterSelect.value;
-
-                if (ship === 'starship' || booster === 'superheavy') {
-                    vehicleImg.src = vehicleMap['starship'];
-                } else if (booster === 'falconheavy') {
-                    vehicleImg.src = vehicleMap['falconheavy'];
-                } else {
-                    vehicleImg.src = vehicleMap['falcon9'];
-                }
-            }
-
-            // Update Destination Image
-            function updateDestination() {
-                if (!destSelect || !destImg) return;
-
-                const destVal = destSelect.value;
-
-                if (destVal === 'leo') {
-                    // Default for LEO 
-                    let selectedImg = 'img/destination/ocisly.png';
-
-                    if (landingIdSelect) {
-                        const landingVal = landingIdSelect.value;
-                        // Check if the selected landing ID is a known droneship
-                        // mechazilla is excluded as it has no image yet, defaulting to ocisly
-                        const validDroneships = ['ocisly', 'jrti', 'ytml', 'asog'];
-                        if (validDroneships.includes(landingVal)) {
-                            selectedImg = `img/destination/${landingVal}.png`;
-                        }
-                    }
-                    destImg.src = selectedImg;
-                } else {
-                    if (destMap[destVal]) {
-                        destImg.src = destMap[destVal];
-                    }
-                }
-            }
-
-            // Listeners
-            if (shipSelect && boosterSelect) {
-                shipSelect.addEventListener('change', updateVehicle);
-                boosterSelect.addEventListener('change', updateVehicle);
-                // Initialize
-                updateVehicle();
-            }
-
-            if (destSelect) {
-                destSelect.addEventListener('change', updateDestination);
-                if (landingIdSelect) {
-                    landingIdSelect.addEventListener('change', updateDestination);
-                }
-                // Initialize
-                updateDestination();
-            }
-
-            // Dynamic Map Logic
-            const portSelect = document.getElementById('port-select');
-            const mapIframe = document.getElementById('map-iframe');
-
-            const mapUrls = {
-                'starbase': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14831.0227489655!2d-97.19523020151937!3d25.989574683826845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866fb1632384e2d5%3A0xa8d0c7f6e909dc99!2sStarbase%2C%20TX%2078521%2C%20USA!5e1!3m2!1sen!2ses!4v1765238920803!5m2!1sen!2ses',
-                'cape': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d276461.93649158103!2d-80.8547461299503!3d28.359112144778454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e0a5ab39504c9b%3A0xbb0bb0f57a55d19e!2sCape%20Canaveral%2C%20FL%2032920%2C%20USA!5e1!3m2!1sen!2ses!4v1765239198537!5m2!1sen!2ses',
-                'vandenberg': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52250.60942475514!2d-120.62246497216124!3d34.7508491873727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80ec187640266049%3A0x367e9b086307374b!2sVandenberg%20Space%20Force%20Base!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
-                'kourou': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63654.58287652755!2d-52.8021486790757!3d5.197960782352163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8d123e7208d7c07b%3A0xf54ec2a66e44b826!2sGuiana%20Space%20Centre!5e1!3m2!1sen!2sus!4v1733702500000!5m2!1sen!2sus',
-                'azores': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4912583.663972047!2d-26.469947018335617!3d37.70125852088543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb67910ee97539cf%3A0x87d46041de4ed19e!2sAtlantic%20Spaceport%20Consortium!5e1!3m2!1sen!2ses!4v1765239451252!5m2!1sen!2ses'
-            };
-
-            if (portSelect && mapIframe) {
-                portSelect.addEventListener('change', () => {
-                    const val = portSelect.value;
-                    if (mapUrls[val]) {
-                        mapIframe.src = mapUrls[val];
-                    }
-                });
-            }
-
-            // --- State Persistence Logic ---
-            const fields = [
-                'mission-name-input', 'program-select', 'destination-select',
-                'ship-select', 'booster-select', 'cargo-type-select',
-                'cargo-mass-input', 'port-select', 'launch-site-select',
-                'landing-type-select', 'landing-id-select'
-            ];
-
-            function loadState() {
-                fields.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        const val = localStorage.getItem(id);
-                        if (val !== null) el.value = val;
-                    }
-                });
-
-                // Update visuals based on loaded state
-                updateVehicle();
-                updateDestination();
-
-                // Update map manually since setting value doesn't trigger change event
-                if (portSelect && mapUrls[portSelect.value] && mapIframe) {
-                    mapIframe.src = mapUrls[portSelect.value];
-                }
-            }
-
-            function setupPersistence() {
-                fields.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.addEventListener('input', () => {
-                            localStorage.setItem(id, el.value);
-                        });
-                        el.addEventListener('change', () => {
-                            localStorage.setItem(id, el.value);
-                        });
-                    }
-                });
-            }
-
-            setupPersistence();
-            loadState();
-        });
-
-        function goToAdvanced() {
-            const vehicleImg = document.getElementById('vehicle-img');
-            if (vehicleImg) {
-                localStorage.setItem('selectedVehicleSrc', vehicleImg.src);
-            }
-            window.location.href = 'configAvanzada.html';
-        }
-    </script>
 </body>
 
 </html>

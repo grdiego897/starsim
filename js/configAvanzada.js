@@ -1,27 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 0. General Field Persistence
+    // 0. Persistencia de campos generales
 
     const fields = ['objectives-main', 'objectives-secondary', 'duration-input', 'crew-input'];
 
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            // Load
+            // Cargar
             const val = localStorage.getItem(id);
             if (val !== null) el.value = val;
 
-            // Save
+            // Guardar
             el.addEventListener('input', () => localStorage.setItem(id, el.value));
         }
     });
 
-    // 1. Blueprint Logic
+    // 1. Lógica del blueprint
     const vehicleImg = document.getElementById('vehicle-blueprint');
     const storedSrc = localStorage.getItem('selectedVehicleSrc');
 
     if (vehicleImg) {
         if (storedSrc) {
-            // Check filename to map to blueprint
+            // Verificar nombre de archivo para mapear al blueprint
             // starshiprender.png -> starshipbp.png
             // falcon9.png / falconheavy.png -> falconbp.png
 
@@ -30,21 +30,21 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (storedSrc.includes('falcon')) {
                 vehicleImg.src = 'img/blueprint/falconbp.png';
             } else {
-                // Default fallback
+                // Alternativa por defecto
                 vehicleImg.src = 'img/blueprint/starshipbp.png';
             }
         } else {
-            // Default if no selection (e.g. direct load)
+            // Por defecto si no hay selección (ej. carga directa)
             vehicleImg.src = 'img/blueprint/starshipbp.png';
         }
     }
 
-    // 2. Cargo Logic
+    // 2. Lógica de carga
     const cargoList = document.getElementById('cargo-list');
     const totalObjectsEl = document.getElementById('total-objects');
     const addBtn = document.getElementById('add-cargo-btn');
 
-    // Load Cargo from Storage or empty
+    // Cargar carga desde almacenamiento o vacío
     const storedCargo = localStorage.getItem('cargoItems');
     let cargoItems = storedCargo ? JSON.parse(storedCargo) : [];
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = 'cargo-item';
 
-            // Name Input
+            // Input de nombre
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
             nameInput.className = 'item-name-input';
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveCargo();
             });
 
-            // Quantity Input
+            // Input de cantidad
             const qtyInput = document.createElement('input');
             qtyInput.type = 'number';
             qtyInput.className = 'item-qty-input';
@@ -109,12 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            // Add blank item
+            // Agregar item vacío
             cargoItems.push({ name: '', qty: 1 });
             renderCargo();
         });
     }
 
-    // Initial Render
+    // Renderizado inicial
     renderCargo();
 });

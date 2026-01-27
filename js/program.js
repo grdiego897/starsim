@@ -3,17 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (tableBody) {
         tableBody.addEventListener('click', (e) => {
-            // Check if the clicked element is inside a delete button
+            // Verificar si el elemento clicado está dentro de un botón eliminar
             const deleteBtn = e.target.closest('.btn-delete');
 
             if (deleteBtn) {
-                // Find the row to delete
+                // Encontrar la fila a eliminar
                 const row = deleteBtn.closest('tr');
 
                 if (row) {
-                    // Optional: Confirm with absolute certainty or just do it. 
-                    // Given the "agentic" nature, a confirmation is good UX but maybe user just wants it to work.
-                    // I'll add a simple confirm for safety.
+                    // Confirmación simple por seguridad
                     if (confirm('¿Estás seguro de que quieres eliminar esta misión?')) {
                         row.remove();
                     }

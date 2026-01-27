@@ -12,40 +12,40 @@ function loadHeader() {
 }
 
 function initHeaderLogic() {
-    // --- Notification Logic ---
+    // Lógica de notificaciones
     const notificationPill = document.getElementById('notificationPill');
 
     function showNotification(message, duration = 3000) {
         if (!notificationPill) return;
 
-        // Update text
+        // Actualizar texto
         notificationPill.innerText = message;
 
-        // Allow re-triggering animation
+        // Permitir re-activar animación
         notificationPill.classList.remove('fade-out');
         notificationPill.classList.remove('fade-in');
 
-        // Trigger reflow/repaint to restart animation
+        // Forzar reflow para reiniciar animación
         void notificationPill.offsetWidth;
 
         notificationPill.classList.add('fade-in');
 
-        // Set timeout for auto-hide
+        // Temporizador para ocultar automáticamente
         setTimeout(() => {
             notificationPill.classList.remove('fade-in');
             notificationPill.classList.add('fade-out');
         }, duration);
     }
 
-    // Expose globally
+    // Exponer globalmente
     window.showNotification = showNotification;
 
-    // Check for 'welcome' param on load
+    // Verificar parámetro 'welcome' al cargar
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('welcome')) {
         showNotification("Bienvenido", 2000);
     }
 }
 
-// Start the process
+// Iniciar el proceso
 loadHeader();

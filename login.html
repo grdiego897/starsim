@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login</title>
 
-  <!-- Google Fonts: Outfit -->
+  <!-- Fuente Google: Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- viewer spline -->
+  <!-- Visor de Spline -->
   <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.32/build/spline-viewer.js"></script>
 
   <style>
@@ -28,7 +28,7 @@
       overflow: hidden;
       height: 100vh;
       font-size: 16px;
-      /* Base size for em calculations */
+      /* Tamaño base para cálculos em */
     }
 
     .container {
@@ -37,7 +37,7 @@
       height: 100vh;
     }
 
-    /* Left Side */
+    /* Lado izquierdo */
     .left {
       width: 50%;
       background-color: #080808;
@@ -50,7 +50,7 @@
       padding: 1.25em;
     }
 
-    /* Logo Left */
+    /* Logo izquierdo */
     .logo-left {
       position: absolute;
       top: 2.5em;
@@ -59,7 +59,7 @@
       z-index: 100;
     }
 
-    /* Form Container */
+    /* Contenedor del formulario */
     .form-wrapper {
       width: 100%;
       max-width: 24em;
@@ -126,7 +126,7 @@
       transform: scale(0.98);
     }
 
-    /* Right Side */
+    /* Lado derecho */
     .right {
       width: 50%;
       background-color: #000;
@@ -136,7 +136,7 @@
       overflow: hidden;
     }
 
-    /* Starbase Patch */
+    /* Parche de Starbase */
     .logo-right {
       position: absolute;
       top: 10%;
@@ -152,7 +152,7 @@
       transform: scale(0.85) translateY(15%);
     }
 
-    /* Responsive */
+    /* Responsivo */
     @media (max-width: 968px) {
       .container {
         flex-direction: column;
@@ -179,9 +179,9 @@
 <body>
 
   <div class="container">
-    <!-- Left Panel -->
+    <!-- Panel izquierdo -->
     <div class="left">
-      <!-- SpaceX Logo -->
+      <!-- Logo SpaceX -->
       <img src="img/logo.png" alt="SpaceX" class="logo-left">
 
       <div class="form-wrapper">
@@ -202,12 +202,12 @@
       </div>
     </div>
 
-    <!-- Right Panel -->
+    <!-- Panel derecho -->
     <div class="right">
-      <!-- Starbase Patch -->
+      <!-- Parche de Starbase -->
       <img src="img/sbpatch.png" alt="Starbase" class="logo-right">
 
-      <!-- Robot 3D Model -->
+      <!-- Modelo 3D del robot -->
       <spline-viewer url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"></spline-viewer>
     </div>
   </div>

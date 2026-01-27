@@ -1,0 +1,309 @@
+:root {
+    --bg-color: #000000;
+    --card-bg: #1c1c1c;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Evitar selección y arrastre de imágenes globalmente */
+img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Clases para imágenes */
+/* Estas clases controlan el tamaño de tus iconos PNG/JPG/SVG */
+
+.logo-img {
+    width: 120px;
+    margin-bottom: 50px;
+    display: block;
+}
+
+
+
+.card-icon-img {
+    width: 8em;
+    /* Tamaño de iconos en tarjetas grandes */
+    height: 8em;
+    object-fit: contain;
+    opacity: 0.8;
+    /* Ligeramente transparente para suavizar */
+}
+
+.weather-icon-img {
+    width: 5em;
+    /* Tamaño del icono del sol */
+    height: 5em;
+    object-fit: contain;
+}
+
+.action-icon-img {
+    width: 12px;
+    /* Tamaño de iconos en botones */
+    height: 12px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.crown-icon-img {
+    width: 16px;
+    height: auto;
+}
+
+.avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #555;
+}
+
+
+
+/* Contenido principal */
+.main-content {
+    flex: 1;
+    /* Padding del contenido principal para espacio lateral */
+    padding: 30px 50px;
+    overflow-y: auto;
+
+    /* Importante: se elimina max-width y margin para que el header se estire */
+    /* width: 100%;           */
+    /* max-width: 1200px;     */
+    /* margin-left: auto;     */
+    /* margin-right: auto;    */
+}
+
+/* Píldora de notificación centrada respecto al header de ancho completo */
+/* CSS del header movido a components/header.html */
+
+/* Grid del dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 100px;
+}
+
+.card-info {
+    text-align: right;
+}
+
+.card-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.card-value {
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+/* Sección media */
+.middle-section {
+    display: grid;
+    /* Columnas iguales (1fr 1fr) */
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.countdown-card {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mission-title h3 {
+    font-size: 1.1rem;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+.mission-title span {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+}
+
+.timer {
+    display: flex;
+    background: #252525;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.time-unit {
+    text-align: center;
+    padding: 0 15px;
+    border-right: 1px solid #444;
+}
+
+.time-unit:last-child {
+    border-right: none;
+}
+
+.time-unit span {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 300;
+}
+
+.time-unit label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: #888;
+}
+
+/* Tarjeta del clima */
+.weather-card {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weather-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 40px;
+    row-gap: 5px;
+    font-size: 0.95rem;
+    color: #ddd;
+}
+
+/* Sección de tabla */
+.program-section {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.program-header {
+    padding: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.table-container {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #666;
+    color: #eee;
+}
+
+th {
+    text-align: left;
+    padding: 12px 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    vertical-align: middle;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.badge {
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    display: inline-block;
+    text-align: center;
+    min-width: 100px;
+}
+
+.badge-scheduled {
+    background-color: #999;
+    color: #111;
+}
+
+.badge-confirmed {
+    background-color: var(--accent-green);
+    color: #fff;
+}
+
+.btn-action {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-right: 5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-edit {
+    background-color: #444;
+}
+
+.btn-delete {
+    background-color: var(--accent-red);
+}
+
+.actions-cell {
+    text-align: right;
+}
+
+
+
+/* Clase para centrar el dashboard */
+.dashboard-container {
+    width: 100%;
+    max-width: 1400px;
+    /* Ancho deseado para el contenido */
+    margin: 0 auto;
+    /* Centrado automático */
+}
