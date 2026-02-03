@@ -154,18 +154,21 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 25px;
+    padding: 15px;
+    /* Reduced from 25px */
     flex: 1;
     height: 90%;
     display: flex;
     justify-content: space-between;
-    margin-left: 20px;
+    margin-left: 10px;
+    /* Reduced from 20px */
 }
 
 .cargo-list-wrapper {
     flex: 1.5;
     overflow-y: auto;
-    padding-right: 15px;
+    padding-right: 5px;
+    /* Reduced from 15px */
 }
 
 #cargo-list {
@@ -184,10 +187,13 @@
     -webkit-backdrop-filter: blur(4px);
     /* Fondo gris claro de item */
     border-radius: 6px;
-    padding: 8px 15px;
+    padding: 8px 10px;
+    /* Reduced from 15px */
     color: black;
     font-weight: 600;
     font-size: 0.9rem;
+    overflow: hidden;
+    /* Prevent internal spill */
 }
 
 .item-qty {
@@ -286,36 +292,89 @@
 }
 
 .item-name-input::placeholder {
-    color: #555;
+    color: rgba(0, 0, 0, 0.4);
     font-weight: 400;
 }
 
-.item-qty-input {
-    width: 50px;
+.item-separator {
+    color: rgba(0, 0, 0, 0.2);
+    font-weight: 300;
+    margin: 0 5px;
+    /* Reduced from 10px */
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.item-mass-container,
+.item-qty-container {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    /* Reduced from 5px */
+    flex-shrink: 0;
+}
+
+.item-unit {
+    font-size: 0.7rem;
+    /* Reduced from 0.75rem */
+    color: #444;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.item-mass-input {
+    width: 45px;
+    /* Reduced from 60px */
     background: transparent;
     border: none;
     color: black;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    /* Reduced from 0.9rem */
     text-align: right;
     outline: none;
     font-family: 'Inter', sans-serif;
-    margin-left: 10px;
 }
 
-/* Ocultar flechas de número para aspecto más limpio */
-.item-qty-input::-webkit-outer-spin-button,
-.item-qty-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.item-qty-input {
+    width: 25px;
+    /* Reduced from 35px */
+    background: transparent;
+    border: none;
+    color: black;
+    font-weight: 700;
+    font-size: 0.85rem;
+    /* Reduced from 0.9rem */
+    text-align: right;
+    outline: none;
+    font-family: 'Inter', sans-serif;
 }
 
-.item-qty-input[type=number] {
-    -moz-appearance: textfield;
-    appearance: textfield;
+.delete-item-btn {
+    background: transparent;
+    border: none;
+    color: black;
+    font-size: 1.2rem;
+    /* Reduced from 1.4rem */
+    line-height: 1;
+    cursor: pointer;
+    margin-left: 8px;
+    /* Reduced from 15px */
+    padding: 0 2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
+.delete-item-btn:hover {
+    color: #ff4d4d;
+    transform: scale(1.2);
+}
+
+/* Resaltar ligeramente al enfocar */
 .cargo-item:focus-within {
     background-color: #e0e0e0;
-    /* Resaltar ligeramente al enfocar */
 }

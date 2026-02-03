@@ -1,31 +1,31 @@
 function initPanelPage() {
-    console.log("Initializing Panel Page");
+    console.log("Inicializando página de Panel");
     const tbody = document.getElementById('upcoming-missions-list');
 
-    // NOTE: In panel.html, the table body ID will be 'upcoming-missions-list'
+    // NOTA: En panel.html, el ID del cuerpo de la tabla será 'upcoming-missions-list'
     if (!tbody) {
-        console.warn("Upcoming missions list not found");
+        console.warn("Lista de misiones próximas no encontrada");
         return;
     }
 
     function renderUpcoming() {
-        // Fetch missions using global service
+        // Obtener misiones usando servicio global
         const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
 
-        // Update pending count
+        // Actualizar contador de pendientes
         const countEl = document.getElementById('pending-missions-count');
         if (countEl) {
             countEl.textContent = missions.length;
         }
 
-        // Sort by newest first (same as program logic)
-        // User requested: "3 primeras misiones creadas (al igual que en program.html)" 
-        // Assuming "primeras" implies "top of the list", which in Program is sorted by date (newest/upcoming).
-        // Actually, if it's "Program", usually it's sorted by creation or program date?
-        // program.js used: missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Ordenar por más reciente primero (misma lógica que program)
+        // El usuario solicitó: "3 primeras misiones creadas (al igual que en program.html)" 
+        // Asumiendo que "primeras" implica "arriba de la lista", que en Program está ordenado por fecha (más reciente/próximo).
+        // En realidad, si es "Program", ¿normalmente se ordena por creación o fecha de programa?
+        // program.js usó: missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        // Take top 3
+        // Tomar las 3 primeras
         const top3 = missions.slice(0, 3);
 
         tbody.innerHTML = '';
@@ -38,7 +38,7 @@ function initPanelPage() {
         top3.forEach(mission => {
             const tr = document.createElement('tr');
 
-            // Format date
+            // Formatear fecha
             const dateObj = new Date(mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
@@ -58,9 +58,9 @@ function initPanelPage() {
             tbody.appendChild(tr);
         });
 
-        // Event delegation for actions
+        // Delegación de eventos para acciones
         tbody.onclick = function (e) {
-            // Edit
+            // Editar
             const btnEdit = e.target.closest('.btn-edit');
             if (btnEdit) {
                 const id = btnEdit.getAttribute('data-id');
@@ -71,7 +71,7 @@ function initPanelPage() {
                 return;
             }
 
-            // Delete
+            // Eliminar
             const btnDelete = e.target.closest('.btn-delete');
             if (btnDelete) {
                 const id = btnDelete.getAttribute('data-id');
@@ -87,5 +87,5 @@ function initPanelPage() {
     renderUpcoming();
 }
 
-// Expose globally
+// Exponer globalmente
 window.initPanelPage = initPanelPage;

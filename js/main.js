@@ -24,7 +24,7 @@ function clearMissionData() {
         'crew-input', 'cargoItems'
     ];
 
-    // Add editMissionId to be cleared
+    // Añadir editMissionId para ser limpiado
     localStorage.removeItem('editMissionId');
 
     // Limpiar todos los campos de misión

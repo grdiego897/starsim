@@ -1,6 +1,6 @@
 /**
- * Mission Service - Handles data persistence using LocalStorage
- * Exposed globally as window.MissionService
+ * Servicio de Misiones - Maneja la persistencia de datos usando LocalStorage
+ * Expuesto globalmente como window.MissionService
  */
 
 (function () {
@@ -8,38 +8,38 @@
 
     const MissionService = {
         /**
-         * Get all missions from storage
-         * @returns {Array} List of missions
+         * Obtener todas las misiones del almacenamiento
+         * @returns {Array} Lista de misiones
          */
         getAllMissions: function () {
             try {
                 const data = localStorage.getItem(STORAGE_KEY);
                 return data ? JSON.parse(data) : [];
             } catch (e) {
-                console.error('Error fetching missions:', e);
+                console.error('Error al obtener misiones:', e);
                 return [];
             }
         },
 
         /**
-         * Get a mission by ID
-         * @param {string} id - The mission ID
-         * @returns {Object|null} Mission data or null
+         * Obtener una misión por ID
+         * @param {string} id - El ID de la misión
+         * @returns {Object|null} Datos de la misión o null
          */
         getMissionById: function (id) {
             try {
                 const missions = this.getAllMissions();
                 return missions.find(m => m.id === id) || null;
             } catch (e) {
-                console.error('Error fetching mission by ID:', e);
+                console.error('Error al obtener misión por ID:', e);
                 return null;
             }
         },
 
         /**
-         * Update an existing mission
-         * @param {Object} missionData - The updated mission data (must include id)
-         * @returns {boolean} Success status
+         * Actualizar una misión existente
+         * @param {Object} missionData - Los datos actualizados de la misión (debe incluir id)
+         * @returns {boolean} Estado de éxito
          */
         updateMission: function (missionData) {
             try {
@@ -47,32 +47,32 @@
                 const index = missions.findIndex(m => m.id === missionData.id);
 
                 if (index !== -1) {
-                    missions[index] = { ...missions[index], ...missionData }; // Merge to preservecreatedAt
+                    missions[index] = { ...missions[index], ...missionData }; // Combinar para preservar createdAt
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
                     return true;
                 }
                 return false;
             } catch (e) {
-                console.error('Error updating mission:', e);
+                console.error('Error al actualizar misión:', e);
                 return false;
             }
         },
 
         /**
-         * Save a new mission
-         * @param {Object} missionData - The mission object to save
-         * @returns {boolean} Success status
+         * Guardar una nueva misión
+         * @param {Object} missionData - El objeto de misión a guardar
+         * @returns {boolean} Estado de éxito
          */
         saveMission: function (missionData) {
             try {
                 const missions = this.getAllMissions();
 
-                // Add ID if missing
+                // Añadir ID si falta
                 if (!missionData.id) {
                     missionData.id = Date.now().toString();
                 }
 
-                // Add created timestamp
+                // Añadir marca de tiempo de creación
                 if (!missionData.createdAt) {
                     missionData.createdAt = new Date().toISOString();
                 }
@@ -81,15 +81,15 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
                 return true;
             } catch (e) {
-                console.error('Error saving mission:', e);
+                console.error('Error al guardar misión:', e);
                 return false;
             }
         },
 
         /**
-         * Delete a mission by ID
-         * @param {string} id - The mission ID
-         * @returns {boolean} Success status
+         * Eliminar una misión por ID
+         * @param {string} id - El ID de la misión
+         * @returns {boolean} Estado de éxito
          */
         deleteMission: function (id) {
             try {
@@ -98,12 +98,12 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
                 return true;
             } catch (e) {
-                console.error('Error deleting mission:', e);
+                console.error('Error al eliminar misión:', e);
                 return false;
             }
         }
     };
 
-    // Expose globally
+    // Exponer globalmente
     window.MissionService = MissionService;
 })();

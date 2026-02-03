@@ -1,15 +1,15 @@
 function initProgramPage() {
-    console.log("Initializing Program Page");
+    console.log("Inicializando página de Programa");
     const tbody = document.getElementById('mission-table-body');
     if (!tbody) {
-        console.warn("Mission table body not found");
+        console.warn("Cuerpo de tabla de misiones no encontrado");
         return;
     }
 
     function renderTable() {
-        // Fetch missions using global service
+        // Obtener misiones usando servicio global
         const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
-        console.log("Missions loaded:", missions);
+        console.log("Misiones cargadas:", missions);
 
         tbody.innerHTML = '';
 
@@ -18,17 +18,17 @@ function initProgramPage() {
             return;
         }
 
-        // Sort by newest first
+        // Ordenar por más reciente primero
         missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         missions.forEach(mission => {
             const tr = document.createElement('tr');
 
-            // Format date (prefer launchDate, fallback to createdAt)
+            // Formatear fecha (preferir launchDate, usar createdAt como respaldo)
             const dateObj = new Date(mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
-            // Construct row HTML
+            // Construir HTML de fila
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${mission.ship || 'Nave'}</td>
                 <td>${dateStr}</td>
@@ -57,23 +57,23 @@ function initProgramPage() {
             tbody.appendChild(tr);
         });
 
-        // Event delegation for actions (Edit/Delete)
+        // Delegación de eventos para acciones (Editar/Eliminar)
         tbody.onclick = function (e) {
-            // Handle Edit
+            // Manejar Edición
             const btnEdit = e.target.closest('.btn-edit');
             if (btnEdit) {
                 const id = btnEdit.getAttribute('data-id');
-                console.log('Edit clicked, ID:', id);
+                console.log('Clic en Editar, ID:', id);
                 if (id && id !== 'undefined') {
                     localStorage.setItem('editMissionId', id);
                     window.router.navigateTo('mision');
                 } else {
-                    console.error('Missing Data ID on edit button');
+                    console.error('Falta Data ID en botón de editar');
                 }
                 return;
             }
 
-            // Handle Delete
+            // Manejar Eliminación
             const btnDelete = e.target.closest('.btn-delete');
             if (btnDelete) {
                 const id = btnDelete.getAttribute('data-id');
@@ -89,5 +89,5 @@ function initProgramPage() {
     renderTable();
 }
 
-// Expose globally
+// Exponer globalmente
 window.initProgramPage = initProgramPage;

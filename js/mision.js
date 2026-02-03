@@ -71,7 +71,7 @@ function initMisionPage() {
         }
     }
 
-    // Listeners
+    // Escuchadores de eventos
     if (shipSelect && boosterSelect) {
         shipSelect.addEventListener('change', updateVehicle);
         boosterSelect.addEventListener('change', updateVehicle);
@@ -146,7 +146,7 @@ function initMisionPage() {
     setupPersistence();
     loadState();
 
-    // Check for Edit Mode
+    // Verificar modo de edición
     const editMissionId = localStorage.getItem('editMissionId');
     let isEditing = false;
 
@@ -154,9 +154,9 @@ function initMisionPage() {
         const missionToEdit = window.MissionService.getMissionById(editMissionId);
         if (missionToEdit) {
             isEditing = true;
-            console.log("Editing mission:", missionToEdit);
+            console.log("Editando misión:", missionToEdit);
 
-            // Populate form
+            // Rellenar formulario
             const setVal = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val || '';
@@ -169,13 +169,12 @@ function initMisionPage() {
             setVal('booster-select', missionToEdit.booster);
             setVal('cargo-type-select', missionToEdit.cargoType);
             setVal('cargo-mass-input', missionToEdit.cargoMass);
-            setVal('cargo-mass-input', missionToEdit.cargoMass);
             setVal('port-select', missionToEdit.port);
             setVal('launch-date-input', missionToEdit.launchDate);
             setVal('landing-type-select', missionToEdit.landingType);
             setVal('landing-id-select', missionToEdit.landingId);
 
-            // Hydrate Advanced Config Drafts
+            // Hidratar borradores de configuración avanzada
             if (missionToEdit.advancedConfig) {
                 const adv = missionToEdit.advancedConfig;
                 localStorage.setItem('objectives-main', adv.objectivesMain || '');
@@ -184,8 +183,8 @@ function initMisionPage() {
                 localStorage.setItem('crew-input', adv.crew || '');
                 localStorage.setItem('cargoItems', JSON.stringify(adv.cargo || []));
             } else {
-                // Clear if none (or keep existing draft? No, edit implies overwriting draft with mission state)
-                // But cleaning is safer to avoid mixing previous drafts.
+                // Limpiar si no hay ninguno (¿o mantener borrador existente? No, editar implica sobrescribir borrador con estado de misión)
+                // Pero limpiar es más seguro para evitar mezclar borradores anteriores.
                 localStorage.removeItem('objectives-main');
                 localStorage.removeItem('objectives-secondary');
                 localStorage.removeItem('duration-input');
@@ -193,7 +192,7 @@ function initMisionPage() {
                 localStorage.removeItem('cargoItems');
             }
 
-            // Trigger updates for images
+            // Activar actualizaciones de imágenes
             updateVehicle();
             updateDestination();
         }
@@ -213,12 +212,12 @@ function initMisionPage() {
     // Listener para botón LANZAR (Guardar Misión)
     const btnLaunch = document.querySelector('.launch-button');
     if (btnLaunch) {
-        // Update button text/icon if editing?
-        // User asked "Crea la funcion editar... con al interfaz mision.html"
-        // Might want to change visual feedback.
+        // ¿Actualizar texto/icono del botón si está editando?
+        // El usuario pidió "Crea la función editar... con la interfaz mision.html"
+        // Podría querer cambiar la retroalimentación visual.
         if (isEditing) {
-            // Optional: Change button style or add indicator? 
-            // Keeping it simple as "Lanzar" (Launch/Update).
+            // Opcional: ¿Cambiar estilo del botón o añadir indicador?
+            // Manteniendo simple como "Lanzar" (Lanzar/Actualizar).
         }
 
         btnLaunch.addEventListener('click', () => {
@@ -235,9 +234,9 @@ function initMisionPage() {
                 launchDate: document.getElementById('launch-date-input')?.value,
                 landingType: document.getElementById('landing-type-select')?.value,
                 landingId: document.getElementById('landing-id-select')?.value,
-                createdAt: isEditing ? undefined : new Date().toISOString(), // Preserve original date if editing handled in service
+                createdAt: isEditing ? undefined : new Date().toISOString(), // Preservar fecha original si se edita manejado en servicio
 
-                // Capture Advanced Config from Drafts
+                // Capturar configuración avanzada desde borradores
                 advancedConfig: {
                     objectivesMain: localStorage.getItem('objectives-main'),
                     objectivesSecondary: localStorage.getItem('objectives-secondary'),
@@ -247,9 +246,9 @@ function initMisionPage() {
                 }
             };
 
-            console.log("Saving Mission Data:", missionData);
+            console.log("Guardando datos de misión:", missionData);
 
-            // Validate required fields
+            // Validar campos requeridos
             const requiredFields = [
                 { val: missionData.name, name: 'Nombre de la Misión' },
                 { val: missionData.launchDate, name: 'Fecha de Lanzamiento' },
@@ -263,7 +262,7 @@ function initMisionPage() {
                     } else {
                         alert(`Por favor completa el campo: ${field.name}`);
                     }
-                    return; // Stop execution
+                    return; // Detener ejecución
                 }
             }
 
@@ -271,10 +270,10 @@ function initMisionPage() {
             if (window.MissionService) {
                 let success;
                 if (isEditing) {
-                    missionData.id = editMissionId; // Ensure ID is passed
+                    missionData.id = editMissionId; // Asegurar que se pase el ID
                     success = window.MissionService.updateMission(missionData);
                     if (success) {
-                        localStorage.removeItem('editMissionId'); // Clear edit mode
+                        localStorage.removeItem('editMissionId'); // Limpiar modo de edición
                     }
                 } else {
                     success = window.MissionService.saveMission(missionData);

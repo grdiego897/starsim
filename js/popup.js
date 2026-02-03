@@ -1,12 +1,12 @@
 /**
- * Custom Popup System
- * Exposes window.showPopup(title, message, type)
+ * Sistema de Popup Personalizado
+ * Expone window.showPopup(title, message, type)
  */
 
 (function () {
     let currentCloseCallback = null;
 
-    // Create DOM elements if they don't exist
+    // Crear elementos del DOM si no existen
     function initPopupDOM() {
         if (document.getElementById('custom-popup-overlay')) return;
 
@@ -25,7 +25,7 @@
 
         document.body.appendChild(overlay);
 
-        // Event Listeners
+        // Escuchadores de eventos
         const closeBtn = document.getElementById('popup-close-x');
         const okBtn = document.getElementById('popup-action-ok');
 
@@ -37,13 +37,13 @@
                     currentCloseCallback();
                     currentCloseCallback = null;
                 }
-            }, 300); // Wait for transition
+            }, 300); // Esperar la transición
         };
 
         closeBtn.addEventListener('click', close);
         okBtn.addEventListener('click', close);
 
-        // Close on click outside (glass area)
+        // Cerrar al hacer clic fuera (área de vidrio)
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 close();
@@ -53,7 +53,7 @@
         window.closeCustomPopup = close;
     }
 
-    // Initialize on load
+    // Inicializar al cargar
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initPopupDOM);
     } else {
@@ -61,16 +61,16 @@
     }
 
     /**
-     * Show Popup
-     * @param {string} title 
-     * @param {string} message 
-     * @param {string} type 'error', 'success', or 'info'
-     * @param {function} onClose Callback function to run when closed
+     * Mostrar Popup
+     * @param {string} title Título del popup
+     * @param {string} message Mensaje del popup
+     * @param {string} type 'error', 'success', o 'info'
+     * @param {function} onClose Función callback a ejecutar al cerrar
      */
     window.showPopup = function (title, message, type = 'info', onClose = null) {
         const overlay = document.getElementById('custom-popup-overlay');
         if (!overlay) {
-            initPopupDOM(); // Just in case
+            initPopupDOM(); // Por si acaso
             return;
         }
 
@@ -82,13 +82,13 @@
         titleEl.textContent = title;
         msgEl.textContent = message;
 
-        // Reset classes
+        // Reiniciar clases
         titleEl.className = 'popup-title';
         if (type === 'error') titleEl.classList.add('error');
         if (type === 'success') titleEl.classList.add('success');
 
         overlay.style.display = 'flex';
-        // Small delay to allow display:flex to apply before adding opacity class
+        // Pequeño retraso para permitir que display:flex se aplique antes de añadir clase de opacidad
         setTimeout(() => {
             overlay.classList.add('active');
         }, 10);

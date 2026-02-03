@@ -5,19 +5,19 @@ class Router {
             'panel': {
                 template: 'pages/panel.html',
                 style: 'css/panel.css',
-                title: 'Panel - Starbase',
+                title: 'Panel - Starsim',
                 init: () => window.initPanelPage && window.initPanelPage()
             },
             'mision': {
                 template: 'pages/mision.html',
                 style: 'css/mision.css',
-                title: 'Nueva Misión',
+                title: 'Misión',
                 init: () => window.initMisionPage && window.initMisionPage()
             },
             'configAvanzada': {
                 template: 'pages/configAvanzada.html',
                 style: 'css/configAvanzada.css',
-                title: 'Configuración Avanzada',
+                title: 'Configuración Avanzada de Misión',
                 init: () => window.initConfigAvanzadaPage && window.initConfigAvanzadaPage()
             },
             'program': {
@@ -28,21 +28,21 @@ class Router {
             }
         };
 
-        // Bind for callback context
+        // Vincular para contexto de callback
         this.handleLocation = this.handleLocation.bind(this);
 
-        // Listen to hash changes
+        // Escuchar cambios de hash
         window.addEventListener('hashchange', this.handleLocation);
 
-        // Handle initial load
+        // Manejar carga inicial
         window.addEventListener('DOMContentLoaded', this.handleLocation);
     }
 
     async handleLocation() {
-        // Get path from hash, default to panel
+        // Obtener ruta del hash, por defecto panel
         let path = window.location.hash.slice(1) || 'panel';
 
-        // Handle query params if any (ignore for route matching)
+        // Manejar parámetros de consulta si existen (ignorar para coincidencia de rutas)
         const queryIndex = path.indexOf('?');
         if (queryIndex !== -1) {
             path = path.slice(0, queryIndex);
@@ -50,10 +50,10 @@ class Router {
 
         const route = this.routes[path] || this.routes['panel'];
 
-        // Update Title
+        // Actualizar título
         document.title = route.title;
 
-        // Swap CSS
+        // Cambiar CSS
         const pageCss = document.getElementById('page-css');
         if (pageCss && route.style) {
             pageCss.href = route.style;
@@ -61,25 +61,25 @@ class Router {
             pageCss.href = '';
         }
 
-        // Fetch Content
+        // Obtener contenido
         try {
             const response = await fetch(route.template);
             const html = await response.text();
 
-            // Inject Content
+            // Inyectar contenido
             const appContent = document.getElementById('app-content');
             if (appContent) {
                 appContent.innerHTML = html;
 
-                // Initialize Page Logic
+                // Inicializar lógica de página
                 if (route.init) {
-                    // Small delay to ensure DOM is ready
+                    // Pequeño retraso para asegurar que el DOM esté listo
                     setTimeout(route.init, 50);
                 }
             }
         } catch (error) {
-            console.error('Error loading page:', error);
-            document.getElementById('app-content').innerHTML = '<h1>Error loading content</h1>';
+            console.error('Error al cargar página:', error);
+            document.getElementById('app-content').innerHTML = '<h1>Error al cargar contenido</h1>';
         }
     }
 
@@ -88,5 +88,5 @@ class Router {
     }
 }
 
-// Instantiate and expose globally
+// Instanciar y exponer globalmente
 window.router = new Router();

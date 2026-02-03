@@ -12,7 +12,8 @@
         <div class="desc-inputs">
             <div class="input-group">
                 <label>Duración</label>
-                <input type="text" id="duration-input" class="styled-input" placeholder="MM/DD/HH/mm">
+                <input type="text" id="duration-input" class="styled-input" placeholder="MM/DD/HH/mm"
+                    oninput="this.value = this.value.replace(/[^0-9/]/g, '')">
             </div>
             <div class="input-group">
                 <label>Tripulación</label>
