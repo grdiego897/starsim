@@ -41,9 +41,20 @@ function initHeaderLogic() {
     window.showNotification = showNotification;
 
     // Verificar parámetro 'welcome' al cargar
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('welcome')) {
+    // En SPA con hash, los params pueden estar en location.search o en el hash tras ?
+    let params = new URLSearchParams(window.location.search);
+
+    // Si no hay params en search, buscamos en el hash
+    if (!params.has('welcome') && window.location.hash.includes('?')) {
+        const hashQuery = window.location.hash.split('?')[1];
+        params = new URLSearchParams(hashQuery);
+    }
+
+    if (params.has('welcome')) {
         showNotification("Bienvenido", 2000);
+
+        // Limpiar URL para no mostrar la notificación si se recarga
+        // window.history.replaceState({}, document.title, window.location.pathname + window.location.hash.split('?')[0]);
     }
 }
 

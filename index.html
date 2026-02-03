@@ -1,15 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Starbase</title>
-</head>
-<body>
+  <link rel="icon" href="img/ic/starsimsilvernoback.png" type="image/png">
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Globales -->
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/program.css">
+  <link rel="stylesheet" href="css/panel.css">
+  <link rel="stylesheet" href="css/popup.css">
+
+  <!-- Estilos Dinámicos de Página -->
+  <link id="page-css" rel="stylesheet" href="">
 
   <script>
-      window.location.href = "login.html";
+    // Auth Guard: Verificar sesión antes de cargar nada
+    if (!localStorage.getItem('loggedIn')) {
+      window.location.href = 'login.html';
+    }
   </script>
-  
+</head>
+
+<body>
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <!-- El header se inyecta aquí -->
+    <div id="header-container" style="margin-bottom: 40px;"></div>
+
+    <!-- El contenido de la página se inyecta aquí -->
+    <div id="app-content"></div>
+  </main>
+
+  <!-- Scripts Globales -->
+  <!-- Definimos funciones globales vacías para evitar errores antes de cargar router -->
+  <script>
+    window.router = { navigateTo: (route) => window.location.hash = route };
+  </script>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/header.js" defer></script>
+
+  <!-- Scripts de Página (cargados dinámicamente o funciones expuestas) -->
+  <script src="js/missionService.js" defer></script>
+  <script src="js/mision.js" defer></script>
+  <script src="js/configAvanzada.js" defer></script>
+  <script src="js/program.js" defer></script>
+  <script src="js/panel.js" defer></script>
+  <script src="js/popup.js" defer></script>
+
+  <!-- Router -->
+  <script src="js/router.js" defer></script>
 </body>
+
 </html>

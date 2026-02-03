@@ -1,68 +1,38 @@
 :root {
     --bg-color: #000000;
-    --card-bg: #1c1c1c;
+    --card-bg: rgba(28, 28, 28, 0.45);
     --text-main: #ffffff;
     --text-muted: #a0a0a0;
     --accent-red: #da3434;
     --accent-green: #2ecc71;
     --table-header-bg: #888888;
-    /* Barra gris */
     --hover-bg: #2a2a2a;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    min-height: 100vh;
-    overflow: hidden;
-}
-
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    position: relative;
-    padding: 80px 40px 40px 40px;
-    align-items: center;
-}
-
-#header-container {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    width: 100%;
-    padding: 0 40px;
-    z-index: 10;
 }
 
 .program-container {
     width: 100%;
     max-width: 1200px;
-    height: 100%;
+    flex: 1;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
 }
 
 .program-card {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
     border-radius: 20px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    height: 85vh;
-    /* Altura fija relativa al viewport */
+    flex: 1;
+    max-height: calc(100vh - 180px);
+    /* Prevent overflow */
 }
 
 .card-header {

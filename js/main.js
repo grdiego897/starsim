@@ -24,6 +24,9 @@ function clearMissionData() {
         'crew-input', 'cargoItems'
     ];
 
+    // Add editMissionId to be cleared
+    localStorage.removeItem('editMissionId');
+
     // Limpiar todos los campos de misión
     [...misionFields, ...configFields].forEach(key => {
         localStorage.removeItem(key);
@@ -33,7 +36,7 @@ function clearMissionData() {
 // Función para navegar a Nueva Misión (limpia datos primero)
 function goToNewMission() {
     clearMissionData();
-    window.location.href = 'mision.html';
+    window.location.hash = 'mision';
 }
 
 function initSidebarLogic() {

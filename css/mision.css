@@ -8,57 +8,17 @@
     --accent-red: #e74c3c;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-/* Evitar selección y arrastre de imágenes globalmente */
-img {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    min-height: 100vh;
-    overflow: hidden;
-}
-
-/* Diseño del contenido principal */
-.main-content {
-    flex: 1;
-    padding: 30px 40px;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
-    position: relative;
-}
-
-/* Encabezado (perfil) - Reemplazado por header.js */
-#header-container {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    width: 100%;
-    padding: 0 40px;
-    z-index: 10;
-}
-
 /* Grid de diseño de misión */
 .mission-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr 1fr;
     /* Izquierda (Vehículo), Centro (Formulario), Derecha (Destino) */
-    height: 100%;
+    height: calc(100vh - 130px);
+    /* Altura menos header y padding */
     gap: 20px;
     align-items: center;
+    margin-top: -20px;
+    /* Compensar espacio del header */
 }
 
 /* Columna central - Formulario */
@@ -66,8 +26,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* Align top instead of center */
+    padding-top: 30px;
+    /* Adjust vertical position */
     z-index: 5;
+    position: relative;
+    /* For absolute button positioning */
+    height: 100%;
 }
 
 .mission-header-title {
@@ -79,10 +45,12 @@ body {
 }
 
 .mission-code-box {
-    background-color: #3a3a3a;
+    background-color: rgba(58, 58, 58, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     /* Fondo oscuro claro */
     padding: 15px 10px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     outline: none;
     border-radius: 12px;
     margin-bottom: 40px;
@@ -122,17 +90,28 @@ body {
 
 .control-group select,
 .control-group input {
-    background-color: #999;
+    background-color: rgba(153, 153, 153, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     /* Fondo gris como en la imagen */
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     padding: 5px 10px;
-    color: #000;
+    color: #fff;
     font-weight: 500;
     width: 160px;
     height: 30px;
     cursor: pointer;
     outline: none;
+}
+
+.control-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.control-group select option {
+    background-color: #222;
+    color: #fff;
 }
 
 .control-group select:focus,
@@ -185,10 +164,12 @@ body {
 
 .field-row select,
 .field-row input {
-    background-color: #444;
+    background-color: rgba(68, 68, 68, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     /* Fondo gris más oscuro para estos inputs */
     color: white;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 8px;
     border-radius: 4px;
     width: 140px;
@@ -212,6 +193,12 @@ body {
     background-color: #ccc;
 }
 
+.btn-advanced {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 20px;
+}
+
 /* Columnas izquierda/derecha (imágenes) */
 .col-left,
 .col-right {
@@ -219,7 +206,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 100px;
+    padding-top: 30px;
+    /* Reduced from 100px to move images up */
     height: 100%;
     position: relative;
 }
@@ -258,8 +246,10 @@ body {
     left: 20px;
     width: 200px;
     height: 150px;
-    background-color: #222;
-    border: 1px solid #444;
+    background-color: rgba(34, 34, 34, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -274,7 +264,7 @@ body {
     object-fit: cover;
 }
 
-.logo-launch-wrapper {
+.launch-button-wrapper {
     position: absolute;
     bottom: 40px;
     right: 40px;
@@ -285,6 +275,26 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.2s;
+}
+
+.launch-button-wrapper:hover {
+    transform: scale(1.05);
+    /* Slight hover effect */
+    background-color: #f0f0f0;
+}
+
+.launch-button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
 }
 
 .logo-launch {
@@ -309,8 +319,7 @@ body {
         grid-template-columns: 1fr;
         overflow-y: auto;
         height: auto;
-        padding-top: 80px;
-        /* Espacio para el encabezado */
+        padding-top: 20px;
     }
 
     .col-left,
@@ -318,11 +327,5 @@ body {
     .col-right {
         height: auto;
         margin-bottom: 40px;
-    }
-
-    .main-content {
-        margin-left: 80px;
-        /* Asume sidebar colapsado en móvil */
-        width: calc(100% - 80px);
     }
 }

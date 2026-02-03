@@ -1,64 +1,38 @@
 :root {
     --bg-color: #000000;
-    --card-bg: #1c1c1c;
-    /* Fondo gris oscuro para tarjetas */
+    --card-bg: rgba(28, 28, 28, 0.45);
     --text-main: #ffffff;
     --text-muted: #a0a0a0;
     --input-bg: #333333;
-    /* Fondo oscuro para inputs */
     --input-sys-bg: #999;
-    /* Fondo claro tipo sistema */
     --accent-btn: #aaa;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    min-height: 100vh;
-    overflow: hidden;
-}
-
-.main-content {
-    flex: 1;
-    padding: 30px 40px;
+/* Contenedor de página configAvanzada */
+#app-content:has(.description-panel) {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - 160px);
     overflow: hidden;
-    position: relative;
-}
-
-#header-container {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    width: 100%;
-    padding: 0 40px;
-    z-index: 10;
+    /* No scroll */
 }
 
 /* Sección superior: descripción */
 .description-panel {
-    margin-top: 100px;
-    /* Espacio para el encabezado absoluto */
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 20px 30px;
-    margin-bottom: 50px;
+    margin-bottom: 5px;
+    /* Almost no margin */
     width: 100%;
-    flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
     flex-shrink: 0;
+    height: 33vh;
+    /* Reduced height further */
 }
 
 .panel-title {
@@ -89,7 +63,9 @@ body {
 }
 
 .styled-textarea {
-    background-color: #3b3b3b;
+    background-color: rgba(59, 59, 59, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     /* Ligeramente más claro que el fondo de tarjeta */
     border: none;
     border-radius: 8px;
@@ -122,7 +98,9 @@ body {
 }
 
 .styled-input {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     color: black;
     border: none;
     padding: 8px 10px;
@@ -138,16 +116,15 @@ body {
 
 
 /* Sección inferior */
+/* Sección inferior */
 .bottom-section {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     flex: 1;
-    /* Ocupar espacio restante */
+    align-items: flex-end;
+    /* Align elements to bottom */
+    margin-bottom: 5px;
     min-height: 0;
-    /* Permitir reducción */
-    /* Altura fija de 400px eliminada */
-    align-items: center;
-    margin-bottom: 20px;
 }
 
 .vehicle-container {
@@ -155,28 +132,34 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    overflow: hidden;
+    height: 90%;
+    overflow: visible;
+    margin-right: 20px;
 }
 
 #vehicle-blueprint {
-    max-width: none;
-    max-height: none;
-    height: 40vw;
-    /* Reducido ligeramente para ajustar */
+    max-width: 100%;
+    max-height: 100%;
+    height: 18vw;
+    /* Reduced slightly more */
     width: auto;
     object-fit: contain;
-    transform: rotate(90deg);
+    transform: rotate(90deg) scale(1.9);
+    /* Scale up image without changing layout */
 }
 
 .cargo-bay-panel {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 30px;
-    width: 45%;
-    height: 100%;
+    padding: 25px;
+    flex: 1;
+    height: 90%;
     display: flex;
     justify-content: space-between;
+    margin-left: 20px;
 }
 
 .cargo-list-wrapper {
@@ -196,7 +179,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #cdcdcd;
+    background-color: rgba(205, 205, 205, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     /* Fondo gris claro de item */
     border-radius: 6px;
     padding: 8px 15px;
@@ -235,8 +220,10 @@ body {
 .add-btn {
     width: 120px;
     height: 50px;
-    background-color: #aaa;
-    border: none;
+    background-color: rgba(170, 170, 170, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     font-size: 2rem;
     font-weight: 300;
@@ -244,7 +231,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .add-btn:hover {
@@ -262,22 +249,24 @@ body {
 .footer-actions {
     display: flex;
     justify-content: center;
-    padding-bottom: 10px;
+    padding: 5px 0;
     flex-shrink: 0;
 }
 
 .btn-back {
-    background-color: #aaa;
-    border: none;
+    background-color: rgba(170, 170, 170, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 12px 50px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 1rem;
-    color: #000;
+    color: #fff;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-back:hover {

@@ -1,3 +1,59 @@
+/* ======================= */
+/* GLOBAL BASE STYLES      */
+/* ======================= */
+
+:root {
+    --bg-color: #000000;
+    --card-bg: #1c1c1c;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Evitar selección y arrastre de imágenes globalmente */
+img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ======================= */
+/* MAIN CONTENT SHELL      */
+/* ======================= */
+
+.main-content {
+    flex: 1;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+#app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ======================= */
+/* SIDEBAR STYLES          */
+/* ======================= */
+
 .sidebar {
     position: fixed;
     width: 250px;
@@ -6,10 +62,12 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-right: 1px solid #111;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     transition: width 0.4s ease;
     z-index: 100;
-    background-color: #000000;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     /* Evitar selección de texto/imágenes */
     user-select: none;
     -webkit-user-select: none;
@@ -150,8 +208,10 @@
     bottom: 90px;
     left: 20px;
     width: 280px;
-    background-color: #1a1a1a;
-    border: 1px solid #333;
+    background-color: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 30px 20px;
     display: flex;
@@ -180,7 +240,7 @@
 
 .grok-input-container {
     width: 100%;
-    background-color: #333;
+    background-color: rgba(51, 51, 51, 0.4);
     border-radius: 15px;
     padding: 15px;
     display: flex;

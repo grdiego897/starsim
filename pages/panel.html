@@ -1,0 +1,82 @@
+<div class="dashboard-container">
+    <section class="dashboard-grid">
+        <div class="card">
+            <div class="card-icon">
+                <img src="img/ic/starshipic.png" alt="Launch" class="card-icon-img">
+            </div>
+            <div class="card-info">
+                <span class="card-label">Lanzamientos<br>pendientes</span>
+                <span class="card-value" id="pending-missions-count">0</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">
+                <img src="img/ic/padic.png" alt="Pads" class="card-icon-img">
+            </div>
+            <div class="card-info">
+                <span class="card-label">Pads</span>
+                <span class="card-value">2/4</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">
+                <img src="img/ic/successic.png" alt="Stats" class="card-icon-img">
+            </div>
+            <div class="card-info">
+                <span class="card-label">Tasa de Éxito</span>
+                <span class="card-value">98%</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="middle-section">
+        <div class="countdown-card">
+            <div class="mission-title">
+                <h3>Misión<br><span>Starship<br>IFT-12</span></h3>
+            </div>
+            <div class="timer">
+                <div class="time-unit"><span>5</span><label>DÍAS</label></div>
+                <div class="time-unit"><span>17</span><label>HORAS</label></div>
+                <div class="time-unit"><span>10</span><label>MIN</label></div>
+                <div class="time-unit"><span>42</span><label>SEG</label></div>
+            </div>
+        </div>
+
+        <div class="weather-card">
+            <div class="weather-info">
+                <h3>Pronóstico</h3>
+                <div class="weather-grid">
+                    <span>Viento</span> <span>17km/h</span>
+                    <span>Precipitación</span> <span>3%</span>
+                    <span>Viabilidad:</span> <span>97%</span>
+                </div>
+            </div>
+            <div class="weather-icon-wrapper">
+                <img src="img/ic/sunic.png" alt="Sunny" class="weather-icon-img">
+            </div>
+        </div>
+    </section>
+
+    <section class="program-section">
+        <div class="program-header">
+            <h3>Programa próximo</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>MISIÓN</th>
+                        <th>FECHA</th>
+                        <th>ESTADO</th>
+                        <th class="actions-cell">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody id="upcoming-missions-list">
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

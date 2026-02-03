@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 0. Persistencia de campos generales
 
+function initConfigAvanzadaPage() {
+    // 0. Persistencia de campos generales
     const fields = ['objectives-main', 'objectives-secondary', 'duration-input', 'crew-input'];
 
     fields.forEach(id => {
@@ -21,20 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (vehicleImg) {
         if (storedSrc) {
-            // Verificar nombre de archivo para mapear al blueprint
-            // starshiprender.png -> starshipbp.png
-            // falcon9.png / falconheavy.png -> falconbp.png
-
             if (storedSrc.includes('starshiprender') || storedSrc.includes('superheavy')) {
                 vehicleImg.src = 'img/blueprint/starshipbp.png';
             } else if (storedSrc.includes('falcon')) {
                 vehicleImg.src = 'img/blueprint/falconbp.png';
             } else {
-                // Alternativa por defecto
                 vehicleImg.src = 'img/blueprint/starshipbp.png';
             }
         } else {
-            // Por defecto si no hay selección (ej. carga directa)
             vehicleImg.src = 'img/blueprint/starshipbp.png';
         }
     }
@@ -109,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            // Agregar item vacío
             cargoItems.push({ name: '', qty: 1 });
             renderCargo();
         });
@@ -117,4 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Renderizado inicial
     renderCargo();
-});
+}
+
+// Exponer la función globalmente para el router
+window.initConfigAvanzadaPage = initConfigAvanzadaPage;

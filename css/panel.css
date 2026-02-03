@@ -1,63 +1,28 @@
 :root {
     --bg-color: #000000;
-    --card-bg: #1c1c1c;
+    --card-bg: rgba(28, 28, 28, 0.45);
     --text-main: #ffffff;
     --text-muted: #a0a0a0;
     --accent-green: #2ecc71;
     --accent-red: #e74c3c;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-/* Evitar selección y arrastre de imágenes globalmente */
-img {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    min-height: 100vh;
-}
-
 /* Clases para imágenes */
-/* Estas clases controlan el tamaño de tus iconos PNG/JPG/SVG */
-
-.logo-img {
-    width: 120px;
-    margin-bottom: 50px;
-    display: block;
-}
-
-
-
 .card-icon-img {
     width: 8em;
-    /* Tamaño de iconos en tarjetas grandes */
     height: 8em;
     object-fit: contain;
     opacity: 0.8;
-    /* Ligeramente transparente para suavizar */
 }
 
 .weather-icon-img {
     width: 5em;
-    /* Tamaño del icono del sol */
     height: 5em;
     object-fit: contain;
 }
 
 .action-icon-img {
     width: 12px;
-    /* Tamaño de iconos en botones */
     height: 12px;
     margin-right: 6px;
     vertical-align: middle;
@@ -76,25 +41,6 @@ body {
     border: 2px solid #555;
 }
 
-
-
-/* Contenido principal */
-.main-content {
-    flex: 1;
-    /* Padding del contenido principal para espacio lateral */
-    padding: 30px 50px;
-    overflow-y: auto;
-
-    /* Importante: se elimina max-width y margin para que el header se estire */
-    /* width: 100%;           */
-    /* max-width: 1200px;     */
-    /* margin-left: auto;     */
-    /* margin-right: auto;    */
-}
-
-/* Píldora de notificación centrada respecto al header de ancho completo */
-/* CSS del header movido a components/header.html */
-
 /* Grid del dashboard */
 .dashboard-grid {
     display: grid;
@@ -105,6 +51,9 @@ body {
 
 .card {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     padding: 20px;
     display: flex;
@@ -140,6 +89,9 @@ body {
 
 .countdown-card {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     padding: 25px;
     display: flex;
@@ -192,6 +144,9 @@ body {
 /* Tarjeta del clima */
 .weather-card {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     padding: 25px;
     display: flex;
@@ -211,6 +166,9 @@ body {
 /* Sección de tabla */
 .program-section {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     overflow: hidden;
 }
