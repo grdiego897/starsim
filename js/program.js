@@ -8,13 +8,29 @@ function initProgramPage() {
 
     function renderTable() {
         // Fetch missions using global service
-        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
+        let missions = window.MissionService ? window.MissionService.getAllMissions() : [];
         console.log("Missions loaded:", missions);
+
+        const statusSelect = document.getElementById('status-filter');
+        const launcherSelect = document.getElementById('launcher-filter');
+        const currentStatusFilter = statusSelect ? statusSelect.value : 'all';
+        const currentLauncherFilter = launcherSelect ? launcherSelect.value : 'all';
+
+        if (currentStatusFilter !== 'all') {
+            missions = missions.filter(m => (m.status || 'programado') === currentStatusFilter);
+        }
+
+        if (currentLauncherFilter !== 'all') {
+            missions = missions.filter(m => {
+                const ship = m.ship || '';
+                return ship.toLowerCase() === currentLauncherFilter.toLowerCase();
+            });
+        }
 
         tbody.innerHTML = '';
 
         if (missions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">No hay misiones programadas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">No hay misiones coincidentes.</td></tr>';
             return;
         }
 
@@ -28,11 +44,28 @@ function initProgramPage() {
             const dateObj = new Date(mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
+            // Status handling
+            const currentStatus = mission.status || 'programado';
+            const statusClassMap = {
+                'programado': 'programmed',
+                'confirmado': 'confirmed',
+                'hold': 'hold',
+                'cancelado': 'cancelled'
+            };
+            const currentClass = statusClassMap[currentStatus] || 'programmed';
+
             // Construct row HTML
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${mission.ship || 'Nave'}</td>
                 <td>${dateStr}</td>
-                <td><span class="status-pill programmed">Programado</span></td>
+                <td>
+                    <select class="status-pill status-select ${currentClass}" data-id="${mission.id}">
+                        <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
+                        <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                        <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
+                        <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                    </select>
+                </td>
                 <td>
                     <div class="action-buttons">
                         <button class="btn-edit" data-id="${mission.id}">
@@ -57,33 +90,64 @@ function initProgramPage() {
             tbody.appendChild(tr);
         });
 
-        // Event delegation for actions (Edit/Delete)
-        tbody.onclick = function (e) {
-            // Handle Edit
-            const btnEdit = e.target.closest('.btn-edit');
-            if (btnEdit) {
-                const id = btnEdit.getAttribute('data-id');
-                console.log('Edit clicked, ID:', id);
-                if (id && id !== 'undefined') {
-                    localStorage.setItem('editMissionId', id);
-                    window.router.navigateTo('mision');
-                } else {
-                    console.error('Missing Data ID on edit button');
-                }
-                return;
-            }
+    }
 
-            // Handle Delete
-            const btnDelete = e.target.closest('.btn-delete');
-            if (btnDelete) {
-                const id = btnDelete.getAttribute('data-id');
-                if (confirm('¿Estás seguro de eliminar esta misión?')) {
-                    if (window.MissionService.deleteMission(id)) {
-                        renderTable();
-                    }
+    // Event delegation outside of renderTable to avoid multiple bindings
+    tbody.addEventListener('change', function (e) {
+        if (e.target.classList.contains('status-select')) {
+            const id = e.target.getAttribute('data-id');
+            const newStatus = e.target.value;
+            if (id && window.MissionService) {
+                const mission = window.MissionService.getMissionById(id);
+                if (mission) {
+                    mission.status = newStatus;
+                    window.MissionService.updateMission(mission);
+                    renderTable();
                 }
             }
-        };
+        }
+    });
+
+    tbody.onclick = async function (e) {
+        // Handle Edit
+        const btnEdit = e.target.closest('.btn-edit');
+        if (btnEdit) {
+            const id = btnEdit.getAttribute('data-id');
+            console.log('Edit clicked, ID:', id);
+            if (id && id !== 'undefined') {
+                localStorage.setItem('editMissionId', id);
+                window.router.navigateTo('mision');
+            } else {
+                console.error('Missing Data ID on edit button');
+            }
+            return;
+        }
+
+        // Handle Delete
+        const btnDelete = e.target.closest('.btn-delete');
+        if (btnDelete) {
+            const id = btnDelete.getAttribute('data-id');
+            const confirmed = await window.showConfirm(
+                'Eliminar misión',
+                '¿Estás seguro de que deseas eliminar esta misión? Esta acción no se puede deshacer.',
+                { confirmText: 'Eliminar', cancelText: 'Cancelar', type: 'error' }
+            );
+            if (confirmed) {
+                if (window.MissionService.deleteMission(id)) {
+                    renderTable();
+                }
+            }
+        }
+    };
+
+    const statusSelect = document.getElementById('status-filter');
+    if (statusSelect) {
+        statusSelect.addEventListener('change', renderTable);
+    }
+
+    const launcherSelect = document.getElementById('launcher-filter');
+    if (launcherSelect) {
+        launcherSelect.addEventListener('change', renderTable);
     }
 
     renderTable();

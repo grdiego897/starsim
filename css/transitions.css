@@ -1,0 +1,137 @@
+/* ======================= */
+/* SCROLL TRANSITION       */
+/* ======================= */
+
+/* Viewport: fills all available height, clips overflow */
+.scroll-viewport {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+}
+
+/* Each section: absolute-positioned, full size, transition-ready */
+.scroll-section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+}
+
+/* Active section: visible in-place */
+.scroll-section.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+}
+
+/* Section waiting below (next) */
+.scroll-section.below {
+    transform: translateY(40px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Section waiting above (previous) */
+.scroll-section.above {
+    transform: translateY(-40px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ---- Hide scrollbar but keep scroll functionality ---- */
+.scroll-section {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.scroll-section::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari/Opera */
+}
+
+
+
+
+
+/* ======================= */
+/* SCROLL HINT ARROW       */
+/* ======================= */
+
+.scroll-hint {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.scroll-hint.visible {
+    opacity: 0.5;
+    animation: scrollHintBounce 2s ease-in-out infinite;
+}
+
+.scroll-hint svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.7);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@keyframes scrollHintBounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(8px);
+    }
+}
+
+/* ======================= */
+/* PAGE TRANSITION (fade)  */
+/* ======================= */
+
+/* The app-content container handles its own transition */
+#app-content {
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+}
+
+/* Phase 1: fade-out — applied before content swap */
+#app-content.page-leaving {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+}
+
+/* Phase 2: prepare entry — applied after content swap, before triggering fade-in */
+#app-content.page-entering {
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+    transition: none;
+    /* disable transition so we can snap to start position */
+}
+
+/* Phase 3: fade-in — remove page-entering class to animate in */
+/* (handled by removing the class, letting the base transition kick in) */
