@@ -59,10 +59,6 @@ function initMisionPage() {
         }
     }
 
-<<<<<<< HEAD
-    // Escuchadores de eventos
-=======
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
     if (shipSelect && boosterSelect) {
         shipSelect.addEventListener('change', updateVehicle);
         boosterSelect.addEventListener('change', updateVehicle);
@@ -94,53 +90,11 @@ function initMisionPage() {
         });
     }
 
-    // --- Mission Selector Logic ---
-    const missionSelect = document.getElementById('mission-select');
-    const newMissionFields = document.getElementById('new-mission-fields');
+    // --- Mission Input Logic ---
     const missionNameInput = document.getElementById('mission-name-input');
     const programInput = document.getElementById('program-select');
 
-    function populateMissionSelector() {
-        if (!missionSelect) return;
-        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
-
-        // Clear all options except the first "Nueva misión"
-        missionSelect.innerHTML = '<option value="__new__">+ Nueva misión...</option>';
-
-        missions.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m.id;
-            opt.textContent = m.name || 'Misión sin nombre';
-            missionSelect.appendChild(opt);
-        });
-    }
-
-    function toggleNewMissionFields() {
-        if (!missionSelect || !newMissionFields) return;
-        if (missionSelect.value === '__new__') {
-            newMissionFields.classList.add('visible');
-            if (programInput) programInput.value = '';
-        } else {
-            newMissionFields.classList.remove('visible');
-            // When selecting existing mission, fill programa from mission data
-            const mission = window.MissionService ? window.MissionService.getMissionById(missionSelect.value) : null;
-            if (mission && programInput) {
-                programInput.value = mission.program || '';
-            }
-        }
-    }
-
-    if (missionSelect) {
-        missionSelect.addEventListener('change', toggleNewMissionFields);
-    }
-
-    populateMissionSelector();
-
-<<<<<<< HEAD
-    // Verificar modo de edición
-=======
     // --- Edit Mode ---
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
     const editMissionId = localStorage.getItem('editMissionId');
     const editLaunchId = localStorage.getItem('editLaunchId');
     let isEditing = false;
@@ -151,55 +105,9 @@ function initMisionPage() {
         editingMission = window.MissionService.getMissionById(editMissionId);
         if (editingMission) {
             isEditing = true;
-<<<<<<< HEAD
-            console.log("Editando misión:", missionToEdit);
 
-            // Rellenar formulario
-            const setVal = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
-
-            setVal('mission-name-input', missionToEdit.name);
-            setVal('program-select', missionToEdit.program);
-            setVal('destination-select', missionToEdit.destination);
-            setVal('ship-select', missionToEdit.ship);
-            setVal('booster-select', missionToEdit.booster);
-            setVal('cargo-type-select', missionToEdit.cargoType);
-            setVal('cargo-mass-input', missionToEdit.cargoMass);
-            setVal('port-select', missionToEdit.port);
-            setVal('launch-date-input', missionToEdit.launchDate);
-            setVal('landing-type-select', missionToEdit.landingType);
-            setVal('landing-id-select', missionToEdit.landingId);
-
-            // Hidratar borradores de configuración avanzada
-            if (missionToEdit.advancedConfig) {
-                const adv = missionToEdit.advancedConfig;
-                localStorage.setItem('objectives-main', adv.objectivesMain || '');
-                localStorage.setItem('objectives-secondary', adv.objectivesSecondary || '');
-                localStorage.setItem('duration-input', adv.duration || '');
-                localStorage.setItem('crew-input', adv.crew || '');
-                localStorage.setItem('cargoItems', JSON.stringify(adv.cargo || []));
-            } else {
-                // Limpiar si no hay ninguno (¿o mantener borrador existente? No, editar implica sobrescribir borrador con estado de misión)
-                // Pero limpiar es más seguro para evitar mezclar borradores anteriores.
-                localStorage.removeItem('objectives-main');
-                localStorage.removeItem('objectives-secondary');
-                localStorage.removeItem('duration-input');
-                localStorage.removeItem('crew-input');
-                localStorage.removeItem('cargoItems');
-            }
-
-            // Activar actualizaciones de imágenes
-            updateVehicle();
-            updateDestination();
-=======
-
-            // Select the mission in the dropdown
-            if (missionSelect) {
-                missionSelect.value = editMissionId;
-                toggleNewMissionFields();
-            }
+            // Fill mission name and program
+            if (missionNameInput) missionNameInput.value = editingMission.name || '';
             if (programInput) programInput.value = editingMission.program || '';
 
             // Find the specific launch to edit
@@ -250,23 +158,73 @@ function initMisionPage() {
                     mapIframe.src = mapUrls[editingLaunch.port];
                 }
             }
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         }
     }
 
-    // If not editing, show new mission fields by default
-    if (!isEditing) {
-        toggleNewMissionFields();
+    // --- Clave prefix para borrador de nueva misión ---
+    const DRAFT_PREFIX = 'misionDraft_';
+
+    // Campos del formulario de misión que deben persistirse en el borrador
+    const misionDraftFields = [
+        'mission-name-input',
+        'program-select',
+        'destination-select',
+        'ship-select',
+        'booster-select',
+        'cargo-type-select',
+        'cargo-mass-input',
+        'port-select',
+        'launch-date-input',
+        'landing-type-select',
+        'landing-id-select'
+    ];
+
+    function saveMisionDraft() {
+        misionDraftFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) localStorage.setItem(DRAFT_PREFIX + id, el.value);
+        });
     }
-    // If not editing, show new mission fields by default
+
+    function loadMisionDraft() {
+        let hasDraft = false;
+        misionDraftFields.forEach(id => {
+            const saved = localStorage.getItem(DRAFT_PREFIX + id);
+            if (saved !== null) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = saved;
+                    hasDraft = true;
+                }
+            }
+        });
+        return hasDraft;
+    }
+
+    function clearMisionDraft() {
+        misionDraftFields.forEach(id => localStorage.removeItem(DRAFT_PREFIX + id));
+    }
+
+    // Restaurar borrador sólo si NO estamos en modo edición
     if (!isEditing) {
-        toggleNewMissionFields();
+        const restored = loadMisionDraft();
+        if (restored) {
+            // Refrescar imágenes y mapa con los valores restaurados
+            updateVehicle();
+            updateDestination();
+            const restoredPort = document.getElementById('port-select')?.value;
+            if (restoredPort && mapUrls[restoredPort] && mapIframe) {
+                mapIframe.src = mapUrls[restoredPort];
+            }
+        }
     }
 
     // --- Advanced Button ---
     const btnAdvanced = document.getElementById('btn-advanced');
     if (btnAdvanced) {
         btnAdvanced.addEventListener('click', () => {
+            // Guardar borrador antes de cambiar de página
+            saveMisionDraft();
             if (vehicleImg) {
                 localStorage.setItem('selectedVehicleSrc', vehicleImg.src);
             }
@@ -277,17 +235,6 @@ function initMisionPage() {
     // --- Launch Button (Save) ---
     const btnLaunch = document.querySelector('.launch-button');
     if (btnLaunch) {
-<<<<<<< HEAD
-        // ¿Actualizar texto/icono del botón si está editando?
-        // El usuario pidió "Crea la función editar... con la interfaz mision.html"
-        // Podría querer cambiar la retroalimentación visual.
-        if (isEditing) {
-            // Opcional: ¿Cambiar estilo del botón o añadir indicador?
-            // Manteniendo simple como "Lanzar" (Lanzar/Actualizar).
-        }
-
-=======
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         btnLaunch.addEventListener('click', () => {
             // Build launch data from form
             const launchData = {
@@ -300,12 +247,6 @@ function initMisionPage() {
                 launchDate: document.getElementById('launch-date-input')?.value,
                 landingType: document.getElementById('landing-type-select')?.value,
                 landingId: document.getElementById('landing-id-select')?.value,
-<<<<<<< HEAD
-                createdAt: isEditing ? undefined : new Date().toISOString(), // Preservar fecha original si se edita manejado en servicio
-
-                // Capturar configuración avanzada desde borradores
-=======
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
                 advancedConfig: {
                     objectivesMain: localStorage.getItem('objectives-main'),
                     objectivesSecondary: localStorage.getItem('objectives-secondary'),
@@ -315,77 +256,35 @@ function initMisionPage() {
                 }
             };
 
-<<<<<<< HEAD
-            console.log("Guardando datos de misión:", missionData);
-
-            // Validar campos requeridos
-=======
             // Validate
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
             const requiredFields = [
                 { val: launchData.launchDate, name: 'Fecha de Lanzamiento' },
                 { val: launchData.cargoMass, name: 'Masa de Carga' }
             ];
 
-            const isNewMission = missionSelect && missionSelect.value === '__new__';
-            if (isNewMission) {
+            // Validate mission name for new missions
+            if (!isEditing) {
                 const missionName = missionNameInput?.value?.trim();
-                if (!missionName) {
-                    requiredFields.unshift({ val: '', name: 'Nombre de Misión' });
-                }
+                requiredFields.unshift({ val: missionName || '', name: 'Nombre de Misión' });
             }
 
-            for (const field of requiredFields) {
-                if (!field.val || !String(field.val).trim()) {
-                    if (window.showPopup) {
-                        window.showPopup('Campo Incompleto', `Por favor completa el campo: ${field.name}`, 'error');
-                    } else {
-                        alert(`Por favor completa el campo: ${field.name}`);
-                    }
-<<<<<<< HEAD
-                    return; // Detener ejecución
-                }
-            }
+            // Recopilar TODOS los campos vacíos, no solo el primero
+            const missingFields = requiredFields
+                .filter(field => !field.val || !String(field.val).trim())
+                .map(field => field.name);
 
-            // Guardar
-            if (window.MissionService) {
-                let success;
-                if (isEditing) {
-                    missionData.id = editMissionId; // Asegurar que se pase el ID
-                    success = window.MissionService.updateMission(missionData);
-                    if (success) {
-                        localStorage.removeItem('editMissionId'); // Limpiar modo de edición
-                    }
+            if (missingFields.length > 0) {
+                const errorList = missingFields.map(name => `• ${name}`).join('\n');
+                const message = `Por favor completa los siguientes campos:\n\n${errorList}`;
+                if (window.showPopup) {
+                    window.showPopup('Campos Incompletos', message, 'error');
                 } else {
-                    success = window.MissionService.saveMission(missionData);
+                    alert(message);
                 }
-
-                if (success) {
-                    const action = isEditing ? 'Actualizada' : 'Creada';
-                    if (window.showPopup) {
-                        window.showPopup('¡Éxito!', `Misión ${action} Correctamente`, 'success', () => {
-                            window.router.navigateTo('program');
-                        });
-                    } else {
-                        alert(`Misión ${action} Correctamente`);
-                        window.router.navigateTo('program');
-                    }
-                } else {
-                    if (window.showPopup) {
-                        window.showPopup('Error', 'No se pudo guardar la misión', 'error');
-                    } else {
-                        alert('Error al guardar la misión');
-                    }
-                }
-
-            } else {
-=======
-                    return;
-                }
+                return;
             }
 
             if (!window.MissionService) {
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
                 console.error('MissionService no disponible');
                 alert('Error del sistema: Servicio no disponible');
                 return;
@@ -402,7 +301,7 @@ function initMisionPage() {
                     localStorage.removeItem('editMissionId');
                     localStorage.removeItem('editLaunchId');
                 }
-            } else if (isNewMission) {
+            } else {
                 // Create new mission with this launch
                 const missionData = {
                     name: missionNameInput?.value?.trim() || 'Sin Nombre',
@@ -410,11 +309,9 @@ function initMisionPage() {
                     launches: [launchData]
                 };
                 success = window.MissionService.saveMission(missionData);
-            } else {
-                // Add launch to existing mission
-                const selectedMissionId = missionSelect?.value;
-                if (selectedMissionId) {
-                    success = window.MissionService.addLaunchToMission(selectedMissionId, launchData);
+                if (success) {
+                    // Limpiar borrador temporal al guardar correctamente
+                    clearMisionDraft();
                 }
             }
 

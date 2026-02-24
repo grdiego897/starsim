@@ -19,10 +19,6 @@ function initPanelPage() {
         }
 
         // Ordenar por más reciente primero (misma lógica que program)
-        // El usuario solicitó: "3 primeras misiones creadas (al igual que en program.html)" 
-        // Asumiendo que "primeras" implica "arriba de la lista", que en Program está ordenado por fecha (más reciente/próximo).
-        // En realidad, si es "Program", ¿normalmente se ordena por creación o fecha de programa?
-        // program.js usó: missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         // Tomar las 3 primeras
@@ -74,60 +70,169 @@ function initPanelPage() {
             `;
             tbody.appendChild(tr);
         });
+    }
 
-<<<<<<< HEAD
-        // Delegación de eventos para acciones
-        tbody.onclick = function (e) {
-            // Editar
-=======
-        // Event delegation for actions and Status Change
-        tbody.addEventListener('change', function (e) {
-            if (e.target.classList.contains('badge-select')) {
-                const id = e.target.getAttribute('data-id');
-                const newStatus = e.target.value;
-                if (id && window.MissionService) {
-                    const mission = window.MissionService.getMissionById(id);
-                    if (mission) {
-                        mission.status = newStatus;
-                        window.MissionService.updateMission(mission);
-                        renderUpcoming();
-                    }
+    // Event delegation for actions and Status Change
+    tbody.addEventListener('change', function (e) {
+        if (e.target.classList.contains('badge-select')) {
+            const id = e.target.getAttribute('data-id');
+            const newStatus = e.target.value;
+            if (id && window.MissionService) {
+                const mission = window.MissionService.getMissionById(id);
+                if (mission) {
+                    mission.status = newStatus;
+                    window.MissionService.updateMission(mission);
+                    renderUpcoming();
+                }
+            }
+        }
+    });
+
+    tbody.onclick = async function (e) {
+        // Edit
+        const btnEdit = e.target.closest('.btn-edit');
+        if (btnEdit) {
+            const id = btnEdit.getAttribute('data-id');
+            if (id) {
+                localStorage.setItem('editMissionId', id);
+                window.router.navigateTo('mision');
+            }
+            return;
+        }
+
+        // Eliminar
+        const btnDelete = e.target.closest('.btn-delete');
+        if (btnDelete) {
+            const id = btnDelete.getAttribute('data-id');
+            const confirmed = await window.showConfirm(
+                'Eliminar misión',
+                '¿Estás seguro de que deseas eliminar esta misión? Esta acción no se puede deshacer.',
+                { confirmText: 'Eliminar', cancelText: 'Cancelar', type: 'error' }
+            );
+            if (confirmed) {
+                if (window.MissionService.deleteMission(id)) {
+                    renderUpcoming(); // Re-render
+                }
+            }
+        }
+    };
+
+    renderUpcoming();
+
+    // --- Countdown dinámico a la próxima misión ---
+    const cdDays = document.getElementById('cd-days');
+    const cdHours = document.getElementById('cd-hours');
+    const cdMins = document.getElementById('cd-mins');
+    const cdSecs = document.getElementById('cd-secs');
+    const cdName = document.getElementById('countdown-mission-name');
+    const cdTimer = document.getElementById('countdown-timer');
+    const cdInfo = document.getElementById('countdown-info');
+    const cdEmpty = document.getElementById('countdown-empty');
+
+    let countdownTarget = null; // { name, launchDate }
+    let countdownInterval = null;
+
+    function findNextMission() {
+        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
+        const now = Date.now();
+        let closest = null;
+
+        missions.forEach(m => {
+            // Solo misiones programadas o confirmadas
+            const status = m.status || 'programado';
+            if (status !== 'programado' && status !== 'confirmado') return;
+
+            // Buscar en los lanzamientos de la misión
+            const launches = m.launches || [];
+            launches.forEach(l => {
+                if (!l.launchDate) return;
+                const dt = new Date(l.launchDate).getTime();
+                if (dt > now && (!closest || dt < closest.time)) {
+                    closest = { name: m.name || 'Misión', time: dt };
+                }
+            });
+
+            // Fallback: launchDate directa en la misión (estructura legacy)
+            if (m.launchDate) {
+                const dt = new Date(m.launchDate).getTime();
+                if (dt > now && (!closest || dt < closest.time)) {
+                    closest = { name: m.name || 'Misión', time: dt };
                 }
             }
         });
 
-        tbody.onclick = async function (e) {
-            // Edit
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
-            const btnEdit = e.target.closest('.btn-edit');
-            if (btnEdit) {
-                const id = btnEdit.getAttribute('data-id');
-                if (id) {
-                    localStorage.setItem('editMissionId', id);
-                    window.router.navigateTo('mision');
-                }
-                return;
-            }
-
-            // Eliminar
-            const btnDelete = e.target.closest('.btn-delete');
-            if (btnDelete) {
-                const id = btnDelete.getAttribute('data-id');
-                const confirmed = await window.showConfirm(
-                    'Eliminar misión',
-                    '¿Estás seguro de que deseas eliminar esta misión? Esta acción no se puede deshacer.',
-                    { confirmText: 'Eliminar', cancelText: 'Cancelar', type: 'error' }
-                );
-                if (confirmed) {
-                    if (window.MissionService.deleteMission(id)) {
-                        renderUpcoming(); // Re-render
-                    }
-                }
-            }
-        };
+        return closest;
     }
 
-    renderUpcoming();
+    function updateCountdown() {
+        if (!cdDays || !cdHours || !cdMins || !cdSecs) return;
+
+        if (!countdownTarget) {
+            // Sin misión próxima — mostrar fallback
+            if (cdTimer) cdTimer.style.display = 'none';
+            if (cdInfo) cdInfo.style.display = 'none';
+            if (cdEmpty) cdEmpty.style.display = 'block';
+            return;
+        }
+
+        // Asegurar que el timer esté visible
+        if (cdTimer) cdTimer.style.display = '';
+        if (cdInfo) cdInfo.style.display = '';
+        if (cdEmpty) cdEmpty.style.display = 'none';
+
+        const diff = countdownTarget.time - Date.now();
+
+        if (diff <= 0) {
+            cdDays.textContent = '0';
+            cdHours.textContent = '0';
+            cdMins.textContent = '0';
+            cdSecs.textContent = '0';
+            return;
+        }
+
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+
+        cdDays.textContent = days;
+        cdHours.textContent = hours;
+        cdMins.textContent = mins;
+        cdSecs.textContent = secs;
+    }
+
+    function refreshCountdown() {
+        countdownTarget = findNextMission();
+        if (cdName && countdownTarget) {
+            cdName.textContent = countdownTarget.name;
+        }
+        updateCountdown();
+    }
+
+    // Iniciar countdown
+    refreshCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
+
+    // Suscribirse a cambios de datos para mantener la tabla y el countdown sincronizados
+    let unsubscribe = null;
+    if (window.MissionService && window.MissionService.subscribe) {
+        unsubscribe = window.MissionService.subscribe(() => {
+            renderUpcoming();
+            refreshCountdown();
+        });
+    }
+
+    // Limpiar la suscripción e intervalo cuando el contenedor sea eliminado del DOM
+    if (tbody) {
+        const observer = new MutationObserver(() => {
+            if (!document.contains(tbody)) {
+                if (unsubscribe) unsubscribe();
+                if (countdownInterval) clearInterval(countdownInterval);
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 
     // --- Hover Charts (Chart.js) ---
     initHoverCharts();
@@ -149,18 +254,21 @@ function initHoverCharts() {
             const ctx = document.getElementById('chart-launches');
             if (!ctx) return;
 
-            // Build vehicle counts from real missions
+            // Build vehicle counts from real missions (iterate launches inside each mission)
             const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
             const counts = { 'Starship': 0, 'Falcon 9': 0, 'Falcon Heavy': 0 };
 
             missions.forEach(m => {
-                if (m.ship === 'starship' || m.booster === 'superheavy') {
-                    counts['Starship']++;
-                } else if (m.booster === 'falconheavy') {
-                    counts['Falcon Heavy']++;
-                } else {
-                    counts['Falcon 9']++;
-                }
+                const launches = m.launches || [];
+                launches.forEach(l => {
+                    if (l.ship === 'starship' || l.booster === 'superheavy') {
+                        counts['Starship']++;
+                    } else if (l.booster === 'falconheavy') {
+                        counts['Falcon Heavy']++;
+                    } else {
+                        counts['Falcon 9']++;
+                    }
+                });
             });
 
             chartInstances.launches = new Chart(ctx, {

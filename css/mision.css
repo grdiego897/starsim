@@ -45,39 +45,43 @@
     text-transform: uppercase;
     font-size: 1.2rem;
     letter-spacing: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-weight: 700;
 }
 
-/* Selector de misión */
-.mission-selector-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 25px;
+.mission-code-box {
     width: 100%;
     max-width: 400px;
-    align-items: center;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    background-color: rgba(153, 153, 153, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #fff;
+    outline: none;
+    transition: background-color 0.2s;
 }
 
-.new-mission-fields {
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
-    width: 100%;
+.mission-code-box::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
 }
 
-.new-mission-fields.visible {
-    max-height: 80px;
-    opacity: 1;
+.mission-code-box:focus {
+    background-color: rgba(170, 170, 170, 0.4);
 }
 
 .form-row-top {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     align-items: center;
     width: 100%;
     max-width: 400px;

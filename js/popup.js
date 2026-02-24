@@ -80,7 +80,13 @@
         const msgEl = document.getElementById('popup-message');
 
         titleEl.textContent = title;
-        msgEl.textContent = message;
+        // Convertir saltos de línea en <br> para mostrarse correctamente en HTML
+        const safeMessage = message
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>');
+        msgEl.innerHTML = safeMessage;
 
         // Reiniciar clases
         titleEl.className = 'popup-title';

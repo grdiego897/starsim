@@ -5,6 +5,12 @@
 
 (function () {
     const STORAGE_KEY = 'starsim_missions';
+    const EVENT_NAME = 'missions-updated';
+
+    /** Notifica a todos los suscriptores que los datos de misiones han cambiado */
+    function notifyUpdate() {
+        window.dispatchEvent(new CustomEvent(EVENT_NAME));
+    }
 
     const MissionService = {
         /**
@@ -49,6 +55,7 @@
                 if (index !== -1) {
                     missions[index] = { ...missions[index], ...missionData }; // Combinar para preservar createdAt
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
+                    notifyUpdate();
                     return true;
                 }
                 return false;
@@ -67,6 +74,14 @@
             try {
                 const missions = this.getAllMissions();
 
+                // Comprobar duplicado por nombre (insensible a mayúsculas)
+                const nombreNuevo = (missionData.name || '').trim().toLowerCase();
+                const yaExiste = missions.some(m => (m.name || '').trim().toLowerCase() === nombreNuevo);
+                if (yaExiste) {
+                    console.warn('Ya existe una misión con el nombre:', missionData.name);
+                    return 'duplicate';
+                }
+
                 // Añadir ID si falta
                 if (!missionData.id) {
                     missionData.id = Date.now().toString();
@@ -79,6 +94,7 @@
 
                 missions.push(missionData);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
+                notifyUpdate();
                 return true;
             } catch (e) {
                 console.error('Error al guardar misión:', e);
@@ -96,11 +112,25 @@
                 const missions = this.getAllMissions();
                 const filtered = missions.filter(m => m.id !== id);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+                notifyUpdate();
                 return true;
             } catch (e) {
                 console.error('Error al eliminar misión:', e);
                 return false;
             }
+        },
+
+        /**
+         * Suscribirse a cambios de datos de misiones
+         * @param {Function} callback - Función a llamar cuando los datos cambien
+         * @returns {Function} Función para cancelar la suscripción
+         */
+        subscribe: function (callback) {
+            window.addEventListener(EVENT_NAME, callback);
+            // Devolver función de limpieza
+            return function unsubscribe() {
+                window.removeEventListener(EVENT_NAME, callback);
+            };
         }
     };
 

@@ -6,31 +6,44 @@ function initProgramPage() {
         return;
     }
 
+    // Mapa de valores internos del lanzador a nombres legibles
+    const launcherNames = {
+        'starship': 'Starship',
+        'superheavy': 'Starship',
+        'falconheavy': 'Falcon Heavy',
+        'falcon9': 'Falcon 9',
+        'dragon': 'Falcon 9',
+        'falcon-fairing': 'Falcon Heavy'
+    };
+
+    function getLauncherName(mission) {
+        const launch = (mission.launches && mission.launches[0]) || {};
+        const ship = (launch.ship || '').toLowerCase();
+        const booster = (launch.booster || '').toLowerCase();
+        if (ship === 'starship' || booster === 'superheavy') return 'Starship';
+        if (booster === 'falconheavy' || ship === 'falcon-fairing') return 'Falcon Heavy';
+        if (ship || booster) return launcherNames[ship] || launcherNames[booster] || 'Falcon 9';
+        return 'Sin lanzador';
+    }
+
     function renderTable() {
-<<<<<<< HEAD
-        // Obtener misiones usando servicio global
-        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
-        console.log("Misiones cargadas:", missions);
-=======
-        // Fetch missions using global service
+        // Obtener misiones usando el servicio global
         let missions = window.MissionService ? window.MissionService.getAllMissions() : [];
         console.log("Missions loaded:", missions);
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
 
         const statusSelect = document.getElementById('status-filter');
         const launcherSelect = document.getElementById('launcher-filter');
         const currentStatusFilter = statusSelect ? statusSelect.value : 'all';
         const currentLauncherFilter = launcherSelect ? launcherSelect.value : 'all';
 
+        // Filtrar por estado
         if (currentStatusFilter !== 'all') {
             missions = missions.filter(m => (m.status || 'programado') === currentStatusFilter);
         }
 
+        // Filtrar por lanzador usando getLauncherName()
         if (currentLauncherFilter !== 'all') {
-            missions = missions.filter(m => {
-                const ship = m.ship || '';
-                return ship.toLowerCase() === currentLauncherFilter.toLowerCase();
-            });
+            missions = missions.filter(m => getLauncherName(m) === currentLauncherFilter);
         }
 
         tbody.innerHTML = '';
@@ -46,13 +59,11 @@ function initProgramPage() {
         missions.forEach(mission => {
             const tr = document.createElement('tr');
 
-            // Formatear fecha (preferir launchDate, usar createdAt como respaldo)
-            const dateObj = new Date(mission.launchDate || mission.createdAt);
+            // Formatear fecha (preferir launchDate del primer lanzamiento, luego createdAt)
+            const firstLaunch = (mission.launches && mission.launches[0]) || {};
+            const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
-<<<<<<< HEAD
-            // Construir HTML de fila
-=======
             // Status handling
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
@@ -63,10 +74,9 @@ function initProgramPage() {
             };
             const currentClass = statusClassMap[currentStatus] || 'programmed';
 
-            // Construct row HTML
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
+            // Construcción del HTML de la fila
             tr.innerHTML = `
-                <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${mission.ship || 'Nave'}</td>
+                <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${getLauncherName(mission)}</td>
                 <td>${dateStr}</td>
                 <td>
                     <select class="status-pill status-select ${currentClass}" data-id="${mission.id}">
@@ -99,36 +109,9 @@ function initProgramPage() {
             `;
             tbody.appendChild(tr);
         });
-
-<<<<<<< HEAD
-        // Delegación de eventos para acciones (Editar/Eliminar)
-        tbody.onclick = function (e) {
-            // Manejar Edición
-            const btnEdit = e.target.closest('.btn-edit');
-            if (btnEdit) {
-                const id = btnEdit.getAttribute('data-id');
-                console.log('Clic en Editar, ID:', id);
-                if (id && id !== 'undefined') {
-                    localStorage.setItem('editMissionId', id);
-                    window.router.navigateTo('mision');
-                } else {
-                    console.error('Falta Data ID en botón de editar');
-                }
-                return;
-            }
-
-            // Manejar Eliminación
-            const btnDelete = e.target.closest('.btn-delete');
-            if (btnDelete) {
-                const id = btnDelete.getAttribute('data-id');
-                if (confirm('¿Estás seguro de eliminar esta misión?')) {
-                    if (window.MissionService.deleteMission(id)) {
-                        renderTable();
-                    }
-=======
     }
 
-    // Event delegation outside of renderTable to avoid multiple bindings
+    // Event delegation para cambio de estado (fuera de renderTable para evitar múltiples bindings)
     tbody.addEventListener('change', function (e) {
         if (e.target.classList.contains('status-select')) {
             const id = e.target.getAttribute('data-id');
@@ -139,14 +122,13 @@ function initProgramPage() {
                     mission.status = newStatus;
                     window.MissionService.updateMission(mission);
                     renderTable();
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
                 }
             }
         }
     });
 
     tbody.onclick = async function (e) {
-        // Handle Edit
+        // Editar
         const btnEdit = e.target.closest('.btn-edit');
         if (btnEdit) {
             const id = btnEdit.getAttribute('data-id');
@@ -160,7 +142,7 @@ function initProgramPage() {
             return;
         }
 
-        // Handle Delete
+        // Eliminar
         const btnDelete = e.target.closest('.btn-delete');
         if (btnDelete) {
             const id = btnDelete.getAttribute('data-id');
@@ -177,6 +159,7 @@ function initProgramPage() {
         }
     };
 
+    // Listeners de filtros
     const statusSelect = document.getElementById('status-filter');
     if (statusSelect) {
         statusSelect.addEventListener('change', renderTable);
@@ -187,7 +170,26 @@ function initProgramPage() {
         launcherSelect.addEventListener('change', renderTable);
     }
 
+    // Renderizado inicial
     renderTable();
+
+    // Suscribirse a cambios de datos para mantener la tabla sincronizada
+    // (p.ej. cuando se cambia el estado desde la página de Panel)
+    let unsubscribe = null;
+    if (window.MissionService && window.MissionService.subscribe) {
+        unsubscribe = window.MissionService.subscribe(renderTable);
+    }
+
+    // Limpiar la suscripción cuando el contenedor sea eliminado del DOM
+    if (tbody && unsubscribe) {
+        const observer = new MutationObserver(() => {
+            if (!document.contains(tbody)) {
+                unsubscribe();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 }
 
 // Exponer globalmente

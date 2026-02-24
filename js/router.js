@@ -39,14 +39,10 @@ class Router {
     }
 
     async handleLocation() {
-<<<<<<< HEAD
-        // Obtener ruta del hash, por defecto panel
-=======
         // Skip if this hash change was triggered silently by ScrollTransition
         if (window._scrollTransitionSilent) return;
 
         // Get path from hash, default to panel
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         let path = window.location.hash.slice(1) || 'panel';
 
         // Manejar parámetros de consulta si existen (ignorar para coincidencia de rutas)
@@ -60,10 +56,6 @@ class Router {
         // Actualizar título
         document.title = route.title;
 
-<<<<<<< HEAD
-        // Cambiar CSS
-=======
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         const pageCss = document.getElementById('page-css');
 
         // --- Scroll Transition Routes ---
@@ -113,26 +105,10 @@ class Router {
             pageCss.href = route.style;
         }
 
-<<<<<<< HEAD
-        // Obtener contenido
-=======
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         try {
             const response = await fetch(route.template);
             const html = await response.text();
 
-<<<<<<< HEAD
-            // Inyectar contenido
-            const appContent = document.getElementById('app-content');
-            if (appContent) {
-                appContent.innerHTML = html;
-
-                // Inicializar lógica de página
-                if (route.init) {
-                    // Pequeño retraso para asegurar que el DOM esté listo
-                    setTimeout(route.init, 50);
-                }
-=======
             // Snap to entry position (invisible, no transition)
             appContent.classList.remove('page-leaving');
             appContent.classList.add('page-entering');
@@ -153,7 +129,6 @@ class Router {
                     Promise.all(imagePromises),
                     new Promise(resolve => setTimeout(resolve, 800))
                 ]);
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
             }
 
             // Initialize page logic before revealing
@@ -169,14 +144,9 @@ class Router {
             // The base CSS transition will animate opacity/transform back to normal
 
         } catch (error) {
-<<<<<<< HEAD
-            console.error('Error al cargar página:', error);
-            document.getElementById('app-content').innerHTML = '<h1>Error al cargar contenido</h1>';
-=======
             console.error('Error loading page:', error);
             appContent.classList.remove('page-leaving', 'page-entering');
             appContent.innerHTML = '<h1>Error loading content</h1>';
->>>>>>> 45965733d2f3cbc3b60d507432d4bdee1915a2a7
         }
     }
 
