@@ -11,8 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Visor de Spline -->
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.32/build/spline-viewer.js"></script>
+  <!-- Runtime de Spline (sin web component) -->
 
   <style>
     * {
@@ -148,7 +147,7 @@
       opacity: 0.9;
     }
 
-    spline-viewer {
+    #canvas3d {
       width: 100% !important;
       height: 102% !important;
       transform: scale(0.85) translateY(15%);
@@ -210,8 +209,9 @@
       <!-- Parche de Starbase -->
       <img src="img/sbpatch.png" alt="Starbase" class="logo-right">
 
-      <!-- Modelo 3D del robot -->
-      <spline-viewer url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"></spline-viewer>
+      <canvas id="canvas3d"></canvas>
+
+      <script type="module" src="js/cm.js"></script>
     </div>
   </div>
 
