@@ -28,12 +28,17 @@
     align-items: center;
     justify-content: flex-start;
     /* Align top instead of center */
-    padding-top: 30px;
+    padding: 30px 20px;
     /* Adjust vertical position */
     z-index: 5;
     position: relative;
     /* For absolute button positioning */
     height: 100%;
+    background-color: rgba(60, 60, 60, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
 }
 
 .mission-header-title {
@@ -44,22 +49,28 @@
     font-weight: 700;
 }
 
-.mission-code-box {
-    background-color: rgba(58, 58, 58, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    /* Fondo oscuro claro */
-    padding: 15px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    outline: none;
-    border-radius: 12px;
-    margin-bottom: 40px;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: white;
-    letter-spacing: 1px;
-    min-width: 300px;
-    text-align: center;
+/* Selector de misión */
+.mission-selector-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 400px;
+    align-items: center;
+}
+
+.new-mission-fields {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    width: 100%;
+}
+
+.new-mission-fields.visible {
+    max-height: 80px;
+    opacity: 1;
 }
 
 .form-row-top {

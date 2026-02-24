@@ -106,3 +106,32 @@
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
+
+/* Confirm Dialog Actions */
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.confirm-cancel-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.confirm-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.confirm-delete-btn {
+    background: rgba(218, 52, 52, 0.8);
+    color: white;
+    border: 1px solid rgba(255, 80, 80, 0.4);
+}
+
+.confirm-delete-btn:hover {
+    background: rgba(218, 52, 52, 1);
+    box-shadow: 0 0 16px rgba(218, 52, 52, 0.3);
+}

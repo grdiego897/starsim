@@ -18,11 +18,23 @@
     font-family: 'Inter', sans-serif;
 }
 
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
     display: flex;
     min-height: 100vh;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
 }
 
 /* Evitar selección y arrastre de imágenes globalmente */
@@ -42,6 +54,12 @@ img {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar {
+    display: none;
 }
 
 #app-content {

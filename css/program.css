@@ -37,14 +37,56 @@
 
 .card-header {
     padding: 25px;
-    text-align: center;
     border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .card-header h2 {
     font-weight: 600;
     font-size: 1.4rem;
     letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.filter-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status-filter-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 36px 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: calc(100% - 8px);
+    background-position-y: center;
+    transition: all 0.3s ease;
+}
+
+.status-filter-select:hover,
+.status-filter-select:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.status-filter-select option {
+    background-color: #2a2a2a;
+    color: #fff;
 }
 
 .table-wrapper {
@@ -108,22 +150,65 @@
 .status-pill {
     display: inline-block;
     padding: 6px 16px;
-    border-radius: 6px;
+    border-radius: 8px;
+    /* Slightly rounder for glass effect */
     font-size: 0.85rem;
     font-weight: 600;
-    min-width: 110px;
-    color: #000;
-    /* Texto negro en píldoras */
+    min-width: 120px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .status-pill.programmed {
-    background-color: #aaa;
-    /* Gris */
+    background-color: rgba(170, 170, 170, 0.15);
+    border: 1px solid rgba(170, 170, 170, 0.4);
+    color: #fff;
 }
 
 .status-pill.confirmed {
-    background-color: var(--accent-green);
-    color: white;
+    background-color: rgba(46, 204, 113, 0.15);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    color: #fff;
+}
+
+.status-pill.hold {
+    background-color: rgba(243, 156, 18, 0.15);
+    border: 1px solid rgba(243, 156, 18, 0.4);
+    color: #fff;
+}
+
+.status-pill.cancelled {
+    background-color: rgba(218, 52, 52, 0.15);
+    border: 1px solid rgba(218, 52, 52, 0.4);
+    color: #fff;
+}
+
+select.status-pill {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: calc(100% - 8px);
+    background-position-y: center;
+    padding-right: 28px;
+}
+
+select.status-pill:hover,
+select.status-pill:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+select.status-pill option {
+    background-color: #2a2a2a;
+    color: #fff;
 }
 
 /* Botones de acción */

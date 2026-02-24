@@ -1,32 +1,47 @@
 <div class="dashboard-container">
     <section class="dashboard-grid">
-        <div class="card">
-            <div class="card-icon">
-                <img src="img/ic/starshipic.png" alt="Launch" class="card-icon-img">
+        <div class="card-wrapper" id="card-launches">
+            <div class="card">
+                <div class="card-icon">
+                    <img src="img/ic/starshipic.png" alt="Launch" class="card-icon-img">
+                </div>
+                <div class="card-info">
+                    <span class="card-label">Lanzamientos<br>pendientes</span>
+                    <span class="card-value" id="pending-missions-count">0</span>
+                </div>
             </div>
-            <div class="card-info">
-                <span class="card-label">Lanzamientos<br>pendientes</span>
-                <span class="card-value" id="pending-missions-count">0</span>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-icon">
-                <img src="img/ic/padic.png" alt="Pads" class="card-icon-img">
-            </div>
-            <div class="card-info">
-                <span class="card-label">Pads</span>
-                <span class="card-value">2/4</span>
+            <div class="card-graph-tooltip">
+                <canvas id="chart-launches"></canvas>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-icon">
-                <img src="img/ic/successic.png" alt="Stats" class="card-icon-img">
+        <div class="card-wrapper" id="card-pads">
+            <div class="card">
+                <div class="card-icon">
+                    <img src="img/ic/padic.png" alt="Pads" class="card-icon-img">
+                </div>
+                <div class="card-info">
+                    <span class="card-label">Pads</span>
+                    <span class="card-value">2/4</span>
+                </div>
             </div>
-            <div class="card-info">
-                <span class="card-label">Tasa de Éxito</span>
-                <span class="card-value">98%</span>
+            <div class="card-graph-tooltip">
+                <canvas id="chart-pads"></canvas>
+            </div>
+        </div>
+
+        <div class="card-wrapper" id="card-success">
+            <div class="card">
+                <div class="card-icon">
+                    <img src="img/ic/successic.png" alt="Stats" class="card-icon-img">
+                </div>
+                <div class="card-info">
+                    <span class="card-label">Tasa de Éxito</span>
+                    <span class="card-value">98%</span>
+                </div>
+            </div>
+            <div class="card-graph-tooltip">
+                <canvas id="chart-success"></canvas>
             </div>
         </div>
     </section>

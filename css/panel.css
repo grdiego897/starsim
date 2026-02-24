@@ -78,6 +78,49 @@
     font-weight: 300;
 }
 
+/* Card wrapper for hover graphs */
+.card-wrapper {
+    position: relative;
+}
+
+.card-wrapper .card {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.card-graph-tooltip {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.card-wrapper:hover .card-graph-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.card-wrapper:hover .card {
+    opacity: 0;
+}
+
+.card-graph-tooltip canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
 /* Sección media */
 .middle-section {
     display: grid;
@@ -212,22 +255,65 @@ tr:last-child td {
 
 .badge {
     padding: 5px 15px;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: capitalize;
     display: inline-block;
     text-align: center;
     min-width: 100px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .badge-scheduled {
-    background-color: #999;
-    color: #111;
+    background-color: rgba(170, 170, 170, 0.15);
+    border: 1px solid rgba(170, 170, 170, 0.4);
+    color: #fff;
 }
 
 .badge-confirmed {
-    background-color: var(--accent-green);
+    background-color: rgba(46, 204, 113, 0.15);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    color: #fff;
+}
+
+.badge-hold {
+    background-color: rgba(243, 156, 18, 0.15);
+    border: 1px solid rgba(243, 156, 18, 0.4);
+    color: #fff;
+}
+
+.badge-cancelled {
+    background-color: rgba(218, 52, 52, 0.15);
+    border: 1px solid rgba(218, 52, 52, 0.4);
+    color: #fff;
+}
+
+select.badge {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: calc(100% - 4px);
+    background-position-y: center;
+    padding-right: 24px;
+}
+
+select.badge:hover,
+select.badge:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+select.badge option {
+    background-color: #2a2a2a;
     color: #fff;
 }
 

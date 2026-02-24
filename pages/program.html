@@ -2,6 +2,21 @@
     <div class="program-card">
         <div class="card-header">
             <h2>Programa</h2>
+            <div class="filter-wrapper">
+                <select id="launcher-filter" class="status-filter-select">
+                    <option value="all">Todos los lanzadores</option>
+                    <option value="starship">Starship</option>
+                    <option value="falcon 9">Falcon 9</option>
+                    <option value="falcon heavy">Falcon Heavy</option>
+                </select>
+                <select id="status-filter" class="status-filter-select">
+                    <option value="all">Todos los estados</option>
+                    <option value="programado">Programado</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="hold">Hold</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
         </div>
 
         <div class="table-wrapper">
