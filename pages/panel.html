@@ -65,15 +65,17 @@
 
         <div class="weather-card">
             <div class="weather-info">
-                <h3>Pronóstico</h3>
+                <h3 id="weather-title">Pronóstico</h3>
                 <div class="weather-grid">
-                    <span>Viento</span> <span>17km/h</span>
-                    <span>Precipitación</span> <span>3%</span>
-                    <span>Viabilidad:</span> <span>97%</span>
+                    <span>Temp:</span> <span id="weather-temp">-- °C</span>
+                    <span>Viento:</span> <span id="weather-wind">-- km/h</span>
+                    <span>Precipitación:</span> <span id="weather-precip">-- mm</span>
+                    <span>Viabilidad:</span> <span id="weather-viability" class="viability-badge">--</span>
                 </div>
             </div>
-            <div class="weather-icon-wrapper">
-                <img src="img/ic/sunic.png" alt="Sunny" class="weather-icon-img">
+            <div class="weather-icon-wrapper" style="text-align: right;">
+                <div id="weather-port" style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; font-weight: 500;">--</div>
+                <img src="img/ic/sunic.png" alt="Sunny" id="weather-icon" class="weather-icon-img">
             </div>
         </div>
     </section>

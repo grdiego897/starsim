@@ -60,12 +60,24 @@ function initPanelPage() {
                     </select>
                 </td>
                 <td class="actions-cell">
-                    <button class="btn-action btn-edit" data-id="${mission.id}" style="background:none; border:none; color: #ccc; cursor: pointer;">
-                        Editar
-                    </button>
-                    <button class="btn-action btn-delete" data-id="${mission.id}" style="background:none; border:none; color: #da3434; cursor: pointer; margin-left: 10px;">
-                        Eliminar
-                    </button>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-edit" data-id="${mission.id}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Editar
+                        </button>
+                        <button class="btn-action btn-delete" data-id="${mission.id}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Eliminar
+                        </button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -148,7 +160,7 @@ function initPanelPage() {
                 if (!l.launchDate) return;
                 const dt = new Date(l.launchDate).getTime();
                 if (dt > now && (!closest || dt < closest.time)) {
-                    closest = { name: m.name || 'Misión', time: dt };
+                    closest = { name: m.name || 'Misión', time: dt, id: m.id, port: l.port || m.port || 'starbase' };
                 }
             });
 
@@ -156,7 +168,7 @@ function initPanelPage() {
             if (m.launchDate) {
                 const dt = new Date(m.launchDate).getTime();
                 if (dt > now && (!closest || dt < closest.time)) {
-                    closest = { name: m.name || 'Misión', time: dt };
+                    closest = { name: m.name || 'Misión', time: dt, id: m.id, port: m.port || 'starbase' };
                 }
             }
         });
@@ -207,6 +219,14 @@ function initPanelPage() {
             cdName.textContent = countdownTarget.name;
         }
         updateCountdown();
+
+        // Llamar a la API de clima si hay una misión
+        if (countdownTarget && countdownTarget.id && typeof fetchWeather === 'function') {
+            fetchWeather(countdownTarget.port, countdownTarget.id, () => {
+                // Ignore rerender warning here or gently refresh
+                renderUpcoming();
+            });
+        }
     }
 
     // Iniciar countdown
@@ -441,8 +461,6 @@ function barLineOptions(titleText) {
     };
 }
 
-<<<<<<< Updated upstream
-=======
 async function fetchWeather(port = 'starbase', missionId = null, rerenderCallback = null) {
     try {
         // Map spaceports to their nearest city or region for geocoding
@@ -493,6 +511,7 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         const precipEl = document.getElementById('weather-precip');
         const titleEl = document.getElementById('weather-title');
         const viabilityEl = document.getElementById('weather-viability');
+        const portEl = document.getElementById('weather-port');
 
         if (windEl) windEl.textContent = `${wind} km/h`;
         if (tempEl) tempEl.textContent = `${temp} °C`;
@@ -527,6 +546,16 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         }
 
         if (titleEl) titleEl.textContent = weatherTitle;
+        
+        const portLabels = {
+            'starbase': 'Starbase',
+            'cape': 'Cape Canaveral',
+            'vandenberg': 'Vandenberg',
+            'kourou': 'Kourou',
+            'azores': 'Azores'
+        };
+        const portLabel = portLabels[port] || (port.charAt(0).toUpperCase() + port.slice(1));
+        if (portEl) portEl.textContent = portLabel;
 
         const weatherIconEl = document.getElementById('weather-icon');
         if (weatherIconEl) weatherIconEl.src = weatherIconSrc;
@@ -549,7 +578,11 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         // 3. Auto-update the most recent mission's status
         if (missionStatus && missionId && window.MissionService) {
             const mission = window.MissionService.getMissionById(missionId);
-            if (mission) {
+            // Solo actualizar automáticamente si el estado actual es 'programado' (estado inicial)
+            // Esto permite que si el usuario lo cambia manualmente a Confirmado/Hold/Cancelado, se respete su decisión.
+            const currentStatus = mission?.status || 'programado';
+
+            if (mission && currentStatus === 'programado' && currentStatus !== missionStatus) {
                 mission.status = missionStatus;
                 window.MissionService.updateMission(mission);
                 if (rerenderCallback) rerenderCallback();
@@ -560,6 +593,5 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
     }
 }
 
->>>>>>> Stashed changes
 // Exponer globalmente
 window.initPanelPage = initPanelPage;
