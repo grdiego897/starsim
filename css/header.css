@@ -25,6 +25,25 @@ header {
     pointer-events: none;
 }
 
+/* Static warning pill */
+.notification-pill-static {
+    background-color: rgba(51, 51, 51, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #ccc;
+    white-space: nowrap;
+}
+
+.notification-pill-static.warning {
+    background-color: rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.3);
+    color: #ff6b6b;
+}
+
 /* Clases de animación */
 .fade-in {
     animation: fadeIn 0.5s ease-out forwards;

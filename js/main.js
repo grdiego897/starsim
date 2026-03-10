@@ -10,12 +10,12 @@ function loadSidebar() {
 
 // Función para limpiar datos de misión del localStorage
 function clearMissionData() {
-    // Campos de mision.js
-    const misionFields = [
+    // Campos de mision.js que usan el prefijo misionDraft_
+    const misionDraftFields = [
         'mission-name-input', 'program-select', 'destination-select',
         'ship-select', 'booster-select', 'cargo-type-select',
-        'cargo-mass-input', 'port-select', 'launch-site-select',
-        'landing-type-select', 'landing-id-select', 'selectedVehicleSrc'
+        'cargo-mass-input', 'port-select', 'launch-date-input',
+        'landing-type-select', 'landing-id-select'
     ];
 
     // Campos de configAvanzada.js
@@ -24,11 +24,18 @@ function clearMissionData() {
         'crew-input', 'cargoItems'
     ];
 
-    // Añadir editMissionId para ser limpiado
+    // Limpiar variables de estado de edición
     localStorage.removeItem('editMissionId');
+    localStorage.removeItem('editLaunchId');
+    localStorage.removeItem('selectedVehicleSrc');
 
-    // Limpiar todos los campos de misión
-    [...misionFields, ...configFields].forEach(key => {
+    // Limpiar borradores guardados con prefijo
+    misionDraftFields.forEach(id => {
+        localStorage.removeItem('misionDraft_' + id);
+    });
+
+    // Limpiar configuraciones avanzadas
+    configFields.forEach(key => {
         localStorage.removeItem(key);
     });
 }
@@ -36,7 +43,11 @@ function clearMissionData() {
 // Función para navegar a Nueva Misión (limpia datos primero)
 function goToNewMission() {
     clearMissionData();
-    window.location.hash = 'mision';
+    if (window.router) {
+        window.router.navigateTo('mision');
+    } else {
+        window.location.hash = 'mision';
+    }
 }
 
 function initSidebarLogic() {

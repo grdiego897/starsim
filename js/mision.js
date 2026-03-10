@@ -292,11 +292,22 @@ function initMisionPage() {
 
             let success = false;
 
-            if (isEditing && editingLaunch) {
-                // Update existing launch
+            if (isEditing && editingMission && editingLaunch) {
+                // Update existing launch inside the mission
                 launchData.id = editingLaunch.id;
                 launchData.createdAt = editingLaunch.createdAt;
-                success = window.MissionService.updateLaunch(editMissionId, launchData);
+
+                const lIndex = editingMission.launches.findIndex(l => l.id === editingLaunch.id);
+                if (lIndex !== -1) {
+                    editingMission.launches[lIndex] = launchData;
+                } else {
+                    editingMission.launches[0] = launchData;
+                }
+
+                editingMission.name = missionNameInput?.value?.trim() || 'Sin Nombre';
+                editingMission.program = programInput?.value?.trim() || '';
+
+                success = window.MissionService.updateMission(editingMission);
                 if (success) {
                     localStorage.removeItem('editMissionId');
                     localStorage.removeItem('editLaunchId');

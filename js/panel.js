@@ -441,5 +441,125 @@ function barLineOptions(titleText) {
     };
 }
 
+<<<<<<< Updated upstream
+=======
+async function fetchWeather(port = 'starbase', missionId = null, rerenderCallback = null) {
+    try {
+        // Map spaceports to their nearest city or region for geocoding
+        const portCities = {
+            'starbase': 'Starbase, Texas',
+            'cape': 'Cape Canaveral',
+            'vandenberg': 'Vandenberg Space Force Base',
+            'kourou': 'Kourou',
+            'azores': 'Azores'
+        };
+
+        const cityQuery = portCities[port] || 'Starbase, Texas';
+
+        // 1. Get coordinates using Nominatim API based on city name
+        const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityQuery)}&limit=1`;
+        const geoRes = await fetch(geoUrl, {
+            headers: { 'Accept-Language': 'es' }
+        });
+
+        if (!geoRes.ok) throw new Error("Geocoding API error");
+        const geoData = await geoRes.json();
+
+        let lat = 25.9973;
+        let lon = -97.1555;
+
+        if (geoData && geoData.length > 0) {
+            lat = geoData[0].lat;
+            lon = geoData[0].lon;
+        } else {
+            console.warn(`City not found: ${cityQuery}. Using default coordinates.`);
+        }
+
+        // 2. Fetch weather from Open-Meteo using the resolved coordinates
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=auto`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Weather API error");
+        const data = await response.json();
+
+        const current = data.current;
+        const temp = Math.round(current.temperature_2m);
+        const wind = Math.round(current.wind_speed_10m);
+        const precip = current.precipitation;
+        const code = current.weather_code;
+
+        const windEl = document.getElementById('weather-wind');
+        const tempEl = document.getElementById('weather-temp');
+        const precipEl = document.getElementById('weather-precip');
+        const titleEl = document.getElementById('weather-title');
+        const viabilityEl = document.getElementById('weather-viability');
+
+        if (windEl) windEl.textContent = `${wind} km/h`;
+        if (tempEl) tempEl.textContent = `${temp} °C`;
+        if (precipEl) precipEl.textContent = `${precip} mm`;
+
+        // 3 categories: Despejado, Nublado, Precipitaciones
+        let weatherTitle = 'Pronóstico';
+        let viabilityText = '--';
+        let viabilityClass = '';
+        let missionStatus = null;
+        let weatherIconSrc = 'img/ic/sunic.png';
+
+        if (code === 0) {
+            weatherTitle = 'Despejado';
+            viabilityText = 'Go';
+            viabilityClass = 'viability-go';
+            missionStatus = 'confirmado';
+            weatherIconSrc = 'img/ic/sunic.png';
+        } else if ([1, 2, 3, 45, 48].includes(code)) {
+            weatherTitle = 'Nublado';
+            viabilityText = 'Hold';
+            viabilityClass = 'viability-hold';
+            missionStatus = 'hold';
+            weatherIconSrc = 'img/ic/cloudic.png';
+        } else if (code >= 51) {
+            // Codes 51-99: drizzle, rain, snow, showers, thunderstorms
+            weatherTitle = 'Precipitaciones';
+            viabilityText = 'Cancelado';
+            viabilityClass = 'viability-cancel';
+            missionStatus = 'cancelado';
+            weatherIconSrc = 'img/ic/rainic.png';
+        }
+
+        if (titleEl) titleEl.textContent = weatherTitle;
+
+        const weatherIconEl = document.getElementById('weather-icon');
+        if (weatherIconEl) weatherIconEl.src = weatherIconSrc;
+
+        // Show/Hide top header warning pill
+        const warningPill = document.getElementById('weatherWarningPill');
+        if (warningPill) {
+            if (code !== 0) { // Not sunny
+                warningPill.style.display = 'block';
+            } else {
+                warningPill.style.display = 'none';
+            }
+        }
+
+        if (viabilityEl) {
+            viabilityEl.textContent = viabilityText;
+            viabilityEl.className = 'viability-badge ' + viabilityClass;
+        }
+
+        // 3. Auto-update the most recent mission's status
+        if (missionStatus && missionId && window.MissionService) {
+            const mission = window.MissionService.getMissionById(missionId);
+            if (mission) {
+                mission.status = missionStatus;
+                window.MissionService.updateMission(mission);
+                if (rerenderCallback) rerenderCallback();
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching weather:", error);
+    }
+}
+
+>>>>>>> Stashed changes
 // Exponer globalmente
 window.initPanelPage = initPanelPage;
