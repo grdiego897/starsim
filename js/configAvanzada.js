@@ -61,7 +61,7 @@ function initConfigAvanzadaPage() {
         totalObjectsEl.textContent = totalQty;
         const totalMassEl = document.getElementById('total-mass');
         if (totalMassEl) {
-            totalMassEl.textContent = totalMass.toLocaleString() + ' kg';
+            totalMassEl.textContent = totalMass.toLocaleString() + ' t';
         }
     }
 
@@ -102,7 +102,7 @@ function initConfigAvanzadaPage() {
 
             const massUnit = document.createElement('span');
             massUnit.className = 'item-unit';
-            massUnit.textContent = 'kg';
+            massUnit.textContent = 't';
 
             massInput.addEventListener('input', (e) => {
                 item.mass = e.target.value;

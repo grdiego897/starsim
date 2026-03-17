@@ -1,5 +1,46 @@
 
 function initMisionPage() {
+    // --- Capacities & Mass Calculation ---
+    const CAPACITIES = {
+        'falcon9': { 'leo': 22.8, 'haven': 22.8, 'axiom': 22.8, 'orbital-reef': 22.8 },
+        'falconheavy': { 'leo': 63.8, 'haven': 63.8, 'axiom': 63.8, 'orbital-reef': 63.8 },
+        'superheavy': { 
+            'leo': 150, 'haven': 150, 'axiom': 150, 'orbital-reef': 150, 
+            'gateway': 50, 'luna': 50, 
+            'terminus': 150 
+        }
+    };
+
+    function getMissionCapacity(booster, dest) {
+        if (CAPACITIES[booster] && CAPACITIES[booster][dest] !== undefined) {
+            return CAPACITIES[booster][dest];
+        }
+        return 0; // Combinación inválida
+    }
+
+    function getTotalMass() {
+        const cargoStr = localStorage.getItem('cargoItems');
+        if (!cargoStr) return 0;
+        try {
+            const items = JSON.parse(cargoStr);
+            let total = 0;
+            items.forEach(i => {
+                total += (parseInt(i.qty) || 0) * (parseFloat(i.mass) || 0);
+            });
+            return total;
+        } catch(e) {
+            return 0;
+        }
+    }
+
+    function updateCargoMass() {
+        const massInput = document.getElementById('cargo-mass-input');
+        if (massInput) {
+            const total = getTotalMass();
+            massInput.value = `${total} t`;
+        }
+    }
+
     // --- Image Logic ---
     const shipSelect = document.getElementById('ship-select');
     const boosterSelect = document.getElementById('booster-select');
@@ -129,7 +170,6 @@ function initMisionPage() {
                 setVal('ship-select', editingLaunch.ship);
                 setVal('booster-select', editingLaunch.booster);
                 setVal('cargo-type-select', editingLaunch.cargoType);
-                setVal('cargo-mass-input', editingLaunch.cargoMass);
                 setVal('port-select', editingLaunch.port);
                 setVal('launch-date-input', editingLaunch.launchDate);
                 setVal('landing-type-select', editingLaunch.landingType);
@@ -172,7 +212,6 @@ function initMisionPage() {
         'ship-select',
         'booster-select',
         'cargo-type-select',
-        'cargo-mass-input',
         'port-select',
         'launch-date-input',
         'landing-type-select',
@@ -219,6 +258,9 @@ function initMisionPage() {
         }
     }
 
+    // Actualizar la masa automáticamente según los elementos de carga
+    updateCargoMass();
+
     // --- Advanced Button ---
     const btnAdvanced = document.getElementById('btn-advanced');
     if (btnAdvanced) {
@@ -256,10 +298,28 @@ function initMisionPage() {
                 }
             };
 
-            // Validate
+            // Validate Capacity
+            const boosterVal = launchData.booster;
+            const destVal = launchData.destination;
+            const totalMassNum = getTotalMass();
+            const capacity = getMissionCapacity(boosterVal, destVal);
+
+            if (capacity === 0) {
+                 const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
+                 const msg = `El vehículo seleccionado (${vehName}) no tiene capacidad para viajar al destino elegido.`;
+                 if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
+                 return;
+            }
+
+            if (totalMassNum > capacity) {
+                 const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
+                 const msg = `La masa total (${totalMassNum} t) supera la capacidad máxima de ${vehName} para este destino (${capacity} t).`;
+                 if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
+                 return;
+            }
+
             const requiredFields = [
-                { val: launchData.launchDate, name: 'Fecha de Lanzamiento' },
-                { val: launchData.cargoMass, name: 'Masa de Carga' }
+                { val: launchData.launchDate, name: 'Fecha de Lanzamiento' }
             ];
 
             // Validate mission name for new missions
