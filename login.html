@@ -187,11 +187,10 @@
 
       <div class="form-wrapper">
         <h1>Inicia sesión</h1>
-        <form
-          onsubmit="localStorage.setItem('loggedIn', 'true'); window.location.href='index.html#panel?welcome=1'; return false;">
+        <form onsubmit="handleLogin(event)">
           <div class="input-group">
-            <label for="user">Usuario</label>
-            <input type="text" id="user" required />
+            <label for="user">Usuario (Email)</label>
+            <input type="email" id="user" required />
           </div>
 
           <div class="input-group">
@@ -212,7 +211,48 @@
       <canvas id="canvas3d"></canvas>
 
       <script type="module" src="js/cm.js"></script>
+      <script>
+        async function handleLogin(e) {
+          e.preventDefault();
+          
+          const email = document.getElementById('user').value;
+          const password = document.getElementById('pass').value;
+          const btn = e.target.querySelector('button');
+          const originalText = btn.innerText;
+
+          try {
+            btn.innerText = 'Autenticando...';
+            btn.disabled = true;
+
+            const res = await fetch('http://127.0.0.1/api/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              localStorage.setItem('api_token', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              window.location.href = 'index.html#panel?welcome=1';
+            } else {
+              const errorData = await res.json();
+              alert(errorData.message || 'Credenciales inválidas');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Error de conexión con el servidor. ¿Está el backend encendido?');
+          } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+          }
+        }
+      </script>
     </div>
+
   </div>
 
 </body>
