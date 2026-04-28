@@ -38,11 +38,11 @@ function initProgramPage() {
     }
 
     function showLoading() {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
     }
 
     function showError(msg) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
     }
 
     async function renderTable() {
@@ -75,7 +75,7 @@ function initProgramPage() {
         tbody.innerHTML = '';
 
         if (missions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">No hay misiones coincidentes.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">No hay misiones coincidentes.</td></tr>';
             return;
         }
 
@@ -102,6 +102,8 @@ function initProgramPage() {
 
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${getLauncherName(mission)}</td>
+                <td><span class="badge" style="background: rgba(255,255,255,0.1); color: #ccc;">${mission.entidad?.name || '-'}</span></td>
+                <td>${mission.program || '-'}</td>
                 <td>${dateStr}</td>
                 <td>
                     <select class="status-pill status-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>

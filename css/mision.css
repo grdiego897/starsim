@@ -134,6 +134,53 @@
     background-color: #aaa;
 }
 
+/* Autocomplete Custom Styling */
+.autocomplete-wrapper {
+    position: relative;
+    width: 160px;
+}
+
+.autocomplete-wrapper input {
+    width: 100%;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    margin: 4px 0 0 0;
+    padding: 0;
+    list-style: none;
+    background-color: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.autocomplete-list li {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.autocomplete-list li:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-list li:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
 /* Columnas para detalles */
 .details-columns {
     display: flex;

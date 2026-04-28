@@ -135,6 +135,45 @@ async function initMisionPage() {
     const missionNameInput = document.getElementById('mission-name-input');
     const programInput = document.getElementById('program-select');
 
+    async function loadPrograms() {
+        if (!window.MissionService) return;
+        const missions = await window.MissionService.getAllMissions();
+        const programs = Array.from(new Set(missions.map(m => m.program).filter(p => p)));
+        
+        const input = document.getElementById('program-select');
+        const list = document.getElementById('program-autocomplete-list');
+        if (!input || !list) return;
+
+        function renderList(filterText = '') {
+            list.innerHTML = '';
+            const filtered = programs.filter(p => p.toLowerCase().includes(filterText.toLowerCase()));
+            
+            if (filtered.length === 0) {
+                list.style.display = 'none';
+                return;
+            }
+
+            filtered.forEach(p => {
+                const li = document.createElement('li');
+                li.textContent = p;
+                li.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    input.value = p;
+                    list.style.display = 'none';
+                });
+                list.appendChild(li);
+            });
+            list.style.display = 'block';
+        }
+
+        input.addEventListener('focus', () => renderList(input.value));
+        input.addEventListener('input', () => renderList(input.value));
+        input.addEventListener('blur', () => {
+            list.style.display = 'none';
+        });
+    }
+    loadPrograms();
+
     // --- Edit Mode ---
     const editMissionId = localStorage.getItem('editMissionId');
     const editLaunchId = localStorage.getItem('editLaunchId');
