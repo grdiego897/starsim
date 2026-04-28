@@ -85,6 +85,8 @@ header {
     display: flex;
     align-items: center;
     gap: 15px;
+    position: relative;
+    cursor: pointer;
 }
 
 .user-name {
@@ -103,4 +105,73 @@ header {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #555;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.avatar-img:hover {
+    border-color: #888;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+/* ======================= */
+/* DROPDOWN DEL PERFIL     */
+/* ======================= */
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    min-width: 200px;
+    background: rgba(22, 22, 22, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.96);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    z-index: 500;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.04);
+    pointer-events: none;
+}
+
+.profile-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.profile-dropdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+    color: #c0c0c0;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    border-radius: 8px;
+    margin: 2px 6px;
+}
+
+.profile-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ff6b6b;
+}
+
+.dropdown-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }

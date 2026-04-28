@@ -6,6 +6,7 @@ function loadHeader() {
             if (container) {
                 container.innerHTML = data;
                 initHeaderLogic();
+                initProfileDropdown();
             }
         })
         .catch(err => console.error('Error loading header:', err));
@@ -55,6 +56,78 @@ function initHeaderLogic() {
 
         // Limpiar URL para no mostrar la notificación si se recarga
         // window.history.replaceState({}, document.title, window.location.pathname + window.location.hash.split('?')[0]);
+    }
+}
+
+/**
+ * Inicializar el menú desplegable del perfil y la lógica de cierre de sesión.
+ */
+function initProfileDropdown() {
+    const profileToggle = document.getElementById('userProfileToggle');
+    const dropdown = document.getElementById('profileDropdown');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (!profileToggle || !dropdown) return;
+
+    // Alternar dropdown al hacer clic en el perfil
+    profileToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('active');
+    });
+
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!profileToggle.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Cerrar dropdown con tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Botón "Cerrar sesión" → usar showConfirm existente de popup.js
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            dropdown.classList.remove('active');
+
+            // Usar el sistema de confirmación existente (popup.js → showConfirm)
+            const confirmed = await window.showConfirm(
+                'Cerrar sesión',
+                '¿Estás seguro de que deseas cerrar tu sesión? Tendrás que ingresar tus credenciales de nuevo para acceder.',
+                {
+                    confirmText: 'Cerrar sesión',
+                    cancelText: 'Cancelar',
+                    type: 'error'
+                }
+            );
+
+            if (!confirmed) return;
+
+            // Revocar token en el backend (fire-and-forget, sin esperar respuesta)
+            const token = localStorage.getItem('api_token');
+            if (token) {
+                fetch('http://127.0.0.1/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }).catch(() => {}); // Ignorar errores, la sesión local ya se limpió
+            }
+
+            // Limpiar datos de sesión del navegador inmediatamente
+            localStorage.removeItem('api_token');
+            localStorage.removeItem('user');
+
+            // Redirigir al login sin esperar al backend
+            window.location.href = 'login.html';
+        });
     }
 }
 
