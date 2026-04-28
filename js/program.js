@@ -6,7 +6,6 @@ function initProgramPage() {
         return;
     }
 
-    // Mapa de valores internos del lanzador a nombres legibles
     const launcherNames = {
         'starship': 'Starship',
         'superheavy': 'Starship',
@@ -15,6 +14,18 @@ function initProgramPage() {
         'dragon': 'Falcon 9',
         'falcon-fairing': 'Falcon Heavy'
     };
+
+    // Ocultar columna de acciones para viewers
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    const isViewer = userData.role === 'viewer';
+    if (isViewer) {
+        // En program.html la tabla no tiene clase específica para el th de acciones, 
+        // usamos nth-child o buscamos por texto
+        const headers = document.querySelectorAll('.program-table thead th');
+        headers.forEach(th => {
+            if (th.textContent.trim() === 'ACCIONES') th.style.display = 'none';
+        });
+    }
 
     function getLauncherName(mission) {
         const launch = (mission.launches && mission.launches[0]) || {};
@@ -26,22 +37,37 @@ function initProgramPage() {
         return 'Sin lanzador';
     }
 
-    function renderTable() {
-        // Obtener misiones usando el servicio global
-        let missions = window.MissionService ? window.MissionService.getAllMissions() : [];
-        console.log("Missions loaded:", missions);
+    function showLoading() {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
+    }
+
+    function showError(msg) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
+    }
+
+    async function renderTable() {
+        if (!window.MissionService) {
+            showError('Servicio de misiones no disponible.');
+            return;
+        }
+
+        showLoading();
+        let missions = await window.MissionService.getAllMissions();
+
+        if (window.MissionService.lastError) {
+            showError(window.MissionService.lastError);
+            return;
+        }
 
         const statusSelect = document.getElementById('status-filter');
         const launcherSelect = document.getElementById('launcher-filter');
         const currentStatusFilter = statusSelect ? statusSelect.value : 'all';
         const currentLauncherFilter = launcherSelect ? launcherSelect.value : 'all';
 
-        // Filtrar por estado
         if (currentStatusFilter !== 'all') {
             missions = missions.filter(m => (m.status || 'programado') === currentStatusFilter);
         }
 
-        // Filtrar por lanzador usando getLauncherName()
         if (currentLauncherFilter !== 'all') {
             missions = missions.filter(m => getLauncherName(m) === currentLauncherFilter);
         }
@@ -53,18 +79,15 @@ function initProgramPage() {
             return;
         }
 
-        // Ordenar por más reciente primero
         missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         missions.forEach(mission => {
             const tr = document.createElement('tr');
 
-            // Formatear fecha (preferir launchDate del primer lanzamiento, luego createdAt)
             const firstLaunch = (mission.launches && mission.launches[0]) || {};
             const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
-            // Status handling
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
                 'programado': 'programmed',
@@ -74,18 +97,21 @@ function initProgramPage() {
             };
             const currentClass = statusClassMap[currentStatus] || 'programmed';
 
-            // Construcción del HTML de la fila
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            const isViewer = userData.role === 'viewer';
+
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${getLauncherName(mission)}</td>
                 <td>${dateStr}</td>
                 <td>
-                    <select class="status-pill status-select ${currentClass}" data-id="${mission.id}">
+                    <select class="status-pill status-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
                         <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
                         <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
                         <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
                         <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
                     </select>
                 </td>
+                ${isViewer ? '' : `
                 <td>
                     <div class="action-buttons">
                         <button class="btn-edit" data-id="${mission.id}">
@@ -106,33 +132,38 @@ function initProgramPage() {
                         </button>
                     </div>
                 </td>
+                `}
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // Event delegation para cambio de estado (fuera de renderTable para evitar múltiples bindings)
-    tbody.addEventListener('change', function (e) {
+    // Cambio de estado
+    tbody.addEventListener('change', async function (e) {
         if (e.target.classList.contains('status-select')) {
             const id = e.target.getAttribute('data-id');
             const newStatus = e.target.value;
+            const previousValue = e.target.dataset.previous || newStatus;
             if (id && window.MissionService) {
-                const mission = window.MissionService.getMissionById(id);
-                if (mission) {
-                    mission.status = newStatus;
-                    window.MissionService.updateMission(mission);
-                    renderTable();
+                e.target.disabled = true;
+                const ok = await window.MissionService.updateStatus(id, newStatus);
+                e.target.disabled = false;
+                if (!ok) {
+                    e.target.value = previousValue;
+                    const msg = window.MissionService.lastError || 'No se pudo cambiar el estado.';
+                    if (window.showPopup) window.showPopup('Error', msg, 'error');
+                    else alert(msg);
+                } else {
+                    e.target.dataset.previous = newStatus;
                 }
             }
         }
     });
 
     tbody.onclick = async function (e) {
-        // Editar
         const btnEdit = e.target.closest('.btn-edit');
         if (btnEdit) {
             const id = btnEdit.getAttribute('data-id');
-            console.log('Edit clicked, ID:', id);
             if (id && id !== 'undefined') {
                 localStorage.setItem('editMissionId', id);
                 window.router.navigateTo('mision');
@@ -142,7 +173,6 @@ function initProgramPage() {
             return;
         }
 
-        // Eliminar
         const btnDelete = e.target.closest('.btn-delete');
         if (btnDelete) {
             const id = btnDelete.getAttribute('data-id');
@@ -152,35 +182,33 @@ function initProgramPage() {
                 { confirmText: 'Eliminar', cancelText: 'Cancelar', type: 'error' }
             );
             if (confirmed) {
-                if (window.MissionService.deleteMission(id)) {
+                btnDelete.disabled = true;
+                const ok = await window.MissionService.deleteMission(id);
+                btnDelete.disabled = false;
+                if (ok) {
                     renderTable();
+                } else {
+                    const msg = window.MissionService.lastError || 'No se pudo eliminar la misión.';
+                    if (window.showPopup) window.showPopup('Error', msg, 'error');
+                    else alert(msg);
                 }
             }
         }
     };
 
-    // Listeners de filtros
     const statusSelect = document.getElementById('status-filter');
-    if (statusSelect) {
-        statusSelect.addEventListener('change', renderTable);
-    }
+    if (statusSelect) statusSelect.addEventListener('change', renderTable);
 
     const launcherSelect = document.getElementById('launcher-filter');
-    if (launcherSelect) {
-        launcherSelect.addEventListener('change', renderTable);
-    }
+    if (launcherSelect) launcherSelect.addEventListener('change', renderTable);
 
-    // Renderizado inicial
     renderTable();
 
-    // Suscribirse a cambios de datos para mantener la tabla sincronizada
-    // (p.ej. cuando se cambia el estado desde la página de Panel)
     let unsubscribe = null;
     if (window.MissionService && window.MissionService.subscribe) {
         unsubscribe = window.MissionService.subscribe(renderTable);
     }
 
-    // Limpiar la suscripción cuando el contenedor sea eliminado del DOM
     if (tbody && unsubscribe) {
         const observer = new MutationObserver(() => {
             if (!document.contains(tbody)) {
@@ -192,5 +220,4 @@ function initProgramPage() {
     }
 }
 
-// Exponer globalmente
 window.initProgramPage = initProgramPage;

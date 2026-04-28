@@ -1,13 +1,13 @@
 
-function initMisionPage() {
+async function initMisionPage() {
     // --- Capacities & Mass Calculation ---
     const CAPACITIES = {
         'falcon9': { 'leo': 22.8, 'haven': 22.8, 'axiom': 22.8, 'orbital-reef': 22.8 },
         'falconheavy': { 'leo': 63.8, 'haven': 63.8, 'axiom': 63.8, 'orbital-reef': 63.8 },
-        'superheavy': { 
-            'leo': 150, 'haven': 150, 'axiom': 150, 'orbital-reef': 150, 
-            'gateway': 50, 'luna': 50, 
-            'terminus': 150 
+        'superheavy': {
+            'leo': 150, 'haven': 150, 'axiom': 150, 'orbital-reef': 150,
+            'gateway': 50, 'luna': 50,
+            'terminus': 150
         }
     };
 
@@ -15,7 +15,7 @@ function initMisionPage() {
         if (CAPACITIES[booster] && CAPACITIES[booster][dest] !== undefined) {
             return CAPACITIES[booster][dest];
         }
-        return 0; // Combinación inválida
+        return 0;
     }
 
     function getTotalMass() {
@@ -28,7 +28,7 @@ function initMisionPage() {
                 total += (parseInt(i.qty) || 0) * (parseFloat(i.mass) || 0);
             });
             return total;
-        } catch(e) {
+        } catch (e) {
             return 0;
         }
     }
@@ -143,19 +143,16 @@ function initMisionPage() {
     let editingLaunch = null;
 
     if (editMissionId && window.MissionService) {
-        editingMission = window.MissionService.getMissionById(editMissionId);
+        editingMission = await window.MissionService.getMissionById(editMissionId);
         if (editingMission) {
             isEditing = true;
 
-            // Fill mission name and program
             if (missionNameInput) missionNameInput.value = editingMission.name || '';
             if (programInput) programInput.value = editingMission.program || '';
 
-            // Find the specific launch to edit
             if (editLaunchId && editingMission.launches) {
                 editingLaunch = editingMission.launches.find(l => l.id === editLaunchId);
             }
-            // Fallback: edit the first launch if no specific launch ID
             if (!editingLaunch && editingMission.launches && editingMission.launches.length > 0) {
                 editingLaunch = editingMission.launches[0];
             }
@@ -175,7 +172,6 @@ function initMisionPage() {
                 setVal('landing-type-select', editingLaunch.landingType);
                 setVal('landing-id-select', editingLaunch.landingId);
 
-                // Hydrate Advanced Config
                 if (editingLaunch.advancedConfig) {
                     const adv = editingLaunch.advancedConfig;
                     localStorage.setItem('objectives-main', adv.objectivesMain || '');
@@ -198,13 +194,17 @@ function initMisionPage() {
                     mapIframe.src = mapUrls[editingLaunch.port];
                 }
             }
+        } else if (window.MissionService.lastError) {
+            // No se pudo cargar la misión a editar
+            const msg = `No se pudo cargar la misión a editar: ${window.MissionService.lastError}`;
+            if (window.showPopup) window.showPopup('Error', msg, 'error');
+            else alert(msg);
         }
     }
 
-    // --- Clave prefix para borrador de nueva misión ---
+    // --- Borrador local de nueva misión (solo formulario, no persistencia real) ---
     const DRAFT_PREFIX = 'misionDraft_';
 
-    // Campos del formulario de misión que deben persistirse en el borrador
     const misionDraftFields = [
         'mission-name-input',
         'program-select',
@@ -244,11 +244,9 @@ function initMisionPage() {
         misionDraftFields.forEach(id => localStorage.removeItem(DRAFT_PREFIX + id));
     }
 
-    // Restaurar borrador sólo si NO estamos en modo edición
     if (!isEditing) {
         const restored = loadMisionDraft();
         if (restored) {
-            // Refrescar imágenes y mapa con los valores restaurados
             updateVehicle();
             updateDestination();
             const restoredPort = document.getElementById('port-select')?.value;
@@ -258,14 +256,12 @@ function initMisionPage() {
         }
     }
 
-    // Actualizar la masa automáticamente según los elementos de carga
     updateCargoMass();
 
     // --- Advanced Button ---
     const btnAdvanced = document.getElementById('btn-advanced');
     if (btnAdvanced) {
         btnAdvanced.addEventListener('click', () => {
-            // Guardar borrador antes de cambiar de página
             saveMisionDraft();
             if (vehicleImg) {
                 localStorage.setItem('selectedVehicleSrc', vehicleImg.src);
@@ -277,8 +273,10 @@ function initMisionPage() {
     // --- Launch Button (Save) ---
     const btnLaunch = document.querySelector('.launch-button');
     if (btnLaunch) {
-        btnLaunch.addEventListener('click', () => {
-            // Build launch data from form
+        btnLaunch.addEventListener('click', async () => {
+            // Evitar doble envío
+            if (btnLaunch.disabled) return;
+
             const launchData = {
                 destination: document.getElementById('destination-select')?.value,
                 ship: document.getElementById('ship-select')?.value,
@@ -298,37 +296,34 @@ function initMisionPage() {
                 }
             };
 
-            // Validate Capacity
             const boosterVal = launchData.booster;
             const destVal = launchData.destination;
             const totalMassNum = getTotalMass();
             const capacity = getMissionCapacity(boosterVal, destVal);
 
             if (capacity === 0) {
-                 const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
-                 const msg = `El vehículo seleccionado (${vehName}) no tiene capacidad para viajar al destino elegido.`;
-                 if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
-                 return;
+                const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
+                const msg = `El vehículo seleccionado (${vehName}) no tiene capacidad para viajar al destino elegido.`;
+                if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
+                return;
             }
 
             if (totalMassNum > capacity) {
-                 const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
-                 const msg = `La masa total (${totalMassNum} t) supera la capacidad máxima de ${vehName} para este destino (${capacity} t).`;
-                 if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
-                 return;
+                const vehName = boosterVal === 'superheavy' ? 'Starship' : (boosterVal === 'falcon9' ? 'Falcon 9' : 'Falcon Heavy');
+                const msg = `La masa total (${totalMassNum} t) supera la capacidad máxima de ${vehName} para este destino (${capacity} t).`;
+                if (window.showPopup) window.showPopup('Misión Bloqueada', msg, 'error'); else alert(msg);
+                return;
             }
 
             const requiredFields = [
                 { val: launchData.launchDate, name: 'Fecha de Lanzamiento' }
             ];
 
-            // Validate mission name for new missions
             if (!isEditing) {
                 const missionName = missionNameInput?.value?.trim();
                 requiredFields.unshift({ val: missionName || '', name: 'Nombre de Misión' });
             }
 
-            // Recopilar TODOS los campos vacíos, no solo el primero
             const missingFields = requiredFields
                 .filter(field => !field.val || !String(field.val).trim())
                 .map(field => field.name);
@@ -336,11 +331,8 @@ function initMisionPage() {
             if (missingFields.length > 0) {
                 const errorList = missingFields.map(name => `• ${name}`).join('\n');
                 const message = `Por favor completa los siguientes campos:\n\n${errorList}`;
-                if (window.showPopup) {
-                    window.showPopup('Campos Incompletos', message, 'error');
-                } else {
-                    alert(message);
-                }
+                if (window.showPopup) window.showPopup('Campos Incompletos', message, 'error');
+                else alert(message);
                 return;
             }
 
@@ -350,43 +342,44 @@ function initMisionPage() {
                 return;
             }
 
-            let success = false;
+            btnLaunch.disabled = true;
+            // No reemplazamos el contenido para mantener el icono
+            // const originalBtnText = btnLaunch.textContent;
+            // btnLaunch.textContent = 'Guardando...';
 
-            if (isEditing && editingMission && editingLaunch) {
-                // Update existing launch inside the mission
-                launchData.id = editingLaunch.id;
-                launchData.createdAt = editingLaunch.createdAt;
+            let result = false;
 
-                const lIndex = editingMission.launches.findIndex(l => l.id === editingLaunch.id);
-                if (lIndex !== -1) {
-                    editingMission.launches[lIndex] = launchData;
+            try {
+                if (isEditing && editingMission) {
+                    const payload = {
+                        id: editingMission.id,
+                        name: missionNameInput?.value?.trim() || editingMission.name,
+                        program: programInput?.value?.trim() || '',
+                        status: editingMission.status || 'programado',
+                        launches: [launchData]
+                    };
+                    result = await window.MissionService.updateMission(payload);
+                    if (result === true) {
+                        localStorage.removeItem('editMissionId');
+                        localStorage.removeItem('editLaunchId');
+                    }
                 } else {
-                    editingMission.launches[0] = launchData;
+                    const missionData = {
+                        name: missionNameInput?.value?.trim(),
+                        program: programInput?.value?.trim() || '',
+                        launches: [launchData]
+                    };
+                    result = await window.MissionService.saveMission(missionData);
+                    if (result === true) {
+                        clearMisionDraft();
+                    }
                 }
-
-                editingMission.name = missionNameInput?.value?.trim() || 'Sin Nombre';
-                editingMission.program = programInput?.value?.trim() || '';
-
-                success = window.MissionService.updateMission(editingMission);
-                if (success) {
-                    localStorage.removeItem('editMissionId');
-                    localStorage.removeItem('editLaunchId');
-                }
-            } else {
-                // Create new mission with this launch
-                const missionData = {
-                    name: missionNameInput?.value?.trim() || 'Sin Nombre',
-                    program: programInput?.value?.trim() || '',
-                    launches: [launchData]
-                };
-                success = window.MissionService.saveMission(missionData);
-                if (success) {
-                    // Limpiar borrador temporal al guardar correctamente
-                    clearMisionDraft();
-                }
+            } finally {
+                btnLaunch.disabled = false;
+                // No es necesario restaurar el texto ya que no lo cambiamos
             }
 
-            if (success) {
+            if (result === true) {
                 const action = isEditing ? 'Actualizado' : 'Creado';
                 if (window.showPopup) {
                     window.showPopup('¡Éxito!', `Lanzamiento ${action} Correctamente`, 'success', () => {
@@ -396,16 +389,17 @@ function initMisionPage() {
                     alert(`Lanzamiento ${action} Correctamente`);
                     window.router.navigateTo('program');
                 }
+            } else if (result === 'duplicate') {
+                const msg = 'Ya existe una misión con ese nombre. Elige otro.';
+                if (window.showPopup) window.showPopup('Nombre duplicado', msg, 'error');
+                else alert(msg);
             } else {
-                if (window.showPopup) {
-                    window.showPopup('Error', 'No se pudo guardar el lanzamiento', 'error');
-                } else {
-                    alert('Error al guardar el lanzamiento');
-                }
+                const msg = window.MissionService.lastError || 'No se pudo guardar el lanzamiento.';
+                if (window.showPopup) window.showPopup('Error', msg, 'error');
+                else alert(msg);
             }
         });
     }
 }
 
-// Expose globally
 window.initMisionPage = initMisionPage;

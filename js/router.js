@@ -51,6 +51,20 @@ class Router {
             path = path.slice(0, queryIndex);
         }
 
+        // Rutas restringidas para el rol 'viewer'
+        const VIEWER_RESTRICTED_ROUTES = ['mision', 'configAvanzada'];
+        if (VIEWER_RESTRICTED_ROUTES.includes(path)) {
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            if (userData.role === 'viewer') {
+                // Redirigir al panel silenciosamente
+                window.location.hash = 'panel';
+                if (window.showNotification) {
+                    window.showNotification('No tienes permiso para acceder a esta sección', 3000);
+                }
+                return;
+            }
+        }
+
         const route = this.routes[path] || this.routes['panel'];
 
         // Actualizar título

@@ -2,26 +2,45 @@ function initPanelPage() {
     console.log("Inicializando página de Panel");
     const tbody = document.getElementById('upcoming-missions-list');
 
-    // NOTA: En panel.html, el ID del cuerpo de la tabla será 'upcoming-missions-list'
     if (!tbody) {
         console.warn("Lista de misiones próximas no encontrada");
         return;
     }
 
-    function renderUpcoming() {
-        // Obtener misiones usando servicio global
-        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
+    // Ocultar columna de acciones para viewers
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    const isViewer = userData.role === 'viewer';
+    if (isViewer) {
+        const actionsHeader = document.querySelector('.program-section thead th.actions-cell');
+        if (actionsHeader) actionsHeader.style.display = 'none';
+    }
 
-        // Actualizar contador de pendientes
-        const countEl = document.getElementById('pending-missions-count');
-        if (countEl) {
-            countEl.textContent = missions.length;
+    function showLoadingRow() {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
+    }
+
+    function showErrorRow(msg) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
+    }
+
+    async function renderUpcoming() {
+        if (!window.MissionService) {
+            showErrorRow('Servicio de misiones no disponible.');
+            return;
         }
 
-        // Ordenar por más reciente primero (misma lógica que program)
-        missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        showLoadingRow();
+        const missions = await window.MissionService.getAllMissions();
 
-        // Tomar las 3 primeras
+        if (window.MissionService.lastError) {
+            showErrorRow(window.MissionService.lastError);
+            return;
+        }
+
+        const countEl = document.getElementById('pending-missions-count');
+        if (countEl) countEl.textContent = missions.length;
+
+        missions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const top3 = missions.slice(0, 3);
 
         tbody.innerHTML = '';
@@ -34,11 +53,10 @@ function initPanelPage() {
         top3.forEach(mission => {
             const tr = document.createElement('tr');
 
-            // Formatear fecha
-            const dateObj = new Date(mission.launchDate || mission.createdAt);
+            const firstLaunch = (mission.launches && mission.launches[0]) || {};
+            const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
-            // Status handling
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
                 'programado': 'badge-scheduled',
@@ -48,17 +66,21 @@ function initPanelPage() {
             };
             const currentClass = statusClassMap[currentStatus] || 'badge-scheduled';
 
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            const isViewer = userData.role === 'viewer';
+
             tr.innerHTML = `
                 <td>${mission.name || 'Misión'}</td>
                 <td>${dateStr}</td>
                 <td>
-                    <select class="badge badge-select ${currentClass}" data-id="${mission.id}">
+                    <select class="badge badge-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
                         <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
                         <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
                         <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
                         <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
                     </select>
                 </td>
+                ${isViewer ? '' : `
                 <td class="actions-cell">
                     <div class="action-buttons">
                         <button class="btn-action btn-edit" data-id="${mission.id}">
@@ -79,29 +101,34 @@ function initPanelPage() {
                         </button>
                     </div>
                 </td>
+                `}
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // Event delegation for actions and Status Change
-    tbody.addEventListener('change', function (e) {
+    tbody.addEventListener('change', async function (e) {
         if (e.target.classList.contains('badge-select')) {
             const id = e.target.getAttribute('data-id');
             const newStatus = e.target.value;
+            const previousValue = e.target.dataset.previous || newStatus;
             if (id && window.MissionService) {
-                const mission = window.MissionService.getMissionById(id);
-                if (mission) {
-                    mission.status = newStatus;
-                    window.MissionService.updateMission(mission);
-                    renderUpcoming();
+                e.target.disabled = true;
+                const ok = await window.MissionService.updateStatus(id, newStatus);
+                e.target.disabled = false;
+                if (!ok) {
+                    e.target.value = previousValue;
+                    const msg = window.MissionService.lastError || 'No se pudo cambiar el estado.';
+                    if (window.showPopup) window.showPopup('Error', msg, 'error');
+                    else alert(msg);
+                } else {
+                    e.target.dataset.previous = newStatus;
                 }
             }
         }
     });
 
     tbody.onclick = async function (e) {
-        // Edit
         const btnEdit = e.target.closest('.btn-edit');
         if (btnEdit) {
             const id = btnEdit.getAttribute('data-id');
@@ -112,7 +139,6 @@ function initPanelPage() {
             return;
         }
 
-        // Eliminar
         const btnDelete = e.target.closest('.btn-delete');
         if (btnDelete) {
             const id = btnDelete.getAttribute('data-id');
@@ -122,8 +148,15 @@ function initPanelPage() {
                 { confirmText: 'Eliminar', cancelText: 'Cancelar', type: 'error' }
             );
             if (confirmed) {
-                if (window.MissionService.deleteMission(id)) {
-                    renderUpcoming(); // Re-render
+                btnDelete.disabled = true;
+                const ok = await window.MissionService.deleteMission(id);
+                btnDelete.disabled = false;
+                if (ok) {
+                    renderUpcoming();
+                } else {
+                    const msg = window.MissionService.lastError || 'No se pudo eliminar la misión.';
+                    if (window.showPopup) window.showPopup('Error', msg, 'error');
+                    else alert(msg);
                 }
             }
         }
@@ -131,7 +164,7 @@ function initPanelPage() {
 
     renderUpcoming();
 
-    // --- Countdown dinámico a la próxima misión ---
+    // --- Countdown ---
     const cdDays = document.getElementById('cd-days');
     const cdHours = document.getElementById('cd-hours');
     const cdMins = document.getElementById('cd-mins');
@@ -141,20 +174,17 @@ function initPanelPage() {
     const cdInfo = document.getElementById('countdown-info');
     const cdEmpty = document.getElementById('countdown-empty');
 
-    let countdownTarget = null; // { name, launchDate }
+    let countdownTarget = null;
     let countdownInterval = null;
 
-    function findNextMission() {
-        const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
+    function findNextMission(missions) {
         const now = Date.now();
         let closest = null;
 
         missions.forEach(m => {
-            // Solo misiones programadas o confirmadas
             const status = m.status || 'programado';
             if (status !== 'programado' && status !== 'confirmado') return;
 
-            // Buscar en los lanzamientos de la misión
             const launches = m.launches || [];
             launches.forEach(l => {
                 if (!l.launchDate) return;
@@ -164,7 +194,6 @@ function initPanelPage() {
                 }
             });
 
-            // Fallback: launchDate directa en la misión (estructura legacy)
             if (m.launchDate) {
                 const dt = new Date(m.launchDate).getTime();
                 if (dt > now && (!closest || dt < closest.time)) {
@@ -180,14 +209,12 @@ function initPanelPage() {
         if (!cdDays || !cdHours || !cdMins || !cdSecs) return;
 
         if (!countdownTarget) {
-            // Sin misión próxima — mostrar fallback
             if (cdTimer) cdTimer.style.display = 'none';
             if (cdInfo) cdInfo.style.display = 'none';
             if (cdEmpty) cdEmpty.style.display = 'block';
             return;
         }
 
-        // Asegurar que el timer esté visible
         if (cdTimer) cdTimer.style.display = '';
         if (cdInfo) cdInfo.style.display = '';
         if (cdEmpty) cdEmpty.style.display = 'none';
@@ -208,32 +235,28 @@ function initPanelPage() {
         const secs = Math.floor((diff % 60000) / 1000);
 
         cdDays.textContent = days;
-        cdHours.textContent = hours;
-        cdMins.textContent = mins;
-        cdSecs.textContent = secs;
+        cdHours.textContent = String(hours).padStart(2, '0');
+        cdMins.textContent = String(mins).padStart(2, '0');
+        cdSecs.textContent = String(secs).padStart(2, '0');
     }
 
-    function refreshCountdown() {
-        countdownTarget = findNextMission();
-        if (cdName && countdownTarget) {
-            cdName.textContent = countdownTarget.name;
-        }
+    async function refreshCountdown() {
+        if (!window.MissionService) return;
+        const missions = await window.MissionService.getAllMissions();
+        countdownTarget = findNextMission(missions);
+        if (cdName && countdownTarget) cdName.textContent = countdownTarget.name;
         updateCountdown();
 
-        // Llamar a la API de clima si hay una misión
         if (countdownTarget && countdownTarget.id && typeof fetchWeather === 'function') {
             fetchWeather(countdownTarget.port, countdownTarget.id, () => {
-                // Ignore rerender warning here or gently refresh
                 renderUpcoming();
             });
         }
     }
 
-    // Iniciar countdown
     refreshCountdown();
     countdownInterval = setInterval(updateCountdown, 1000);
 
-    // Suscribirse a cambios de datos para mantener la tabla y el countdown sincronizados
     let unsubscribe = null;
     if (window.MissionService && window.MissionService.subscribe) {
         unsubscribe = window.MissionService.subscribe(() => {
@@ -242,7 +265,6 @@ function initPanelPage() {
         });
     }
 
-    // Limpiar la suscripción e intervalo cuando el contenedor sea eliminado del DOM
     if (tbody) {
         const observer = new MutationObserver(() => {
             if (!document.contains(tbody)) {
@@ -254,7 +276,6 @@ function initPanelPage() {
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
-    // --- Hover Charts (Chart.js) ---
     initHoverCharts();
 }
 
@@ -266,16 +287,14 @@ function initHoverCharts() {
 
     const chartInstances = {};
 
-    // --- Lanzamientos pendientes (Bar chart — missions per vehicle) ---
     const launchWrapper = document.getElementById('card-launches');
     if (launchWrapper) {
-        launchWrapper.addEventListener('mouseenter', function handler() {
+        launchWrapper.addEventListener('mouseenter', async function handler() {
             if (chartInstances.launches) return;
             const ctx = document.getElementById('chart-launches');
             if (!ctx) return;
 
-            // Build vehicle counts from real missions (iterate launches inside each mission)
-            const missions = window.MissionService ? window.MissionService.getAllMissions() : [];
+            const missions = window.MissionService ? await window.MissionService.getAllMissions() : [];
             const counts = { 'Starship': 0, 'Falcon 9': 0, 'Falcon Heavy': 0 };
 
             missions.forEach(m => {
@@ -317,7 +336,6 @@ function initHoverCharts() {
         });
     }
 
-    // --- Pads (Doughnut chart — wired to displayed value) ---
     const padsWrapper = document.getElementById('card-pads');
     if (padsWrapper) {
         padsWrapper.addEventListener('mouseenter', function handler() {
@@ -325,7 +343,6 @@ function initHoverCharts() {
             const ctx = document.getElementById('chart-pads');
             if (!ctx) return;
 
-            // Read the displayed value (e.g. "2/4") from the card
             const padsCard = padsWrapper.querySelector('.card-value');
             let occupied = 2, total = 4;
             if (padsCard) {
@@ -374,7 +391,6 @@ function initHoverCharts() {
         });
     }
 
-    // --- Tasa de Éxito (Pie chart — wired to displayed percentage) ---
     const successWrapper = document.getElementById('card-success');
     if (successWrapper) {
         successWrapper.addEventListener('mouseenter', function handler() {
@@ -382,7 +398,6 @@ function initHoverCharts() {
             const ctx = document.getElementById('chart-success');
             if (!ctx) return;
 
-            // Read displayed percentage (e.g. "98%") from the card
             const successCard = successWrapper.querySelector('.card-value');
             let successRate = 98;
             if (successCard) {
@@ -428,7 +443,6 @@ function initHoverCharts() {
     }
 }
 
-/** Shared chart options for bar charts */
 function barLineOptions(titleText) {
     return {
         responsive: true,
@@ -463,7 +477,6 @@ function barLineOptions(titleText) {
 
 async function fetchWeather(port = 'starbase', missionId = null, rerenderCallback = null) {
     try {
-        // Map spaceports to their nearest city or region for geocoding
         const portCities = {
             'starbase': 'Starbase, Texas',
             'cape': 'Cape Canaveral',
@@ -474,7 +487,6 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
 
         const cityQuery = portCities[port] || 'Starbase, Texas';
 
-        // 1. Get coordinates using Nominatim API based on city name
         const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityQuery)}&limit=1`;
         const geoRes = await fetch(geoUrl, {
             headers: { 'Accept-Language': 'es' }
@@ -493,7 +505,6 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
             console.warn(`City not found: ${cityQuery}. Using default coordinates.`);
         }
 
-        // 2. Fetch weather from Open-Meteo using the resolved coordinates
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=auto`;
 
         const response = await fetch(url);
@@ -517,7 +528,6 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         if (tempEl) tempEl.textContent = `${temp} °C`;
         if (precipEl) precipEl.textContent = `${precip} mm`;
 
-        // 3 categories: Despejado, Nublado, Precipitaciones
         let weatherTitle = 'Pronóstico';
         let viabilityText = '--';
         let viabilityClass = '';
@@ -537,7 +547,6 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
             missionStatus = 'hold';
             weatherIconSrc = 'img/ic/cloudic.png';
         } else if (code >= 51) {
-            // Codes 51-99: drizzle, rain, snow, showers, thunderstorms
             weatherTitle = 'Precipitaciones';
             viabilityText = 'Cancelado';
             viabilityClass = 'viability-cancel';
@@ -546,7 +555,7 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         }
 
         if (titleEl) titleEl.textContent = weatherTitle;
-        
+
         const portLabels = {
             'starbase': 'Starbase',
             'cape': 'Cape Canaveral',
@@ -560,14 +569,9 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
         const weatherIconEl = document.getElementById('weather-icon');
         if (weatherIconEl) weatherIconEl.src = weatherIconSrc;
 
-        // Show/Hide top header warning pill
         const warningPill = document.getElementById('weatherWarningPill');
         if (warningPill) {
-            if (code !== 0) { // Not sunny
-                warningPill.style.display = 'block';
-            } else {
-                warningPill.style.display = 'none';
-            }
+            warningPill.style.display = code !== 0 ? 'block' : 'none';
         }
 
         if (viabilityEl) {
@@ -575,17 +579,14 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
             viabilityEl.className = 'viability-badge ' + viabilityClass;
         }
 
-        // 3. Auto-update the most recent mission's status
+        // Auto-update solo si la misión sigue en 'programado'
         if (missionStatus && missionId && window.MissionService) {
-            const mission = window.MissionService.getMissionById(missionId);
-            // Solo actualizar automáticamente si el estado actual es 'programado' (estado inicial)
-            // Esto permite que si el usuario lo cambia manualmente a Confirmado/Hold/Cancelado, se respete su decisión.
+            const mission = await window.MissionService.getMissionById(missionId);
             const currentStatus = mission?.status || 'programado';
 
             if (mission && currentStatus === 'programado' && currentStatus !== missionStatus) {
-                mission.status = missionStatus;
-                window.MissionService.updateMission(mission);
-                if (rerenderCallback) rerenderCallback();
+                const ok = await window.MissionService.updateStatus(missionId, missionStatus);
+                if (ok && rerenderCallback) rerenderCallback();
             }
         }
     } catch (error) {
@@ -593,5 +594,4 @@ async function fetchWeather(port = 'starbase', missionId = null, rerenderCallbac
     }
 }
 
-// Exponer globalmente
 window.initPanelPage = initPanelPage;

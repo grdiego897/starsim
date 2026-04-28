@@ -41,7 +41,15 @@ function clearMissionData() {
 }
 
 // Función para navegar a Nueva Misión (limpia datos primero)
+// Los usuarios con rol 'viewer' no tienen permiso para acceder a esta página.
 function goToNewMission() {
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    if (userData.role === 'viewer') {
+        if (window.showNotification) {
+            window.showNotification('No tienes permiso para crear misiones', 3000);
+        }
+        return;
+    }
     clearMissionData();
     if (window.router) {
         window.router.navigateTo('mision');
@@ -51,14 +59,36 @@ function goToNewMission() {
 }
 
 function initSidebarLogic() {
-    // 1. Lógica del formulario Grok
     const grokForm = document.getElementById('grokSearchForm');
+    const grokPopup = document.getElementById('grokPopup');
+    const grokTrigger = document.getElementById('grokTrigger');
+
+    // Ocultar opción "Nueva Misión" para usuarios con rol 'viewer'
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    if (userData.role === 'viewer') {
+        // Buscar el <li> del sidebar que llama a goToNewMission y ocultarlo
+        const navItems = document.querySelectorAll('#sidebar .nav-menu li');
+        navItems.forEach(item => {
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes('goToNewMission')) {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // 1. Lógica del formulario Grok
     if (grokForm) {
         grokForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            const input = document.querySelector('.grok-input').value;
+            const inputElement = document.querySelector('.grok-input');
+            const input = inputElement.value;
             const formattedText = input.trim().replace(/\s+/g, '+');
             window.open("https://grok.com/?q=" + formattedText);
+
+            // Limpiar el contenido y cerrar el widget
+            inputElement.value = '';
+            if (grokPopup) {
+                grokPopup.classList.remove('active');
+            }
         });
     }
 
@@ -81,8 +111,6 @@ function initSidebarLogic() {
     }
 
     // 3. Lógica del popup de Grok
-    const grokTrigger = document.getElementById('grokTrigger');
-    const grokPopup = document.getElementById('grokPopup');
     if (grokTrigger && grokPopup) {
         grokTrigger.addEventListener('click', (e) => {
             e.stopPropagation();

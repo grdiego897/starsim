@@ -1,32 +1,28 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MisionController;
 use Illuminate\Support\Facades\Route;
 
-// ── Rutas públicas (sin autenticación) ──
+// ── Rutas públicas ──
 Route::post('/login', [AuthController::class, 'login']);
 
-// ── Rutas protegidas (requieren token Sanctum) ──
+// ── Rutas protegidas ──
 Route::middleware('auth:sanctum')->group(function () {
 
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // ── Solo admin ──
-    Route::middleware('role:admin')->group(function () {
-        // Gestión de usuarios (futuro)
-        // Route::apiResource('usuarios', UsuarioController::class);
-    });
+    // Misiones — lectura: todos los autenticados (incluido viewer)
+    Route::get('/misiones',         [MisionController::class, 'index']);
+    Route::get('/misiones/{id}',    [MisionController::class, 'show'])->whereNumber('id');
 
-    // ── Admin + Operator (pueden crear/editar/eliminar) ──
+    // Misiones — escritura: admin + operator
     Route::middleware('role:admin,operator')->group(function () {
-        // CRUD de misiones (futuro)
-        // Route::apiResource('misiones', MisionController::class);
+        Route::post('/misiones',                  [MisionController::class, 'store']);
+        Route::put('/misiones/{id}',              [MisionController::class, 'update'])->whereNumber('id');
+        Route::patch('/misiones/{id}/status',     [MisionController::class, 'updateStatus'])->whereNumber('id');
+        Route::delete('/misiones/{id}',           [MisionController::class, 'destroy'])->whereNumber('id');
     });
-
-    // ── Todos los autenticados (incluido viewer) ──
-    // Catálogos de solo lectura (futuro)
-    // Route::apiResource('vehiculos', VehiculoController::class)->only(['index', 'show']);
-    // Route::apiResource('destinos', DestinoController::class)->only(['index', 'show']);
 });

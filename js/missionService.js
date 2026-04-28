@@ -1,139 +1,291 @@
 /**
- * Servicio de Misiones - Maneja la persistencia de datos usando LocalStorage
- * Expuesto globalmente como window.MissionService
+ * Servicio de Misiones — capa cliente sobre el API REST de Laravel.
+ * Persiste los datos en la base de datos (no en localStorage).
+ *
+ * Expuesto como window.MissionService.
+ *
+ * Métodos públicos:
+ *   await refresh()                    -> recarga la caché desde el servidor
+ *   await getAllMissions()             -> Array de misiones (recarga si caché vacía)
+ *   getAllMissionsSync()               -> Array desde caché (no hace fetch)
+ *   await getMissionById(id)           -> objeto misión o null
+ *   await saveMission(data)            -> true | 'duplicate' | false
+ *   await updateMission(data)          -> true | 'duplicate' | false
+ *   await updateStatus(id, status)     -> true | false
+ *   await deleteMission(id)            -> true | false
+ *   subscribe(cb) -> unsubscribe()
+ *
+ *   lastError                          -> última cadena de error legible (o null)
  */
-
 (function () {
-    const STORAGE_KEY = 'starsim_missions';
+    const API_BASE = 'http://127.0.0.1/api';
     const EVENT_NAME = 'missions-updated';
 
-    /** Notifica a todos los suscriptores que los datos de misiones han cambiado */
+    let cache = [];
+    let cacheLoaded = false;
+
     function notifyUpdate() {
         window.dispatchEvent(new CustomEvent(EVENT_NAME));
     }
 
+    function getToken() {
+        return localStorage.getItem('api_token');
+    }
+
+    function authHeaders(extra = {}) {
+        const t = getToken();
+        return Object.assign(
+            { 'Accept': 'application/json' },
+            t ? { 'Authorization': 'Bearer ' + t } : {},
+            extra
+        );
+    }
+
+    function handleAuthError(res) {
+        if (res.status === 401) {
+            // Token inválido o expirado — forzar relogin
+            localStorage.removeItem('api_token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    }
+
+    async function parseError(res) {
+        try {
+            const data = await res.json();
+            if (data.errors) {
+                const msgs = Object.values(data.errors).flat().join(' ');
+                return msgs || data.message || `Error ${res.status}`;
+            }
+            return data.message || `Error ${res.status}`;
+        } catch (_) {
+            return `Error ${res.status}`;
+        }
+    }
+
     const MissionService = {
-        /**
-         * Obtener todas las misiones del almacenamiento
-         * @returns {Array} Lista de misiones
-         */
-        getAllMissions: function () {
+        lastError: null,
+
+        async refresh() {
+            this.lastError = null;
             try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                return data ? JSON.parse(data) : [];
-            } catch (e) {
-                console.error('Error al obtener misiones:', e);
-                return [];
+                const res = await fetch(`${API_BASE}/misiones`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return cache;
+                }
+
+                const json = await res.json();
+                cache = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+                cacheLoaded = true;
+                return cache;
+            } catch (err) {
+                console.error('Error de red al cargar misiones:', err);
+                this.lastError = 'Error de conexión con el servidor.';
+                return cache;
             }
         },
 
-        /**
-         * Obtener una misión por ID
-         * @param {string} id - El ID de la misión
-         * @returns {Object|null} Datos de la misión o null
-         */
-        getMissionById: function (id) {
+        async getAllMissions() {
+            if (!cacheLoaded) {
+                await this.refresh();
+            }
+            return cache.slice();
+        },
+
+        getAllMissionsSync() {
+            return cache.slice();
+        },
+
+        async getMissionById(id) {
+            this.lastError = null;
+            // Buscar primero en caché
+            const cached = cache.find(m => String(m.id) === String(id));
+            if (cached) return cached;
+
             try {
-                const missions = this.getAllMissions();
-                return missions.find(m => m.id === id) || null;
-            } catch (e) {
-                console.error('Error al obtener misión por ID:', e);
+                const res = await fetch(`${API_BASE}/misiones/${id}`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return null;
+                }
+
+                const json = await res.json();
+                return json.data || json || null;
+            } catch (err) {
+                console.error('Error obteniendo misión:', err);
+                this.lastError = 'Error de conexión con el servidor.';
                 return null;
             }
         },
 
-        /**
-         * Actualizar una misión existente
-         * @param {Object} missionData - Los datos actualizados de la misión (debe incluir id)
-         * @returns {boolean} Estado de éxito
-         */
-        updateMission: function (missionData) {
+        async saveMission(missionData) {
+            this.lastError = null;
             try {
-                const missions = this.getAllMissions();
-                const index = missions.findIndex(m => m.id === missionData.id);
+                const res = await fetch(`${API_BASE}/misiones`, {
+                    method: 'POST',
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify(missionData)
+                });
 
-                if (index !== -1) {
-                    missions[index] = { ...missions[index], ...missionData }; // Combinar para preservar createdAt
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
-                    notifyUpdate();
-                    return true;
-                }
-                return false;
-            } catch (e) {
-                console.error('Error al actualizar misión:', e);
-                return false;
-            }
-        },
-
-        /**
-         * Guardar una nueva misión
-         * @param {Object} missionData - El objeto de misión a guardar
-         * @returns {boolean} Estado de éxito
-         */
-        saveMission: function (missionData) {
-            try {
-                const missions = this.getAllMissions();
-
-                // Comprobar duplicado por nombre (insensible a mayúsculas)
-                const nombreNuevo = (missionData.name || '').trim().toLowerCase();
-                const yaExiste = missions.some(m => (m.name || '').trim().toLowerCase() === nombreNuevo);
-                if (yaExiste) {
-                    console.warn('Ya existe una misión con el nombre:', missionData.name);
-                    return 'duplicate';
+                if (res.status === 422) {
+                    const errJson = await res.json().catch(() => ({}));
+                    const errs = errJson.errors || {};
+                    if (errs.name && errs.name.some(m => /unique|tomado|already|exist/i.test(m))) {
+                        this.lastError = 'Ya existe una misión con ese nombre.';
+                        return 'duplicate';
+                    }
+                    this.lastError = Object.values(errs).flat().join(' ') || errJson.message || 'Datos inválidos.';
+                    return false;
                 }
 
-                // Añadir ID si falta
-                if (!missionData.id) {
-                    missionData.id = Date.now().toString();
+                if (res.status === 403) {
+                    this.lastError = 'No tienes permisos para crear misiones.';
+                    return false;
                 }
 
-                // Añadir marca de tiempo de creación
-                if (!missionData.createdAt) {
-                    missionData.createdAt = new Date().toISOString();
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return false;
                 }
 
-                missions.push(missionData);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(missions));
+                await this.refresh();
                 notifyUpdate();
                 return true;
-            } catch (e) {
-                console.error('Error al guardar misión:', e);
+            } catch (err) {
+                console.error('Error de red al guardar misión:', err);
+                this.lastError = 'Error de conexión con el servidor.';
                 return false;
             }
         },
 
-        /**
-         * Eliminar una misión por ID
-         * @param {string} id - El ID de la misión
-         * @returns {boolean} Estado de éxito
-         */
-        deleteMission: function (id) {
+        async updateMission(missionData) {
+            this.lastError = null;
+            if (!missionData || !missionData.id) {
+                this.lastError = 'Falta el ID de la misión.';
+                return false;
+            }
+
             try {
-                const missions = this.getAllMissions();
-                const filtered = missions.filter(m => m.id !== id);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+                const res = await fetch(`${API_BASE}/misiones/${missionData.id}`, {
+                    method: 'PUT',
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify(missionData)
+                });
+
+                if (res.status === 422) {
+                    const errJson = await res.json().catch(() => ({}));
+                    const errs = errJson.errors || {};
+                    if (errs.name && errs.name.some(m => /unique|tomado|already|exist/i.test(m))) {
+                        this.lastError = 'Ya existe una misión con ese nombre.';
+                        return 'duplicate';
+                    }
+                    this.lastError = Object.values(errs).flat().join(' ') || errJson.message || 'Datos inválidos.';
+                    return false;
+                }
+
+                if (res.status === 403) {
+                    this.lastError = 'No tienes permisos para modificar misiones.';
+                    return false;
+                }
+
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return false;
+                }
+
+                await this.refresh();
                 notifyUpdate();
                 return true;
-            } catch (e) {
-                console.error('Error al eliminar misión:', e);
+            } catch (err) {
+                console.error('Error de red al actualizar misión:', err);
+                this.lastError = 'Error de conexión con el servidor.';
                 return false;
             }
         },
 
-        /**
-         * Suscribirse a cambios de datos de misiones
-         * @param {Function} callback - Función a llamar cuando los datos cambien
-         * @returns {Function} Función para cancelar la suscripción
-         */
-        subscribe: function (callback) {
+        async updateStatus(id, status) {
+            this.lastError = null;
+            try {
+                const res = await fetch(`${API_BASE}/misiones/${id}/status`, {
+                    method: 'PATCH',
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify({ status })
+                });
+
+                if (res.status === 403) {
+                    this.lastError = 'No tienes permisos para cambiar el estado.';
+                    return false;
+                }
+
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return false;
+                }
+
+                // Actualizar caché localmente sin recargar todo
+                const json = await res.json();
+                const updated = json.data || json;
+                const idx = cache.findIndex(m => String(m.id) === String(id));
+                if (idx !== -1 && updated) cache[idx] = updated;
+                notifyUpdate();
+                return true;
+            } catch (err) {
+                console.error('Error de red al cambiar estado:', err);
+                this.lastError = 'Error de conexión con el servidor.';
+                return false;
+            }
+        },
+
+        async deleteMission(id) {
+            this.lastError = null;
+            try {
+                const res = await fetch(`${API_BASE}/misiones/${id}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+
+                if (res.status === 403) {
+                    this.lastError = 'No tienes permisos para eliminar misiones.';
+                    return false;
+                }
+
+                if (!res.ok) {
+                    handleAuthError(res);
+                    this.lastError = await parseError(res);
+                    return false;
+                }
+
+                cache = cache.filter(m => String(m.id) !== String(id));
+                notifyUpdate();
+                return true;
+            } catch (err) {
+                console.error('Error de red al eliminar misión:', err);
+                this.lastError = 'Error de conexión con el servidor.';
+                return false;
+            }
+        },
+
+        subscribe(callback) {
             window.addEventListener(EVENT_NAME, callback);
-            // Devolver función de limpieza
             return function unsubscribe() {
                 window.removeEventListener(EVENT_NAME, callback);
             };
         }
     };
 
-    // Exponer globalmente
     window.MissionService = MissionService;
 })();
