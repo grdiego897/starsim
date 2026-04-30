@@ -167,7 +167,20 @@ header {
 
 .profile-dropdown-item:hover {
     background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.profile-dropdown-item.danger-item:hover {
     color: #ff6b6b;
+}
+
+.profile-dropdown-item > span {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: inherit;
+    font-size: inherit;
+    line-height: 1;
 }
 
 .dropdown-icon {

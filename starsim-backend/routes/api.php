@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::patch('/me', [AuthController::class, 'updateMe']);
 
     // Misiones — lectura: todos los autenticados (incluido viewer)
     Route::get('/misiones',         [MisionController::class, 'index']);

@@ -1,0 +1,158 @@
+<!-- Modal de Configuración: perfil propio -->
+<div id="configOverlay" class="config-overlay" style="display: none;">
+    <div class="config-content">
+        <button class="config-close-icon" id="configCloseBtn">&times;</button>
+
+        <!-- Sidebar -->
+        <div class="config-sidebar">
+            <h2 class="config-sidebar-title">Configuración</h2>
+            <nav class="config-sidebar-nav">
+                <button class="config-sidebar-item active" data-section="miPerfil">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>Mi perfil</span>
+                </button>
+                <!-- Secciones extra ocultas para no romper JS si iterara -->
+                <button class="config-sidebar-item" data-section="usuarios" id="configSidebarUsuarios"
+                    style="display: none;">
+                </button>
+                <button class="config-sidebar-cta" data-section="nuevoUsuario" id="configSidebarNuevoUsuario"
+                    style="display: none;">
+                </button>
+            </nav>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="config-panel" id="configPanelContent">
+            <!-- Renderizado por js/configModal.js -->
+        </div>
+    </div>
+</div>
+
+<template id="tpl-mi-perfil">
+    <div class="config-section fade-in">
+        <form class="config-form" id="formMiPerfil" autocomplete="off">
+            <!-- Fila Perfil Superior -->
+            <div class="profile-header-row">
+                <div class="profile-avatar-group">
+                    <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                    <div class="profile-info-text">
+                        <!-- El JS llenará data-role y data-entidad. Las mostramos sutílmente -->
+                        <h4 class="profile-name-text" data-role>Usuario</h4>
+                        <p class="profile-email-text" data-entidad>Sin entidad</p>
+                    </div>
+                </div>
+                <button type="submit" class="profile-save-btn">Guardar cambios</button>
+            </div>
+
+            <!-- Filas de Formulario Estilo Grok -->
+            <div class="profile-fields-container" style="flex-shrink: 0;">
+                <div class="profile-field-row" style="flex-shrink: 0;">
+                    <div class="profile-field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span style="white-space: nowrap;">Nombre</span>
+                    </div>
+                    <div class="profile-field-input-group">
+                        <input type="text" name="name" required maxlength="255" class="stealth-input"
+                            placeholder="Tu nombre">
+                    </div>
+                </div>
+
+                <div class="profile-field-row" style="flex-shrink: 0;">
+                    <div class="profile-field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <span style="white-space: nowrap;">Correo</span>
+                    </div>
+                    <div class="profile-field-input-group">
+                        <input type="email" name="email" required maxlength="255" class="stealth-input"
+                            placeholder="tu@correo.com">
+                    </div>
+                </div>
+
+                <div class="profile-field-row" style="flex-shrink: 0;">
+                    <div class="profile-field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span style="white-space: nowrap;">Contraseña actual</span>
+                    </div>
+                    <div class="profile-field-input-group">
+                        <input type="password" name="current_password" minlength="8" class="stealth-input"
+                            placeholder="Opcional">
+                    </div>
+                </div>
+
+                <div class="profile-field-row" style="flex-shrink: 0;">
+                    <div class="profile-field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.286l5.962-5.962A6 6 0 1121 9z"></path>
+                        </svg>
+                        <span style="white-space: nowrap;">Nueva contraseña</span>
+                    </div>
+                    <div class="profile-field-input-group">
+                        <input type="password" name="password" minlength="8" class="stealth-input"
+                            placeholder="Opcional">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</template>
+
+<template id="tpl-usuarios">
+    <div class="config-section fade-in">
+        <h3 class="config-section-title">Gestor de usuarios</h3>
+        <div class="config-table-wrapper">
+            <table class="config-table" id="tblUsuarios">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Entidad</th>
+                        <th>Rol</th>
+                        <th class="col-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="config-table-empty">Cargando...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>
+<template id="tpl-nuevo-usuario">
+    <div class="config-section fade-in">
+        <h3 class="config-section-title">Nuevo usuario</h3>
+        <form class="config-form config-form-grid" id="formCrearUsuario" autocomplete="off">
+            <input type="text" name="name" required placeholder="Nombre"><input type="email" name="email" required
+                placeholder="Email">
+            <select name="role" required>
+                <option value="viewer">Viewer</option>
+                <option value="operator">Operator</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select name="entidad_id" data-entidades-select>
+                <option value="">— Sin entidad —</option>
+            </select>
+            <input type="password" name="password" required minlength="8" placeholder="Contraseña"><input
+                type="password" name="password_confirmation" required minlength="8" placeholder="Confirmar">
+            <button type="button" data-action="cancelar-crear">Cancelar</button><button type="submit">Crear
+                usuario</button>
+        </form>
+    </div>
+</template>

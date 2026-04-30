@@ -1,5 +1,5 @@
 function loadHeader() {
-    fetch('components/header.html')
+    fetch('components/header.html?v=' + Date.now())
         .then(response => response.text())
         .then(data => {
             const container = document.getElementById('header-container');
@@ -7,6 +7,15 @@ function loadHeader() {
                 container.innerHTML = data;
                 initHeaderLogic();
                 initProfileDropdown();
+                
+                // Mostrar nombre del usuario en lugar de dato estático
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user && user.name) {
+                        const el = document.querySelector('.user-name');
+                        if (el) el.textContent = user.name;
+                    }
+                } catch (e) {}
             }
         })
         .catch(err => console.error('Error loading header:', err));
@@ -69,6 +78,19 @@ function initProfileDropdown() {
 
     if (!profileToggle || !dropdown) return;
 
+    // Garantizar que el texto "Cerrar sesión" exista aunque el HTML servido esté en caché
+    if (logoutBtn && !logoutBtn.querySelector('span')) {
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = 'Cerrar sesión';
+        logoutBtn.appendChild(labelSpan);
+    }
+    const configBtnEl = document.getElementById('configBtn');
+    if (configBtnEl && !configBtnEl.querySelector('span')) {
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = 'Configuración';
+        configBtnEl.appendChild(labelSpan);
+    }
+
     // Alternar dropdown al hacer clic en el perfil
     profileToggle.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -88,6 +110,20 @@ function initProfileDropdown() {
             dropdown.classList.remove('active');
         }
     });
+
+    // Botón "Configuración" -> emitir evento para abrir el modal
+    const configBtn = document.getElementById('configBtn');
+    if (configBtn) {
+        configBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.remove('active');
+            if (window.openConfigModal) {
+                window.openConfigModal();
+            } else {
+                console.error("openConfigModal is not defined. Ensure configModal.js is loaded.");
+            }
+        });
+    }
 
     // Botón "Cerrar sesión" → usar showConfirm existente de popup.js
     if (logoutBtn) {

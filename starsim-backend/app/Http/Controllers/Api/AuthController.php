@@ -87,4 +87,63 @@ class AuthController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Actualizar datos del usuario autenticado (perfil).
+     */
+    public function updateMe(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $originalEmail = $user->email;
+
+        $request->validate([
+            'name'                  => 'sometimes|string|max:255',
+            'email'                 => 'sometimes|email|max:255|unique:usuarios,email,' . $user->id,
+            'password'              => 'sometimes|string|min:8|confirmed',
+            'current_password'      => 'sometimes|string',
+        ]);
+
+        if ($request->filled('password')) {
+            if (! $request->filled('current_password') || ! Hash::check($request->current_password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => ['La contraseña actual es incorrecta.'],
+                ]);
+            }
+        }
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+        $user->load('entidad');
+
+        $responseData = [
+            'message' => 'Perfil actualizado.',
+            'user' => [
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'email'    => $user->email,
+                'role'     => $user->role,
+                'entidad'  => $user->entidad ? [
+                    'id'   => $user->entidad->id,
+                    'name' => $user->entidad->name,
+                    'slug' => $user->entidad->slug,
+                ] : null,
+            ],
+        ];
+
+        if ($user->email !== $originalEmail) {
+            $user->tokens()->delete();
+            $responseData['token'] = $user->createToken('spa-token')->plainTextToken;
+        }
+
+        return response()->json($responseData);
+    }
 }
