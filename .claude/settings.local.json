@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git stash *)",
-      "Bash(xxd \"C:\\\\Users\\\\grdie\\\\Desktop\\\\starsim\\\\components\\\\header.html\")"
-    ]
-  }
-}

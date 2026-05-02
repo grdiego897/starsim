@@ -33,29 +33,42 @@ Sigue estos pasos si deseas instalar y hacer funcionar el proyecto en tu máquin
 
 ### Paso 1: Clonar y configurar Backend (Laravel)
 
-1. Abre un terminal y dirígete a la carpeta `starsim-backend` (donde reside este README).
-2. Copia el archivo `.env.example` y renómbralo a `.env`.
-3. Levanta y construye los contenedores de Docker (PHP + MySQL) mediante Sail (este paso tomará varios minutos la primera vez mientras compila la imagen):
-   ```bash
-   docker compose up -d --build
-   ```
-4. Instala las dependencias de Composer:
-   ```bash
-   docker compose exec laravel.test composer install
-   ```
-5. Genera la clave de aplicación de Laravel:
-   ```bash
-   docker compose exec laravel.test php artisan key:generate
-   ```
-6. Importa la base de datos (y los usuarios de prueba). Suponiendo que el archivo SQL se encuentra en la carpeta padre superior (`database/starsim.sql`):
-   **En Windows (PowerShell):**
-   ```powershell
-   Get-Content ..\database\starsim.sql | docker compose exec -T mysql mysql -usail -ppassword
-   ```
-   **En Linux/Mac:**
-   ```bash
-   docker compose exec -T mysql mysql -usail -ppassword < ../database/starsim.sql
-   ```
+Abre un terminal y dirígete a la carpeta `starsim-backend`.
+
+**1. Instala las dependencias de Composer usando Docker** (no requiere PHP ni Composer instalados localmente):
+
+```bash
+docker run --rm -v "$($PWD):/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
+```
+
+**2. Levanta los contenedores de Docker** (PHP + MySQL). La primera vez añade `--build` para compilar la imagen de Sail (requiere internet para descargar `ubuntu:24.04`):
+
+```bash
+docker compose up -d --build
+```
+
+Las veces siguientes, sin `--build` es suficiente (usa la imagen ya compilada en caché):
+
+```bash
+docker compose up -d
+```
+
+**3. Genera la clave de aplicación de Laravel:**
+
+```bash
+docker compose exec laravel.test php artisan key:generate
+```
+
+**4. Importa la base de datos** (y los usuarios de prueba). Suponiendo que el archivo SQL se encuentra en la carpeta padre superior (`database/starsim.sql`):
+
+**En Windows (PowerShell):**
+```powershell
+Get-Content ..\database\starsim.sql | docker compose exec -T mysql mysql -usail -ppassword
+```
+**En Linux/Mac:**
+```bash
+docker compose exec -T mysql mysql -usail -ppassword < ../database/starsim.sql
+```
 
 ### Paso 2: Ejecutar el Frontend
 
