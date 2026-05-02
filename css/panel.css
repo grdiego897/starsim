@@ -87,7 +87,8 @@
     position: relative;
     z-index: 1;
     will-change: opacity;
-    transition: opacity 0.3s ease;
+    /* unhover: longer, eased fade-in so it blends with tooltip fade-out */
+    transition: opacity 0.3s ease-in-out;
 }
 
 .card-graph-tooltip {
@@ -104,6 +105,20 @@
     opacity: 0;
     pointer-events: none;
     will-change: opacity;
+    /* unhover: longer, eased fade-out matched to card */
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card-wrapper:hover .card-graph-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    /* hover: keep snappy */
+    transition: opacity 0.3s ease;
+}
+
+.card-wrapper:hover .card {
+    opacity: 0;
+    /* hover: keep snappy */
     transition: opacity 0.3s ease;
 }
 
