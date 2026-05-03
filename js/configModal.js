@@ -14,7 +14,6 @@
     let overlayEl = null;
     let panelEl = null;
     let currentUser = null;       // copia ligera de localStorage.user
-    let entidadesCache = [];      // se carga una vez al abrir "Usuarios"
 
     // ────────────────────────────────────────────────────────────────────
     //  Carga del componente HTML
@@ -101,9 +100,9 @@
         // Mostrar/ocultar las secciones de admin según el rol
         const esAdmin = currentUser.role === 'admin';
         const usuariosBtn = document.getElementById('configSidebarUsuarios');
-        const nuevoUsuarioBtn = document.getElementById('configSidebarNuevoUsuario');
         if (usuariosBtn) usuariosBtn.hidden = !esAdmin;
-        if (nuevoUsuarioBtn) nuevoUsuarioBtn.hidden = !esAdmin;
+        const nuevoBtn = document.getElementById('configSidebarNuevoUsuario');
+        if (nuevoBtn) nuevoBtn.hidden = !esAdmin;
 
         // Reset: marcar "Mi Perfil" activo y abrirlo
         const sidebarItems = overlayEl.querySelectorAll('[data-section]');
@@ -123,6 +122,12 @@
 
     function switchConfigSection(name) {
         if (!panelEl) return;
+
+        const esAdmin = currentUser && currentUser.role === 'admin';
+        if ((name === 'usuarios' || name === 'nuevoUsuario') && !esAdmin) {
+            return;
+        }
+
         panelEl.innerHTML = '';
 
         if (name === 'miPerfil') {
@@ -132,12 +137,6 @@
         } else if (name === 'nuevoUsuario') {
             renderNuevoUsuario();
         }
-    }
-
-    /** Marca el item activo en la sidebar por su data-section. */
-    function setActiveSidebar(name) {
-        const items = overlayEl.querySelectorAll('[data-section]');
-        items.forEach(b => b.classList.toggle('active', b.dataset.section === name));
     }
 
     // ────────────────────────────────────────────────────────────────────
@@ -314,263 +313,437 @@
     }
 
     // ────────────────────────────────────────────────────────────────────
-    //  Sección: Usuarios (admin)
+    //  Sección: Gestor de usuarios (admin) — contenido por desarrollar
     // ────────────────────────────────────────────────────────────────────
 
-    async function renderUsuarios() {
-        const tpl = document.getElementById('tpl-usuarios');
-        const node = tpl.content.cloneNode(true);
+    let cachedUsuarios = [];
+    let cachedEntidades = [];
 
-        panelEl.appendChild(node);
-
-        // Cargar entidades + usuarios en paralelo
-        try {
-            const [usuariosRes, entidadesRes] = await Promise.all([
-                apiFetch('/usuarios'),
-                apiFetch('/entidades'),
-            ]);
-
-            entidadesCache = entidadesRes.entidades || [];
-            poblarSelectsEntidades();
-            pintarTablaUsuarios(usuariosRes.usuarios || []);
-        } catch (err) {
-            window.showPopup('Error', err.message || 'No se pudieron cargar los usuarios.', 'error');
-        }
-    }
-
-    /** Sección independiente "Nuevo usuario": sólo el formulario de creación. */
-    async function renderNuevoUsuario() {
-        const tpl = document.getElementById('tpl-nuevo-usuario');
-        const node = tpl.content.cloneNode(true);
-
-        const formCrear = node.querySelector('#formCrearUsuario');
-        formCrear.addEventListener('submit', onSubmitCrearUsuario);
-
-        const cancelBtn = node.querySelector('[data-action="cancelar-crear"]');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-                setActiveSidebar('usuarios');
-                switchConfigSection('usuarios');
-            });
-        }
-
-        panelEl.appendChild(node);
-
-        // Asegurar que las entidades estén cargadas para el select
-        try {
-            if (entidadesCache.length === 0) {
-                const entidadesRes = await apiFetch('/entidades');
-                entidadesCache = entidadesRes.entidades || [];
-            }
-            poblarSelectsEntidades();
-        } catch (err) {
-            window.showPopup('Error', err.message || 'No se pudieron cargar las entidades.', 'error');
-        }
-    }
-
-    function poblarSelectsEntidades() {
-        const selects = panelEl.querySelectorAll('select[data-entidades-select]');
-        selects.forEach(sel => {
-            // Conservar el valor actualmente seleccionado
-            const currentVal = sel.value;
-            // Limpiar opciones excepto la primera ("— Sin entidad —")
-            while (sel.options.length > 1) sel.remove(1);
-            entidadesCache.forEach(ent => {
-                const opt = document.createElement('option');
-                opt.value = ent.id;
-                opt.textContent = ent.name;
-                sel.appendChild(opt);
-            });
-            sel.value = currentVal;
-        });
-    }
-
-    function pintarTablaUsuarios(usuarios) {
-        const tbody = panelEl.querySelector('#tblUsuarios tbody');
-        tbody.innerHTML = '';
-
-        if (usuarios.length === 0) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td colspan="5" class="config-table-empty">No hay usuarios registrados.</td>';
-            tbody.appendChild(tr);
-            return;
-        }
-
-        usuarios.forEach(u => tbody.appendChild(filaUsuario(u)));
-    }
-
-    function filaUsuario(u) {
-        const tr = document.createElement('tr');
-        tr.dataset.id = u.id;
-
-        const entidadNombre = u.entidad ? u.entidad.name : '—';
-        const rolLabel = ROLE_LABELS[u.role] || u.role;
-        const esYo = currentUser && u.id === currentUser.id;
-
-        tr.innerHTML = `
-            <td>${escapeHtml(u.name)}${esYo ? ' <span class="badge-self">(tú)</span>' : ''}</td>
-            <td>${escapeHtml(u.email)}</td>
-            <td>${escapeHtml(entidadNombre)}</td>
-            <td><span class="role-pill role-${u.role}">${rolLabel}</span></td>
-            <td class="col-actions">
-                <button class="config-icon-btn" data-action="editar" title="Editar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="config-icon-btn config-icon-btn-danger" data-action="eliminar" title="Eliminar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
-                        <path d="M10 11v6"/>
-                        <path d="M14 11v6"/>
-                        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                </button>
-            </td>
+    function renderUsuarios() {
+        panelEl.innerHTML = `
+            <div class="config-section fade-in">
+                <h3 class="config-section-title">Gestor de usuarios</h3>
+                <div class="users-table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Entidad</th>
+                                <th>Rol</th>
+                                <th class="users-col-actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTbody"></tbody>
+                    </table>
+                </div>
+                <div class="users-empty" hidden>Sin usuarios.</div>
+                <div class="users-error" hidden></div>
+            </div>
         `;
 
-        // Datos crudos para edición in-line
-        tr._usuario = u;
+        const tbody = panelEl.querySelector('#usuariosTbody');
+        const emptyEl = panelEl.querySelector('.users-empty');
+        const errorEl = panelEl.querySelector('.users-error');
 
-        tr.querySelector('[data-action="editar"]').addEventListener('click', () => {
-            transformarFilaEnEdicion(tr);
-        });
+        tbody.innerHTML = `<tr><td colspan="5" class="users-loading">Cargando…</td></tr>`;
 
-        tr.querySelector('[data-action="eliminar"]').addEventListener('click', () => {
-            confirmarEliminar(u);
-        });
+        Promise.all([apiFetch('/usuarios'), apiFetch('/entidades')])
+            .then(([usuariosRes, entidadesRes]) => {
+                cachedUsuarios = Array.isArray(usuariosRes.usuarios) ? usuariosRes.usuarios : [];
+                cachedEntidades = Array.isArray(entidadesRes.entidades) ? entidadesRes.entidades : [];
 
-        return tr;
+                if (cachedUsuarios.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyEl.hidden = false;
+                    return;
+                }
+                tbody.innerHTML = cachedUsuarios.map(u => {
+                    const entidad = u.entidad && u.entidad.name ? escapeHtml(u.entidad.name) : '—';
+                    const roleLabel = ROLE_LABELS[u.role] || u.role;
+                    return `
+                        <tr>
+                            <td>${escapeHtml(u.name || '')}</td>
+                            <td>${escapeHtml(u.email || '')}</td>
+                            <td>${entidad}</td>
+                            <td><span class="role-badge role-${escapeHtml(u.role || '')}">${escapeHtml(roleLabel)}</span></td>
+                            <td class="users-col-actions">
+                                <button type="button" class="users-edit-btn" data-id="${u.id}" title="Editar usuario" aria-label="Editar usuario">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                tbody.querySelectorAll('.users-edit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.dataset.id, 10);
+                        const u = cachedUsuarios.find(x => x.id === id);
+                        if (u) renderEditarUsuario(u);
+                    });
+                });
+            })
+            .catch(err => {
+                console.error('Error cargando usuarios:', err);
+                tbody.innerHTML = '';
+                errorEl.textContent = err.message || 'No se pudieron cargar los usuarios.';
+                errorEl.hidden = false;
+            });
     }
 
-    function transformarFilaEnEdicion(tr) {
-        const u = tr._usuario;
+    function renderEditarUsuario(u) {
+        const safeName = escapeHtml(u.name || '');
+        const safeEmail = escapeHtml(u.email || '');
+        const roleLabel = ROLE_LABELS[u.role] || u.role;
+        const entNombre = u.entidad ? u.entidad.name : 'Sin entidad';
+        const currentEntId = u.entidad ? u.entidad.id : '';
 
-        // Construir las opciones de entidades como string HTML
-        const entOptions =
-            '<option value="">— Sin entidad —</option>' +
-            entidadesCache.map(e =>
-                `<option value="${e.id}" ${u.entidad && u.entidad.id === e.id ? 'selected' : ''}>${escapeHtml(e.name)}</option>`
-            ).join('');
-
-        const roleOptions = ['viewer', 'operator', 'admin'].map(r =>
-            `<option value="${r}" ${u.role === r ? 'selected' : ''}>${ROLE_LABELS[r]}</option>`
+        const roleOptions = Object.entries(ROLE_LABELS).map(([val, lbl]) =>
+            `<option value="${val}" ${u.role === val ? 'selected' : ''}>${escapeHtml(lbl)}</option>`
         ).join('');
 
-        tr.classList.add('row-editing');
-        tr.innerHTML = `
-            <td><input type="text" name="name" value="${escapeAttr(u.name)}" maxlength="255"></td>
-            <td><input type="email" name="email" value="${escapeAttr(u.email)}" maxlength="255"></td>
-            <td><select name="entidad_id">${entOptions}</select></td>
-            <td><select name="role">${roleOptions}</select></td>
-            <td class="col-actions">
-                <input type="password" name="password" placeholder="Nueva contraseña (opcional)" minlength="8" class="inline-password">
-                <button class="config-btn config-btn-primary config-btn-sm" data-action="guardar">Guardar</button>
-                <button class="config-btn config-btn-sm" data-action="cancelar">Cancelar</button>
-            </td>
+        const entOptions = `<option value="">Sin entidad</option>` + cachedEntidades.map(e =>
+            `<option value="${e.id}" ${e.id === currentEntId ? 'selected' : ''}>${escapeHtml(e.name)}</option>`
+        ).join('');
+
+        panelEl.innerHTML = `
+            <div class="config-section fade-in">
+                <button type="button" class="users-back-btn" id="usuariosBackBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>Volver</span>
+                </button>
+                <form class="config-form" id="formEditarUsuario" autocomplete="off">
+                    <div class="profile-header-row">
+                        <div class="profile-avatar-group">
+                            <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                            <div class="profile-info-text">
+                                <h4 class="profile-name-text">Rol: ${escapeHtml(roleLabel)}</h4>
+                                <p class="profile-email-text">Entidad: ${escapeHtml(entNombre)}</p>
+                            </div>
+                        </div>
+                        <button type="submit" class="profile-save-btn">Guardar cambios</button>
+                    </div>
+                    <div class="profile-fields-container">
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>Nombre</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="text" name="name" required maxlength="255"
+                                    class="stealth-input" placeholder="Nombre" value="${safeName}">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Correo</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="email" name="email" required maxlength="255"
+                                    class="stealth-input" placeholder="usuario@correo.com" value="${safeEmail}">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.286l5.962-5.962A6 6 0 1121 9z"></path>
+                                </svg>
+                                <span>Nueva contraseña</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="password" name="password" minlength="8"
+                                    class="stealth-input" placeholder="Opcional">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
+                                </svg>
+                                <span>Rol</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <select name="role" class="stealth-input stealth-select">${roleOptions}</select>
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"></path>
+                                </svg>
+                                <span>Entidad</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <select name="entidad_id" class="stealth-input stealth-select">${entOptions}</select>
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span>Tu contraseña</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="password" name="admin_password" required minlength="8"
+                                    class="stealth-input" placeholder="Confirma con tu contraseña">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         `;
 
-        tr.querySelector('[data-action="cancelar"]').addEventListener('click', () => {
-            // Volver a renderizar la fila como vista normal
-            const nuevaFila = filaUsuario(u);
-            tr.replaceWith(nuevaFila);
-        });
-
-        tr.querySelector('[data-action="guardar"]').addEventListener('click', async () => {
-            const payload = {
-                name: tr.querySelector('input[name="name"]').value.trim(),
-                email: tr.querySelector('input[name="email"]').value.trim(),
-                role: tr.querySelector('select[name="role"]').value,
-                entidad_id: tr.querySelector('select[name="entidad_id"]').value || null,
-            };
-            const pwd = tr.querySelector('input[name="password"]').value;
-            if (pwd) {
-                payload.password = pwd;
-                payload.password_confirmation = pwd;
-            }
-
-            try {
-                const res = await apiFetch(`/usuarios/${u.id}`, { method: 'PATCH', body: payload });
-                window.showPopup('Éxito', 'Usuario actualizado.', 'success');
-                const nuevaFila = filaUsuario(res.usuario);
-                tr.replaceWith(nuevaFila);
-
-                // Si me edité a mí mismo, sincronizar localStorage y header
-                if (currentUser && res.usuario.id === currentUser.id) {
-                    currentUser = res.usuario;
-                    localStorage.setItem('user', JSON.stringify(res.usuario));
-                    refreshHeaderName(res.usuario.name);
-                }
-            } catch (err) {
-                window.showPopup('Error', err.message || 'No se pudo actualizar.', 'error');
-            }
-        });
+        panelEl.querySelector('#usuariosBackBtn').addEventListener('click', () => switchConfigSection('usuarios'));
+        panelEl.querySelector('#formEditarUsuario').addEventListener('submit', (e) => onSubmitEditarUsuario(e, u));
     }
 
-    async function confirmarEliminar(u) {
-        const esYo = currentUser && u.id === currentUser.id;
-        const mensaje = esYo
-            ? '¿Estás seguro de eliminar TU PROPIA cuenta? Se cerrará tu sesión inmediatamente.'
-            : `¿Estás seguro de eliminar al usuario "${u.name}"? Esta acción no se puede deshacer.`;
-
-        const ok = await window.showConfirm('Eliminar usuario', mensaje, {
-            confirmText: 'Eliminar',
-            cancelText: 'Cancelar',
-            type: 'error',
-        });
-        if (!ok) return;
-
-        try {
-            const res = await apiFetch(`/usuarios/${u.id}`, { method: 'DELETE' });
-
-            if (res.self_deleted) {
-                // El admin se eliminó a sí mismo: limpiar sesión y redirigir.
-                localStorage.removeItem('api_token');
-                localStorage.removeItem('user');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            window.showPopup('Éxito', 'Usuario eliminado.', 'success');
-            // Recargar lista
-            const lista = await apiFetch('/usuarios');
-            pintarTablaUsuarios(lista.usuarios || []);
-        } catch (err) {
-            window.showPopup('Error', err.message || 'No se pudo eliminar.', 'error');
-        }
-    }
-
-    async function onSubmitCrearUsuario(e) {
+    async function onSubmitEditarUsuario(e, original) {
         e.preventDefault();
         const form = e.currentTarget;
         const fd = new FormData(form);
 
+        const name = (fd.get('name') || '').trim();
+        const email = (fd.get('email') || '').trim();
+        const password = fd.get('password') || '';
+        const role = fd.get('role') || '';
+        const entidadIdRaw = fd.get('entidad_id');
+        const adminPassword = fd.get('admin_password') || '';
+
+        const payload = { admin_password: adminPassword };
+        if (name && name !== original.name) payload.name = name;
+        if (email && email !== original.email) payload.email = email;
+        if (role && role !== original.role) payload.role = role;
+        const newEntId = entidadIdRaw === '' ? null : parseInt(entidadIdRaw, 10);
+        const oldEntId = original.entidad ? original.entidad.id : null;
+        if (newEntId !== oldEntId) payload.entidad_id = newEntId;
+        if (password) payload.password = password;
+
+        const onlyAdmin = Object.keys(payload).length === 1;
+        if (onlyAdmin) {
+            window.showPopup('Sin cambios', 'No hay nada que modificar.', 'info');
+            return;
+        }
+
+        const submitBtn = form.querySelector('.profile-save-btn');
+        const originalBtnText = submitBtn ? submitBtn.textContent : 'Guardar cambios';
+        if (submitBtn) {
+            submitBtn.textContent = 'Guardando...';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
+        try {
+            await apiFetch(`/usuarios/${original.id}`, { method: 'PUT', body: payload });
+            window.showPopup('Éxito', 'Usuario actualizado correctamente.', 'success');
+            switchConfigSection('usuarios');
+        } catch (err) {
+            window.showPopup('Error', err.message || 'No se pudo actualizar el usuario.', 'error');
+            if (submitBtn) {
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
+        }
+    }
+
+    async function renderNuevoUsuario() {
+        panelEl.innerHTML = `
+            <div class="config-section fade-in">
+                <button type="button" class="users-back-btn" id="usuariosBackBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>Volver</span>
+                </button>
+                <h3 class="config-section-title">Nuevo usuario</h3>
+                <div class="users-loading" id="nuevoUsuarioLoading">Cargando…</div>
+            </div>
+        `;
+        panelEl.querySelector('#usuariosBackBtn').addEventListener('click', () => switchConfigSection('usuarios'));
+
+        try {
+            if (cachedEntidades.length === 0) {
+                const entidadesRes = await apiFetch('/entidades');
+                cachedEntidades = Array.isArray(entidadesRes.entidades) ? entidadesRes.entidades : [];
+            }
+        } catch (err) {
+            console.error('Error cargando entidades:', err);
+        }
+
+        const roleOptions = Object.entries(ROLE_LABELS).map(([val, lbl]) =>
+            `<option value="${val}" ${val === 'viewer' ? 'selected' : ''}>${escapeHtml(lbl)}</option>`
+        ).join('');
+        const entOptions = `<option value="">Sin entidad</option>` + cachedEntidades.map(e =>
+            `<option value="${e.id}">${escapeHtml(e.name)}</option>`
+        ).join('');
+
+        panelEl.innerHTML = `
+            <div class="config-section fade-in">
+                <button type="button" class="users-back-btn" id="usuariosBackBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>Volver</span>
+                </button>
+                <form class="config-form" id="formNuevoUsuario" autocomplete="off">
+                    <div class="profile-header-row">
+                        <div class="profile-avatar-group">
+                            <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                            <div class="profile-info-text">
+                                <h4 class="profile-name-text">Nuevo usuario</h4>
+                                <p class="profile-email-text">Crear cuenta</p>
+                            </div>
+                        </div>
+                        <button type="submit" class="profile-save-btn">Crear usuario</button>
+                    </div>
+                    <div class="profile-fields-container">
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>Nombre</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="text" name="name" required maxlength="255" class="stealth-input" placeholder="Nombre">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Correo</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="email" name="email" required maxlength="255" class="stealth-input" placeholder="usuario@correo.com">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.286l5.962-5.962A6 6 0 1121 9z"></path>
+                                </svg>
+                                <span>Contraseña</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="password" name="password" required minlength="8" class="stealth-input" placeholder="Mínimo 8 caracteres">
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
+                                </svg>
+                                <span>Rol</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <select name="role" class="stealth-input stealth-select">${roleOptions}</select>
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"></path>
+                                </svg>
+                                <span>Entidad</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <select name="entidad_id" class="stealth-input stealth-select">${entOptions}</select>
+                            </div>
+                        </div>
+                        <div class="profile-field-row">
+                            <div class="profile-field-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span>Tu contraseña</span>
+                            </div>
+                            <div class="profile-field-input-group">
+                                <input type="password" name="admin_password" required minlength="8" class="stealth-input" placeholder="Confirma con tu contraseña">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        `;
+        panelEl.querySelector('#usuariosBackBtn').addEventListener('click', () => switchConfigSection('usuarios'));
+        panelEl.querySelector('#formNuevoUsuario').addEventListener('submit', onSubmitNuevoUsuario);
+    }
+
+    async function onSubmitNuevoUsuario(e) {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const fd = new FormData(form);
+
+        const entidadIdRaw = fd.get('entidad_id');
         const payload = {
             name: (fd.get('name') || '').trim(),
             email: (fd.get('email') || '').trim(),
-            role: fd.get('role'),
-            entidad_id: fd.get('entidad_id') || null,
-            password: fd.get('password'),
-            password_confirmation: fd.get('password_confirmation'),
+            password: fd.get('password') || '',
+            password_confirmation: fd.get('password') || '',
+            role: fd.get('role') || 'viewer',
+            entidad_id: entidadIdRaw === '' ? null : parseInt(entidadIdRaw, 10),
+            admin_password: fd.get('admin_password') || '',
         };
 
-        if (payload.password !== payload.password_confirmation) {
-            window.showPopup('Error', 'Las contraseñas no coinciden.', 'error');
-            return;
+        const submitBtn = form.querySelector('.profile-save-btn');
+        const originalBtnText = submitBtn ? submitBtn.textContent : 'Crear usuario';
+        if (submitBtn) {
+            submitBtn.textContent = 'Creando...';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
         }
 
         try {
             await apiFetch('/usuarios', { method: 'POST', body: payload });
             window.showPopup('Éxito', 'Usuario creado correctamente.', 'success');
-            form.reset();
-            // Volver al listado para ver el nuevo usuario
-            setActiveSidebar('usuarios');
             switchConfigSection('usuarios');
         } catch (err) {
             window.showPopup('Error', err.message || 'No se pudo crear el usuario.', 'error');
+            if (submitBtn) {
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
         }
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     // ────────────────────────────────────────────────────────────────────
@@ -611,20 +784,6 @@
         }
 
         return data;
-    }
-
-    function escapeHtml(s) {
-        if (s == null) return '';
-        return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    function escapeAttr(s) {
-        return escapeHtml(s);
     }
 
     // ────────────────────────────────────────────────────────────────────

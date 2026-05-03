@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\EntidadController;
 use App\Http\Controllers\Api\MisionController;
+use App\Http\Controllers\Api\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 // ── Rutas públicas ──
@@ -25,5 +27,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/misiones/{id}',              [MisionController::class, 'update'])->whereNumber('id');
         Route::patch('/misiones/{id}/status',     [MisionController::class, 'updateStatus'])->whereNumber('id');
         Route::delete('/misiones/{id}',           [MisionController::class, 'destroy'])->whereNumber('id');
+    });
+
+    // Gestión de usuarios — sólo admin
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/usuarios',         [UsuarioController::class, 'index']);
+        Route::post('/usuarios',        [UsuarioController::class, 'store']);
+        Route::put('/usuarios/{id}',    [UsuarioController::class, 'update'])->whereNumber('id');
+        Route::get('/entidades',        [EntidadController::class, 'index']);
     });
 });

@@ -15,14 +15,27 @@
                     </svg>
                     <span>Mi perfil</span>
                 </button>
-                <!-- Secciones extra ocultas para no romper JS si iterara -->
-                <button class="config-sidebar-item" data-section="usuarios" id="configSidebarUsuarios"
-                    style="display: none;">
-                </button>
-                <button class="config-sidebar-cta" data-section="nuevoUsuario" id="configSidebarNuevoUsuario"
-                    style="display: none;">
+                <button class="config-sidebar-item" data-section="usuarios" id="configSidebarUsuarios" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <span>Gestor de usuarios</span>
                 </button>
             </nav>
+            <button class="config-sidebar-cta" data-section="nuevoUsuario" id="configSidebarNuevoUsuario" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
+                <span>Nuevo usuario</span>
+            </button>
         </div>
 
         <!-- Main Panel -->
@@ -115,44 +128,20 @@
 <template id="tpl-usuarios">
     <div class="config-section fade-in">
         <h3 class="config-section-title">Gestor de usuarios</h3>
-        <div class="config-table-wrapper">
-            <table class="config-table" id="tblUsuarios">
+        <div class="users-table-wrapper">
+            <table class="users-table">
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Email</th>
                         <th>Entidad</th>
                         <th>Rol</th>
-                        <th class="col-actions">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="5" class="config-table-empty">Cargando...</td>
-                    </tr>
-                </tbody>
+                <tbody id="usuariosTbody"></tbody>
             </table>
         </div>
-    </div>
-</template>
-<template id="tpl-nuevo-usuario">
-    <div class="config-section fade-in">
-        <h3 class="config-section-title">Nuevo usuario</h3>
-        <form class="config-form config-form-grid" id="formCrearUsuario" autocomplete="off">
-            <input type="text" name="name" required placeholder="Nombre"><input type="email" name="email" required
-                placeholder="Email">
-            <select name="role" required>
-                <option value="viewer">Viewer</option>
-                <option value="operator">Operator</option>
-                <option value="admin">Admin</option>
-            </select>
-            <select name="entidad_id" data-entidades-select>
-                <option value="">— Sin entidad —</option>
-            </select>
-            <input type="password" name="password" required minlength="8" placeholder="Contraseña"><input
-                type="password" name="password_confirmation" required minlength="8" placeholder="Confirmar">
-            <button type="button" data-action="cancelar-crear">Cancelar</button><button type="submit">Crear
-                usuario</button>
-        </form>
+        <div class="users-empty" hidden>Sin usuarios.</div>
+        <div class="users-error" hidden></div>
     </div>
 </template>

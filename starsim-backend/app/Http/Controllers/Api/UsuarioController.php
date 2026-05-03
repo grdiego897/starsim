@@ -32,15 +32,23 @@ class UsuarioController extends Controller
     {
         try {
             $data = $request->validate([
-                'name'        => 'required|string|min:1|max:255',
-                'email'       => 'required|email|max:255|unique:usuarios,email',
-                'password'    => 'required|string|min:8|confirmed',
-                'role'        => 'required|in:admin,operator,viewer',
-                'entidad_id'  => 'nullable|integer|exists:entidades,id',
+                'name'           => 'required|string|min:1|max:255',
+                'email'          => 'required|email|max:255|unique:usuarios,email',
+                'password'       => 'required|string|min:8',
+                'role'           => 'required|in:admin,operator,viewer',
+                'entidad_id'     => 'nullable|integer|exists:entidades,id',
+                'admin_password' => 'required|string',
             ]);
         } catch (ValidationException $e) {
             return response()->json(['message' => 'Datos inválidos.', 'errors' => $e->errors()], 422);
         }
+
+        if (! Hash::check($data['admin_password'], $request->user()->password)) {
+            throw ValidationException::withMessages([
+                'admin_password' => ['La contraseña del administrador es incorrecta.'],
+            ]);
+        }
+        unset($data['admin_password']);
 
         // El cast 'password' => 'hashed' del modelo se encarga del hashing.
         $usuario = Usuario::create($data);
@@ -63,15 +71,24 @@ class UsuarioController extends Controller
 
         try {
             $data = $request->validate([
-                'name'        => 'sometimes|string|min:1|max:255',
-                'email'       => ['sometimes', 'email', 'max:255', Rule::unique('usuarios', 'email')->ignore($usuario->id)],
-                'role'        => 'sometimes|in:admin,operator,viewer',
-                'entidad_id'  => 'nullable|integer|exists:entidades,id',
-                'password'    => 'sometimes|nullable|string|min:8|confirmed',
+                'name'             => 'sometimes|string|min:1|max:255',
+                'email'            => ['sometimes', 'email', 'max:255', Rule::unique('usuarios', 'email')->ignore($usuario->id)],
+                'role'             => 'sometimes|in:admin,operator,viewer',
+                'entidad_id'       => 'nullable|integer|exists:entidades,id',
+                'password'         => 'sometimes|nullable|string|min:8',
+                'admin_password'   => 'required|string',
             ]);
         } catch (ValidationException $e) {
             return response()->json(['message' => 'Datos inválidos.', 'errors' => $e->errors()], 422);
         }
+
+        // Verificar la contraseña del admin que realiza la operación.
+        if (! Hash::check($data['admin_password'], $request->user()->password)) {
+            throw ValidationException::withMessages([
+                'admin_password' => ['La contraseña del administrador es incorrecta.'],
+            ]);
+        }
+        unset($data['admin_password']);
 
         // Si llega password vacía o no llega, no la tocamos.
         if (empty($data['password'] ?? null)) {

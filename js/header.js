@@ -15,6 +15,8 @@ function loadHeader() {
                         const el = document.querySelector('.user-name');
                         if (el) el.textContent = user.name;
                     }
+                    const crown = document.querySelector('.crown-icon-img');
+                    if (crown) crown.hidden = !(user && user.role === 'admin');
                 } catch (e) {}
             }
         })

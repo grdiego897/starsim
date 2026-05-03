@@ -176,6 +176,7 @@ function initPanelPage() {
 
     let countdownTarget = null;
     let countdownInterval = null;
+    let countdownLoaded = false;
 
     function findNextMission(missions) {
         const now = Date.now();
@@ -209,9 +210,21 @@ function initPanelPage() {
         if (!cdDays || !cdHours || !cdMins || !cdSecs) return;
 
         if (!countdownTarget) {
+            if (!countdownLoaded) {
+                if (cdTimer) cdTimer.style.display = 'none';
+                if (cdInfo) cdInfo.style.display = 'none';
+                if (cdEmpty) {
+                    cdEmpty.style.display = 'block';
+                    cdEmpty.textContent = 'Cargando próxima misión...';
+                }
+                return;
+            }
             if (cdTimer) cdTimer.style.display = 'none';
             if (cdInfo) cdInfo.style.display = 'none';
-            if (cdEmpty) cdEmpty.style.display = 'block';
+            if (cdEmpty) {
+                cdEmpty.style.display = 'block';
+                cdEmpty.textContent = 'Sin misiones próximas programadas';
+            }
             return;
         }
 
@@ -244,6 +257,7 @@ function initPanelPage() {
         if (!window.MissionService) return;
         const missions = await window.MissionService.getAllMissions();
         countdownTarget = findNextMission(missions);
+        countdownLoaded = true;
         if (cdName && countdownTarget) cdName.textContent = countdownTarget.name;
         updateCountdown();
 
