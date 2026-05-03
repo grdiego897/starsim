@@ -305,10 +305,14 @@ CREATE TABLE registros_clima (
 -- ============================================================
 
 INSERT INTO entidades (name, slug, description) VALUES
-    ('SpaceX',       'spacex',       'Space Exploration Technologies Corp.'),
     ('NASA',         'nasa',         'National Aeronautics and Space Administration'),
     ('ESA',          'esa',          'European Space Agency'),
-    ('Blue Origin',  'blue-origin',  'Blue Origin LLC');
+    ('SpaceX',       'spacex',       'Space Exploration Technologies Corp.'),
+    ('Axiom',        'axiom',        'Axiom Space'),
+    ('Vast',         'vast',         'Vast Space'),
+    ('Eutelsat',     'eutelsat',     'Eutelsat Communications'),
+    ('JAXA',         'jaxa',         'Japan Aerospace Exploration Agency'),
+    ('CSA',          'csa',          'Canadian Space Agency');
 
 -- Coordenadas de portCities en panel.js
 INSERT INTO puertos_espaciales (slug, name, latitude, longitude, country) VALUES
