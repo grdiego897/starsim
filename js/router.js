@@ -25,6 +25,12 @@ class Router {
                 style: 'css/program.css',
                 title: 'Programa',
                 init: () => window.initProgramPage && window.initProgramPage()
+            },
+            'constelacion': {
+                template: 'pages/constelacion.html',
+                style: 'css/constelacion.css',
+                title: 'Constelación · Starlink — StarSim',
+                init: () => window.initConstelacionPage && window.initConstelacionPage()
             }
         };
 

@@ -1,0 +1,75 @@
+<div class="constelacion-stage" id="constelacion-stage">
+  <!-- Globe canvas — fills entire stage -->
+  <canvas id="constelacion-canvas" style="display:block;cursor:grab;touch-action:none;"></canvas>
+
+  <!-- Top-left: updated tag -->
+  <div class="tr-updated-tag" id="tr-updated-tag">
+    Updated <span id="tr-updated-num" class="tr-updated-num">0s</span> ago
+  </div>
+
+  <!-- Top-right: time control + selection readout -->
+  <div class="tr-top-right">
+    <div class="tr-time-ctrl" id="tr-time-ctrl">
+      <button class="tr-tc-btn" data-speed="-16">-16x</button>
+      <button class="tr-tc-btn" data-speed="-4">-4x</button>
+      <button class="tr-tc-btn tr-tc-btn-live tr-tc-btn-on" data-speed="live">Live ·</button>
+      <button class="tr-tc-btn" data-speed="4">+4x</button>
+      <button class="tr-tc-btn" data-speed="16">+16x</button>
+    </div>
+    <div class="tr-sel-readout tr-sel-readout-empty" id="tr-sel-readout">
+      <div class="tr-sr-row"><span class="tr-sk">Click any satellite</span></div>
+      <div class="tr-sr-row tr-sr-hint">Drag to rotate · Scroll to zoom</div>
+    </div>
+  </div>
+
+  <!-- Bottom-left: technical dropdown panels -->
+  <div class="tr-bottom-left">
+    <div class="tr-drop-panel" id="tr-panel-01">
+      <button class="tr-dp-head" data-panel="tr-body-01">
+        <span class="tr-dp-id">01</span>
+        <span class="tr-dp-label">CONSTELLATION</span>
+        <span class="tr-dp-chev">▸</span>
+      </button>
+      <div class="tr-dp-body" id="tr-body-01" style="display:none"></div>
+    </div>
+    <div class="tr-drop-panel" id="tr-panel-02">
+      <button class="tr-dp-head" data-panel="tr-body-02">
+        <span class="tr-dp-id">02</span>
+        <span class="tr-dp-label">TELEMETRY</span>
+        <span class="tr-dp-chev">▸</span>
+      </button>
+      <div class="tr-dp-body" id="tr-body-02" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Bottom-right: search + upcoming launches -->
+  <div class="tr-bottom-right">
+    <div class="tr-drop-panel" id="tr-panel-03">
+      <button class="tr-dp-head" data-panel="tr-body-03">
+        <span class="tr-dp-id">03</span>
+        <span class="tr-dp-label">SEARCH</span>
+        <span class="tr-dp-count" id="tr-sat-total">600</span>
+        <span class="tr-dp-chev">▸</span>
+      </button>
+      <div class="tr-dp-body" id="tr-body-03" style="display:none"></div>
+    </div>
+    <div class="tr-drop-panel" id="tr-panel-04">
+      <button class="tr-dp-head" data-panel="tr-body-04">
+        <span class="tr-dp-id">04</span>
+        <span class="tr-dp-label">UPCOMING LAUNCHES</span>
+        <span class="tr-dp-count" id="tr-upcoming-count">0</span>
+        <span class="tr-dp-chev">▸</span>
+      </button>
+      <div class="tr-dp-body" id="tr-body-04" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Bottom-center: identity strip -->
+  <div class="tr-id-strip">
+    <span class="tr-strip-tag" id="tr-strip-tag">EARTH · STARSIM · LIVE</span>
+    <span class="tr-strip-sep">|</span>
+    <span class="tr-strip-mono" id="tr-strip-db">0 MISSIONS · 0 PROGRAMS</span>
+    <span class="tr-strip-sep">|</span>
+    <span class="tr-strip-mono" id="tr-obj-count">0 OBJ TRACKED</span>
+  </div>
+</div>

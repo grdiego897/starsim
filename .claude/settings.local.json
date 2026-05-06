@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Get-ChildItem *)"
-    ]
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "WebFetch(*)",
+      "TodoWrite",
+      "Task(*)"
+    ],
+    "deny": []
   }
 }

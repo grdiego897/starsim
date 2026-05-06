@@ -6,6 +6,13 @@
 
     const SECTIONS = [
         {
+            id: 'section-constelacion',
+            route: 'constelacion',
+            template: 'pages/constelacion.html',
+            label: 'Constelación',
+            init: () => window.initConstelacionPage && window.initConstelacionPage()
+        },
+        {
             id: 'section-panel',
             route: 'panel',
             template: 'pages/panel.html',
@@ -32,6 +39,13 @@
     let accumulatedDelta = 0;
     const DELTA_THRESHOLD = 120;
     let deltaResetTimer = null;
+
+    // Toggles the full-bleed body class so Constelación occupies the full window
+    // (header hidden, viewport expanded to 100vh) when it's the active section.
+    function applyFullBleed(index) {
+        const isConst = SECTIONS[index] && SECTIONS[index].route === 'constelacion';
+        document.body.classList.toggle('constelacion-active', isConst);
+    }
 
     /**
      * Build the scroll viewport with all sections
@@ -84,6 +98,7 @@
         hintEl.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
         viewportEl.appendChild(hintEl);
 
+
         appContent.appendChild(viewportEl);
 
         // Init page scripts
@@ -101,6 +116,8 @@
 
         // Update hash silently
         silentHashUpdate(SECTIONS[activeIndex].route);
+
+        applyFullBleed(activeIndex);
 
         initialized = true;
     }
@@ -184,6 +201,8 @@
             }
         });
 
+        applyFullBleed(newIndex);
+
         // Update hash
         silentHashUpdate(SECTIONS[newIndex].route);
 
@@ -219,6 +238,12 @@
      * Cleanup — called when navigating away from scroll-enabled routes
      */
     function destroyScrollTransition() {
+        // Sections may register a cleanup hook (e.g. Constelación stops its rAF loop here).
+        if (typeof window._constelacionCleanup === 'function') {
+            try { window._constelacionCleanup(); } catch (_) {}
+            window._constelacionCleanup = null;
+        }
+        document.body.classList.remove('constelacion-active');
         if (hintEl) {
             hintEl = null;
         }
