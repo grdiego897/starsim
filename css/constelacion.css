@@ -110,14 +110,14 @@ body.constelacion-active #app-content {
 }
 
 .tr-tc-btn-on {
-  background: #ffd040;
+  background: #fff;
   color: #000;
   font-weight: 700;
-  border-color: #ffd040;
+  border-color: #fff;
 }
 
 .tr-tc-btn-on:hover {
-  background: #ffd040;
+  background: #fff;
   color: #000;
 }
 
@@ -164,9 +164,9 @@ body.constelacion-active #app-content {
 .tr-sr-clear {
   margin-top: 8px;
   width: 100%;
-  background: rgba(255,208,64,0.15);
-  border: 1px solid #ffd040;
-  color: #ffd040;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
   padding: 6px 10px;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.72rem;
@@ -179,7 +179,7 @@ body.constelacion-active #app-content {
 }
 
 .tr-sr-clear:hover {
-  background: #ffd040;
+  background: #fff;
   color: #000;
 }
 
@@ -398,7 +398,7 @@ body.constelacion-active #app-content {
 }
 
 .tr-rail-search::placeholder { color: rgba(255,255,255,0.35); letter-spacing: 1px; }
-.tr-rail-search:focus { border-color: rgba(255,208,64,0.5); }
+.tr-rail-search:focus { border-color: rgba(255,255,255,0.5); }
 
 .tr-filter-chips {
   display: flex;
@@ -422,7 +422,7 @@ body.constelacion-active #app-content {
 }
 
 .tr-chip:hover { background: rgba(255,255,255,0.10); color: #fff; }
-.tr-chip-on { background: #ffd040; color: #000; border-color: #ffd040; }
+.tr-chip-on { background: #fff; color: #000; border-color: #fff; }
 
 .tr-search-meta {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -460,8 +460,8 @@ body.constelacion-active #app-content {
 .tr-sat-row:hover { background: rgba(255,255,255,0.04); }
 
 .tr-sat-row-sel {
-  background: rgba(255,208,64,0.10);
-  border-color: rgba(255,208,64,0.40);
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.30);
 }
 
 .tr-sat-row-name {

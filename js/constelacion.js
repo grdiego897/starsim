@@ -135,7 +135,7 @@ function buildSatsForLaunch(mission, launch, baseId) {
       missionId:   mission.id,
       missionName: mission.name || '',
       program:     mission.program || '',
-      status:      mission.status || 'programado',
+      status:      'lanzado',
       destination: launch.destination || '',
       ship:        launch.ship || '',
       booster:     launch.booster || '',
@@ -163,14 +163,13 @@ function formatLaunchEta(ms) {
 function rebuildConstellationFromMissions(missions) {
   ALL_SATS = [];
   UPCOMING_LAUNCHES = [];
-  MISSIONS = Array.isArray(missions) ? missions.slice() : [];
-  const now = Date.now();
-  let nextId = 1;
-
-  const starlink = (missions || []).filter(m => {
+  const starlink = (Array.isArray(missions) ? missions : []).filter(m => {
     const p = (m.program || '').toLowerCase();
     return p === 'starlink';
   });
+  MISSIONS = starlink.slice();
+  const now = Date.now();
+  let nextId = 1;
 
   for (const m of starlink) {
     const status = (m.status || 'programado').toLowerCase();
@@ -668,7 +667,7 @@ function computeDbStats() {
         upcomingCount++;
         if (t < nextLaunchMs) {
           nextLaunchMs = t;
-          nextLaunch = { name: m.name || 'Mission', destination: l.destination, t };
+          nextLaunch = { name: m.name || 'Misión', destination: l.destination, t };
         }
       }
     }
@@ -700,29 +699,27 @@ function updateSelectionReadout() {
   if (!sat) {
     el.className = 'tr-sel-readout tr-sel-readout-empty';
     el.innerHTML = `
-      <div class="tr-sr-row"><span class="tr-sk">Click any satellite</span></div>
-      <div class="tr-sr-row tr-sr-hint">Drag to rotate · Scroll to zoom</div>`;
+      <div class="tr-sr-row"><span class="tr-sk">Haz clic en un satélite</span></div>
+      <div class="tr-sr-row tr-sr-hint">Arrastra para rotar · Scroll para zoom</div>`;
     return;
   }
   const p = propagate(sat, state.simTime);
   el.className = 'tr-sel-readout';
   el.innerHTML = `
-    <div class="tr-sr-row"><span class="tr-sk">Name:</span><span class="tr-sv">${sat.name}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Mission:</span><span class="tr-sv">${sat.batch}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Program:</span><span class="tr-sv">${sat.program || '—'}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Status:</span><span class="tr-sv">${(sat.status || '—').toUpperCase()}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Destination:</span><span class="tr-sv">${destLabel(sat.destination)}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Vehicle:</span><span class="tr-sv">${vehicleLabel(sat.ship)} / ${vehicleLabel(sat.booster)}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Cargo:</span><span class="tr-sv">${sat.cargoType || '—'} · ${sat.cargoMassT.toFixed(2)} t</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Crew:</span><span class="tr-sv">${sat.crewCount}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Nombre:</span><span class="tr-sv">${sat.name}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Misión:</span><span class="tr-sv">${sat.batch}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Estado:</span><span class="tr-sv">${(sat.status || '—').toUpperCase()}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Vehículo:</span><span class="tr-sv">${vehicleLabel(sat.ship)} / ${vehicleLabel(sat.booster)}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Carga:</span><span class="tr-sv">${sat.cargoType || '—'} · ${sat.cargoMassT.toFixed(2)} t</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Tripulación:</span><span class="tr-sv">${sat.crewCount}</span></div>
     <div class="tr-sr-row"><span class="tr-sk">NORAD ID:</span><span class="tr-sv">${sat.norad}</span></div>
     <div class="tr-sr-row"><span class="tr-sk">COSPAR:</span><span class="tr-sv">${sat.cospar}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Orbit:</span><span class="tr-sv">${sat.altitudeLow} × ${sat.altitudeHigh}, ${sat.inclination.toFixed(2)}°</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Position:</span><span class="tr-sv">${p.lat.toFixed(2)}°, ${p.lon.toFixed(2)}°</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Velocity:</span><span class="tr-sv">${p.vKms.toFixed(2)} km/s</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Launch:</span><span class="tr-sv">${sat.launchDate}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Pad:</span><span class="tr-sv">${sat.launchpad.name}</span></div>
-    <button class="tr-sr-clear" id="tr-sr-clear">Clear Selection ✕</button>`;
+    <div class="tr-sr-row"><span class="tr-sk">Órbita:</span><span class="tr-sv">${sat.altitudeLow} × ${sat.altitudeHigh}, ${sat.inclination.toFixed(2)}°</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Posición:</span><span class="tr-sv">${p.lat.toFixed(2)}°, ${p.lon.toFixed(2)}°</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Velocidad:</span><span class="tr-sv">${p.vKms.toFixed(2)} km/s</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Lanzamiento:</span><span class="tr-sv">${sat.launchDate}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Plataforma:</span><span class="tr-sv">${sat.launchpad.name}</span></div>
+    <button class="tr-sr-clear" id="tr-sr-clear">Limpiar selección ✕</button>`;
   const clearBtn = document.getElementById('tr-sr-clear');
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
@@ -749,13 +746,18 @@ function updateConstellationPanel() {
   const satellites = getSatellites();
   const stats = computeDbStats();
 
-  // Program distribution from the mission database (not just Starlink shells).
-  const programEntries = Object.entries(stats.byProgram).sort((a, b) => b[1] - a[1]);
-  const maxProgramCt = programEntries.length ? programEntries[0][1] : 1;
-  let programBars = '';
-  for (const [name, ct] of programEntries) {
-    const pct = (ct / maxProgramCt) * 100;
-    programBars += `
+  // Shell distribution across the active Starlink fleet.
+  const byShell = {};
+  for (const s of satellites) {
+    const k = s.shell || 'Shell ?';
+    byShell[k] = (byShell[k] || 0) + 1;
+  }
+  const shellEntries = Object.entries(byShell).sort((a, b) => b[1] - a[1]);
+  const maxShellCt = shellEntries.length ? shellEntries[0][1] : 1;
+  let shellBars = '';
+  for (const [name, ct] of shellEntries) {
+    const pct = (ct / maxShellCt) * 100;
+    shellBars += `
       <div class="tr-shell-bar-row">
         <div class="tr-shell-bar-head">
           <span>${name}</span>
@@ -764,38 +766,17 @@ function updateConstellationPanel() {
         <div class="tr-shell-bar-track"><div class="tr-shell-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
       </div>`;
   }
-  if (!programBars) programBars = '<div class="tr-sat-empty">No programs in database</div>';
-
-  // Status distribution (programado / confirmado / hold / cancelado).
-  const statusKeys = ['programado', 'confirmado', 'hold', 'cancelado'];
-  const maxStatusCt = Math.max(1, ...statusKeys.map(k => stats.byStatus[k] || 0));
-  let statusBars = '';
-  for (const k of statusKeys) {
-    const ct = stats.byStatus[k] || 0;
-    const pct = (ct / maxStatusCt) * 100;
-    statusBars += `
-      <div class="tr-shell-bar-row">
-        <div class="tr-shell-bar-head">
-          <span>${k.toUpperCase()}</span>
-          <span class="tr-shell-bar-ct">${ct}</span>
-        </div>
-        <div class="tr-shell-bar-track"><div class="tr-shell-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
-      </div>`;
-  }
+  if (!shellBars) shellBars = '<div class="tr-sat-empty">Sin satélites Starlink en seguimiento</div>';
 
   el.innerHTML = `
     <div class="tr-stats-panel">
-      <div class="tr-stat-row"><span>MISSIONS</span><span class="tr-stat-v">${stats.total}</span></div>
-      <div class="tr-stat-row"><span>PROGRAMS</span><span class="tr-stat-v">${stats.programs}</span></div>
-      <div class="tr-stat-row"><span>DESTINATIONS</span><span class="tr-stat-v">${stats.destinations}</span></div>
-      <div class="tr-stat-row"><span>PORTS USED</span><span class="tr-stat-v">${stats.ports}</span></div>
-      <div class="tr-stat-row"><span>TRACKED OBJ</span><span class="tr-stat-v">${satellites.length}</span></div>
+      <div class="tr-stat-row"><span>MISIONES</span><span class="tr-stat-v">${stats.total}</span></div>
+      <div class="tr-stat-row"><span>SHELLS</span><span class="tr-stat-v">${shellEntries.length}</span></div>
+      <div class="tr-stat-row"><span>PUERTOS USADOS</span><span class="tr-stat-v">${stats.ports}</span></div>
+      <div class="tr-stat-row"><span>OBJ EN SEGUIMIENTO</span><span class="tr-stat-v">${satellites.length}</span></div>
       <div class="tr-stats-divider"></div>
-      <div class="tr-stats-sub">PROGRAM DISTRIBUTION</div>
-      ${programBars}
-      <div class="tr-stats-divider"></div>
-      <div class="tr-stats-sub">MISSION STATUS</div>
-      ${statusBars}
+      <div class="tr-stats-sub">DISTRIBUCIÓN POR SHELL</div>
+      ${shellBars}
     </div>`;
 }
 
@@ -805,10 +786,6 @@ function updateTelemetryPanel() {
   const sel = getSatellites().find(s => s.id === state.selectedId);
   const utc = new Date(state.simTime).toUTCString().replace('GMT', 'UTC');
   const stats = computeDbStats();
-
-  // Most-frequent destination across all launches in the database.
-  const destEntries = Object.entries(stats.byDestin).sort((a, b) => b[1] - a[1]);
-  const topDest = destEntries.length ? `${destLabel(destEntries[0][0])} (${destEntries[0][1]})` : '—';
 
   // Next launch from the database.
   let nextLine = '—';
@@ -822,46 +799,43 @@ function updateTelemetryPanel() {
     const p = propagate(sel, state.simTime);
     tracking = `
       <div class="tr-stats-divider"></div>
-      <div class="tr-stats-sub">TRACKING · ${sel.name}</div>
-      <div class="tr-telem-row"><span>MISSION</span><span class="tr-telem-v">${sel.batch}</span></div>
-      <div class="tr-telem-row"><span>PROGRAM</span><span class="tr-telem-v">${sel.program || '—'}</span></div>
-      <div class="tr-telem-row"><span>STATUS</span><span class="tr-telem-v">${(sel.status || '—').toUpperCase()}</span></div>
-      <div class="tr-telem-row"><span>DESTINATION</span><span class="tr-telem-v">${destLabel(sel.destination)}</span></div>
-      <div class="tr-telem-row"><span>VEHICLE</span><span class="tr-telem-v">${vehicleLabel(sel.ship)} / ${vehicleLabel(sel.booster)}</span></div>
-      <div class="tr-telem-row"><span>CARGO</span><span class="tr-telem-v">${sel.cargoType || '—'} · ${sel.cargoMassT.toFixed(2)} t</span></div>
-      <div class="tr-telem-row"><span>CREW</span><span class="tr-telem-v">${sel.crewCount}</span></div>
-      <div class="tr-telem-row"><span>EPOCH</span><span class="tr-telem-v">${sel.launchDate}</span></div>
+      <div class="tr-stats-sub">SEGUIMIENTO · ${sel.name}</div>
+      <div class="tr-telem-row"><span>MISIÓN</span><span class="tr-telem-v">${sel.batch}</span></div>
+      <div class="tr-telem-row"><span>ESTADO</span><span class="tr-telem-v">${(sel.status || '—').toUpperCase()}</span></div>
+      <div class="tr-telem-row"><span>VEHÍCULO</span><span class="tr-telem-v">${vehicleLabel(sel.ship)} / ${vehicleLabel(sel.booster)}</span></div>
+      <div class="tr-telem-row"><span>CARGA</span><span class="tr-telem-v">${sel.cargoType || '—'} · ${sel.cargoMassT.toFixed(2)} t</span></div>
+      <div class="tr-telem-row"><span>TRIPULACIÓN</span><span class="tr-telem-v">${sel.crewCount}</span></div>
+      <div class="tr-telem-row"><span>ÉPOCA</span><span class="tr-telem-v">${sel.launchDate}</span></div>
       <div class="tr-telem-row"><span>RAAN</span><span class="tr-telem-v">${sel.raan.toFixed(2)}°</span></div>
       <div class="tr-telem-row"><span>ALT</span><span class="tr-telem-v">${sel.altitude} km</span></div>
-      <div class="tr-telem-row"><span>VELOCITY</span><span class="tr-telem-v">${p.vKms.toFixed(2)} km/s</span></div>`;
+      <div class="tr-telem-row"><span>VELOCIDAD</span><span class="tr-telem-v">${p.vKms.toFixed(2)} km/s</span></div>`;
   }
 
   el.innerHTML = `
     <div class="tr-telem-panel">
-      <div class="tr-telem-row"><span>SIM TIME</span><span class="tr-telem-v">${utc}</span></div>
-      <div class="tr-telem-row"><span>FRAME</span><span class="tr-telem-v">ECEF / WGS-84</span></div>
-      <div class="tr-telem-row"><span>PROPAGATOR</span><span class="tr-telem-v">SGP4-LITE</span></div>
+      <div class="tr-telem-row"><span>HORA SIM</span><span class="tr-telem-v">${utc}</span></div>
+      <div class="tr-telem-row"><span>MARCO</span><span class="tr-telem-v">ECEF / WGS-84</span></div>
+      <div class="tr-telem-row"><span>PROPAGADOR</span><span class="tr-telem-v">SGP4-LITE</span></div>
       <div class="tr-stats-divider"></div>
-      <div class="tr-stats-sub">DATABASE</div>
-      <div class="tr-telem-row"><span>TOTAL MISSIONS</span><span class="tr-telem-v">${stats.total}</span></div>
-      <div class="tr-telem-row"><span>UPCOMING</span><span class="tr-telem-v">${stats.upcomingCount}</span></div>
-      <div class="tr-telem-row"><span>NEXT LAUNCH</span><span class="tr-telem-v">${nextLine}</span></div>
-      <div class="tr-telem-row"><span>TOTAL CARGO</span><span class="tr-telem-v">${stats.totalCargoT.toFixed(2)} t</span></div>
-      <div class="tr-telem-row"><span>TOTAL CREW</span><span class="tr-telem-v">${stats.totalCrew}</span></div>
-      <div class="tr-telem-row"><span>TOP DESTINATION</span><span class="tr-telem-v">${topDest}</span></div>
+      <div class="tr-stats-sub">BASE DE DATOS</div>
+      <div class="tr-telem-row"><span>MISIONES TOTAL</span><span class="tr-telem-v">${stats.total}</span></div>
+      <div class="tr-telem-row"><span>PRÓXIMOS</span><span class="tr-telem-v">${stats.upcomingCount}</span></div>
+      <div class="tr-telem-row"><span>PRÓXIMO LANZAMIENTO</span><span class="tr-telem-v">${nextLine}</span></div>
+      <div class="tr-telem-row"><span>CARGA TOTAL</span><span class="tr-telem-v">${stats.totalCargoT.toFixed(2)} t</span></div>
+      <div class="tr-telem-row"><span>TRIPULACIÓN TOTAL</span><span class="tr-telem-v">${stats.totalCrew}</span></div>
       ${tracking}
     </div>`;
 }
 
 function buildSearchPanel(el) {
   const shellKeys = Object.keys(STARLINK_SHELLS);
-  let chips = `<button class="tr-chip tr-chip-on" data-shell="all">ALL</button>`;
+  let chips = `<button class="tr-chip tr-chip-on" data-shell="all">TODOS</button>`;
   for (const k of shellKeys) {
     chips += `<button class="tr-chip" data-shell="${k}">${k.replace('Shell ', 'S')}</button>`;
   }
 
   el.innerHTML = `
-    <input class="tr-rail-search" id="tr-search-input" placeholder="NAME / NORAD / COSPAR…">
+    <input class="tr-rail-search" id="tr-search-input" placeholder="NOMBRE / NORAD / COSPAR…">
     <div class="tr-filter-chips" id="tr-filter-chips">${chips}</div>
     <div class="tr-search-meta" id="tr-search-meta"></div>
     <div class="tr-sat-list" id="tr-sat-list"></div>`;
@@ -901,7 +875,7 @@ function updateSearchList() {
       || String(s.norad).includes(q);
   });
 
-  if (meta) meta.textContent = `${filtered.length} / ${satellites.length} OBJECTS`;
+  if (meta) meta.textContent = `${filtered.length} / ${satellites.length} OBJETOS`;
 
   const shown = filtered.slice(0, 100);
   let html = '';
@@ -916,7 +890,7 @@ function updateSearchList() {
       <div class="tr-sat-row-coord">${Math.abs(p.lat).toFixed(1)}°${p.lat >= 0 ? 'N' : 'S'}<br>${Math.abs(p.lon).toFixed(1)}°${p.lon >= 0 ? 'E' : 'W'}</div>
     </div>`;
   }
-  if (!shown.length) html = '<div class="tr-sat-empty">No matches</div>';
+  if (!shown.length) html = '<div class="tr-sat-empty">Sin resultados</div>';
   list.innerHTML = html;
 
   list.querySelectorAll('.tr-sat-row').forEach(row => {
@@ -938,15 +912,14 @@ function renderUpcomingPanel() {
   }
   let html = '<div class="tr-upcoming-panel">';
   if (!UPCOMING_LAUNCHES.length) {
-    html += '<div class="tr-sat-empty">No upcoming launches</div>';
+    html += '<div class="tr-sat-empty">Sin próximos lanzamientos</div>';
   } else {
     for (const u of UPCOMING_LAUNCHES) {
       const meta = [
         u.pad,
-        destLabel(u.destination),
         u.cargoType || null,
         u.cargoMassT > 0 ? `${u.cargoMassT.toFixed(1)}t` : null,
-        u.crewCount > 0 ? `${u.crewCount} crew` : null,
+        u.crewCount > 0 ? `${u.crewCount} tripulantes` : null,
       ].filter(Boolean).join(' · ');
       html += `
         <div class="tr-upcoming-row">
@@ -970,13 +943,16 @@ function updateIdStrip() {
   const db    = document.getElementById('tr-strip-db');
   const tag   = document.getElementById('tr-strip-tag');
   if (total) total.textContent = sats.length;
-  if (strip) strip.textContent = `${sats.length} OBJ TRACKED`;
-  if (db)    db.textContent    = `${stats.total} MISSIONS · ${stats.programs} PROGRAMS · ${stats.upcomingCount} UPCOMING`;
+  if (strip) strip.textContent = `${sats.length} OBJ EN SEGUIMIENTO`;
+  if (db) {
+    const shellsCount = Object.keys(STARLINK_SHELLS || {}).length;
+    db.textContent = `${stats.total} MISIONES · ${shellsCount} SHELLS · ${stats.upcomingCount} PRÓXIMOS`;
+  }
   const upCt = document.getElementById('tr-upcoming-count');
   if (upCt)  upCt.textContent  = UPCOMING_LAUNCHES.length;
   if (tag) {
-    const live = state.isLive ? 'LIVE' : (state.paused ? 'PAUSED' : `${state.speed > 0 ? '+' : ''}${state.speed}×`);
-    tag.textContent = `EARTH · STARSIM · ${live}`;
+    const live = state.isLive ? 'LIVE' : (state.paused ? 'PAUSADO' : `${state.speed > 0 ? '+' : ''}${state.speed}×`);
+    tag.textContent = `TIERRA · STARLINK · ${live}`;
   }
 }
 
@@ -1091,12 +1067,31 @@ window.initConstelacionPage = function () {
 
   canvas.addEventListener('pointercancel', () => { drag.active = false; });
 
+  // Grace period after the section becomes active: a wheel that finished a
+  // section transition into the constellation should not be interpreted as zoom.
+  let zoomReadyAt = Date.now() + 600;
+  const bodyObserver = new MutationObserver(() => {
+    if (document.body.classList.contains('constelacion-active')) {
+      zoomReadyAt = Date.now() + 600;
+    }
+  });
+  bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
     // Stop the wheel from also being interpreted as a section transition by ScrollTransition.
     e.stopPropagation();
+    if (Date.now() < zoomReadyAt) return;
     globeView.zoom = Math.max(0.6, Math.min(3.5, globeView.zoom * (e.deltaY > 0 ? 0.92 : 1.08)));
     lastInteract = Date.now();
+  }, { passive: false });
+
+  // Block scroll from leaking out of the constellation stage so ScrollTransition
+  // does not advance to the next section while the user is in this view.
+  stage.addEventListener('wheel', e => {
+    e.stopPropagation();
+    if (e.target === canvas) return;
+    e.preventDefault();
   }, { passive: false });
 
   // ── Time control buttons ───────────────────────────────────────────────────
@@ -1219,6 +1214,7 @@ window.initConstelacionPage = function () {
     if (!inScrollMode) document.body.classList.remove('constelacion-active');
     if (globeRaf) { cancelAnimationFrame(globeRaf); globeRaf = null; }
     if (ro) ro.disconnect();
+    if (bodyObserver) bodyObserver.disconnect();
     if (unsubMissions) { unsubMissions(); unsubMissions = null; }
     window.removeEventListener('hashchange', cleanup);
     if (window._constelacionCleanup === cleanup) window._constelacionCleanup = null;

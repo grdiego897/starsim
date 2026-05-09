@@ -31,7 +31,6 @@
     let activeIndex = 0;
     let transitioning = false;
     let cooldownTimer = null;
-    let hintEl = null;
     let viewportEl = null;
     let initialized = false;
 
@@ -92,13 +91,6 @@
             viewportEl.appendChild(sectionEl);
         }
 
-        // Scroll hint arrow (on the first section only)
-        hintEl = document.createElement('div');
-        hintEl.className = 'scroll-hint';
-        hintEl.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        viewportEl.appendChild(hintEl);
-
-
         appContent.appendChild(viewportEl);
 
         // Init page scripts
@@ -108,11 +100,6 @@
 
         // Attach scroll listener to viewport
         viewportEl.addEventListener('wheel', handleWheel, { passive: false });
-
-        // Show hint after a beat
-        setTimeout(() => {
-            if (activeIndex === 0 && hintEl) hintEl.classList.add('visible');
-        }, 1200);
 
         // Update hash silently
         silentHashUpdate(SECTIONS[activeIndex].route);
@@ -212,11 +199,6 @@
             : null;
         if (routeConfig) document.title = routeConfig.title;
 
-        // Hide/show scroll hint
-        if (hintEl) {
-            hintEl.classList.toggle('visible', newIndex === 0);
-        }
-
         // Cooldown
         clearTimeout(cooldownTimer);
         cooldownTimer = setTimeout(() => {
@@ -244,9 +226,6 @@
             window._constelacionCleanup = null;
         }
         document.body.classList.remove('constelacion-active');
-        if (hintEl) {
-            hintEl = null;
-        }
         if (viewportEl) {
             viewportEl.removeEventListener('wheel', handleWheel);
             viewportEl = null;
