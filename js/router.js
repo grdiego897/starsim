@@ -1,4 +1,4 @@
-
+// ROUTER SPA
 class Router {
     constructor() {
         this.routes = {

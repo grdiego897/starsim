@@ -1,5 +1,5 @@
 /**
- * ScrollTransition — scroll-based page switching between Panel and Programa
+ * Transición de scroll entre las pantallas principales
  */
 (function () {
     'use strict';
@@ -222,7 +222,7 @@
     function destroyScrollTransition() {
         // Sections may register a cleanup hook (e.g. Constelación stops its rAF loop here).
         if (typeof window._constelacionCleanup === 'function') {
-            try { window._constelacionCleanup(); } catch (_) {}
+            try { window._constelacionCleanup(); } catch (_) { }
             window._constelacionCleanup = null;
         }
         document.body.classList.remove('constelacion-active');
