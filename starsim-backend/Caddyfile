@@ -1,0 +1,25 @@
+{
+	frankenphp
+	admin off
+	auto_https off
+}
+
+:8080 {
+	root * /app/public
+
+	@cors_preflight method OPTIONS
+	handle @cors_preflight {
+		header Access-Control-Allow-Origin *
+		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+		header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With"
+		header Access-Control-Max-Age "86400"
+		respond "" 204
+	}
+
+	header Access-Control-Allow-Origin *
+	header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+	header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With"
+
+	encode zstd br gzip
+	php_server
+}
