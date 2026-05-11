@@ -8,7 +8,7 @@
  */
 
 (function () {
-    const API_BASE = 'http://127.0.0.1/api';
+    const API_BASE = 'https://starsim-production-e711.up.railway.app/api';
     const ROLE_LABELS = { admin: 'Admin', operator: 'Operator', viewer: 'Viewer' };
 
     let overlayEl = null;

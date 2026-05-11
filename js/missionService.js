@@ -18,7 +18,7 @@
  *   lastError                          -> última cadena de error legible (o null)
  */
 (function () {
-    const API_BASE = 'http://127.0.0.1/api';
+    const API_BASE = 'https://starsim-production-e711.up.railway.app/api';
     const EVENT_NAME = 'missions-updated';
 
     let cache = [];
