@@ -149,7 +149,7 @@ function initProfileDropdown() {
             // Revocar token en el backend (fire-and-forget, sin esperar respuesta)
             const token = localStorage.getItem('api_token');
             if (token) {
-                fetch('https://starsim-production-e711.up.railway.app/api/logout', {
+                fetch(CONFIG.API_BASE + '/logout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

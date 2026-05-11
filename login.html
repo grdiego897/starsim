@@ -248,6 +248,7 @@
 
       <canvas id="canvas3d"></canvas>
 
+      <script src="js/config.js"></script>
       <script type="module" src="js/cm.js"></script>
       <script>
         async function handleLogin(e) {
@@ -264,7 +265,7 @@
             btn.innerText = 'Autenticando...';
             btn.disabled = true;
 
-            const res = await fetch('https://starsim-production-e711.up.railway.app/api/login', {
+            const res = await fetch(CONFIG.API_BASE + '/login', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
