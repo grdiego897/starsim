@@ -282,6 +282,7 @@
 /* CSS para inputs de configuración avanzada */
 .item-name-input {
     flex-grow: 1;
+    min-width: 0;
     background: transparent;
     border: none;
     color: black;
@@ -299,8 +300,7 @@
 .item-separator {
     color: rgba(0, 0, 0, 0.2);
     font-weight: 300;
-    margin: 0 5px;
-    /* Reduced from 10px */
+    margin: 0 10px;
     user-select: none;
     flex-shrink: 0;
 }
@@ -309,8 +309,7 @@
 .item-qty-container {
     display: flex;
     align-items: center;
-    gap: 3px;
-    /* Reduced from 5px */
+    gap: 8px;
     flex-shrink: 0;
 }
 
@@ -324,28 +323,24 @@
 }
 
 .item-mass-input {
-    width: 45px;
-    /* Reduced from 60px */
+    width: 40px;
     background: transparent;
     border: none;
     color: black;
     font-weight: 700;
-    font-size: 0.85rem;
-    /* Reduced from 0.9rem */
+    font-size: 0.95rem;
     text-align: right;
     outline: none;
     font-family: 'Inter', sans-serif;
 }
 
 .item-qty-input {
-    width: 25px;
-    /* Reduced from 35px */
+    width: 35px;
     background: transparent;
     border: none;
     color: black;
     font-weight: 700;
-    font-size: 0.85rem;
-    /* Reduced from 0.9rem */
+    font-size: 0.95rem;
     text-align: right;
     outline: none;
     font-family: 'Inter', sans-serif;
@@ -355,12 +350,10 @@
     background: transparent;
     border: none;
     color: black;
-    font-size: 1.2rem;
-    /* Reduced from 1.4rem */
+    font-size: 1.4rem;
     line-height: 1;
     cursor: pointer;
-    margin-left: 8px;
-    /* Reduced from 15px */
+    margin-left: 15px;
     padding: 0 2px;
     transition: all 0.2s;
     display: flex;
