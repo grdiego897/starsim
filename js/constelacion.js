@@ -37,6 +37,18 @@
   const SATS_PER_LAUNCH = 22;
   const DEFAULT_ALTITUDE = 550;
 
+  function countStarlinkUnits(adv) {
+    const cargo = adv && Array.isArray(adv.cargo) ? adv.cargo : [];
+    let total = 0;
+    for (const item of cargo) {
+      const name = (item && item.name ? String(item.name) : '').trim().toLowerCase();
+      if (name !== 'starlink') continue;
+      const q = parseInt(item.qty, 10);
+      if (Number.isFinite(q) && q > 0) total += q;
+    }
+    return total;
+  }
+
   let ALL_SATS = [];
   let UPCOMING_LAUNCHES = [];
   let MISSIONS = [];
@@ -128,8 +140,9 @@
     const orbit = orbitFromPad(pad.lat, pad.lon, altitude, epochMs, shellDef.inclination);
     const yr2 = String(new Date(epochMs).getFullYear()).slice(2);
     const adv = launch.advancedConfig || {};
+    const count = countStarlinkUnits(adv);
     const sats = [];
-    for (let i = 0; i < SATS_PER_LAUNCH; i++) {
+    for (let i = 0; i < count; i++) {
       const id = baseId + i;
       sats.push({
         id: `${mission.id || 'M'}-${i + 1}`,

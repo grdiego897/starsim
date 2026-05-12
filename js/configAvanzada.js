@@ -1,19 +1,23 @@
 
 function initConfigAvanzadaPage() {
-    // 0. Persistencia de campos generales
-    const fields = ['objectives-main', 'objectives-secondary', 'crew-input'];
+    const draft = window.MissionAdvancedDraft;
+    if (!draft) {
+        console.error('MissionAdvancedDraft no inicializado');
+        return;
+    }
 
-    fields.forEach(id => {
+    // 0. Campos de texto/número enlazados al borrador en memoria
+    const bindField = (id, key) => {
         const el = document.getElementById(id);
-        if (el) {
-            // Cargar
-            const val = localStorage.getItem(id);
-            if (val !== null) el.value = val;
-
-            // Guardar
-            el.addEventListener('input', () => localStorage.setItem(id, el.value));
-        }
-    });
+        if (!el) return;
+        el.value = draft[key] != null ? draft[key] : '';
+        el.addEventListener('input', () => {
+            draft[key] = el.value;
+        });
+    };
+    bindField('objectives-main', 'objectivesMain');
+    bindField('objectives-secondary', 'objectivesSecondary');
+    bindField('crew-input', 'crew');
 
     // 1. Lógica del blueprint
     const vehicleImg = document.getElementById('vehicle-blueprint');
@@ -38,27 +42,17 @@ function initConfigAvanzadaPage() {
     const totalObjectsEl = document.getElementById('total-objects');
     const addBtn = document.getElementById('add-cargo-btn');
 
-    // Cargar carga desde almacenamiento o vacío
-    const storedCargo = localStorage.getItem('cargoItems');
-    let cargoItems = storedCargo ? JSON.parse(storedCargo) : [];
-
-    function saveCargo() {
-        localStorage.setItem('cargoItems', JSON.stringify(cargoItems));
-    }
-
     function updateTotals() {
-        if (!totalObjectsEl) return;
-
         let totalQty = 0;
         let totalMass = 0;
-        cargoItems.forEach(item => {
+        draft.cargo.forEach(item => {
             const q = parseInt(item.qty) || 0;
             const m = parseFloat(item.mass) || 0;
             totalQty += q;
             totalMass += (q * m);
         });
 
-        totalObjectsEl.textContent = totalQty;
+        if (totalObjectsEl) totalObjectsEl.textContent = totalQty;
         const totalMassEl = document.getElementById('total-mass');
         if (totalMassEl) {
             totalMassEl.textContent = totalMass.toLocaleString() + ' t';
@@ -69,7 +63,7 @@ function initConfigAvanzadaPage() {
         if (!cargoList) return;
         cargoList.innerHTML = '';
 
-        cargoItems.forEach((item, index) => {
+        draft.cargo.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'cargo-item';
 
@@ -82,7 +76,6 @@ function initConfigAvanzadaPage() {
 
             nameInput.addEventListener('input', (e) => {
                 item.name = e.target.value;
-                saveCargo();
             });
 
             // Separador 1
@@ -107,7 +100,6 @@ function initConfigAvanzadaPage() {
             massInput.addEventListener('input', (e) => {
                 item.mass = e.target.value;
                 updateTotals();
-                saveCargo();
             });
 
             massContainer.appendChild(massInput);
@@ -135,7 +127,6 @@ function initConfigAvanzadaPage() {
             qtyInput.addEventListener('input', (e) => {
                 item.qty = e.target.value;
                 updateTotals();
-                saveCargo();
             });
 
             qtyContainer.appendChild(qtyInput);
@@ -147,7 +138,7 @@ function initConfigAvanzadaPage() {
             deleteBtn.innerHTML = '×';
             deleteBtn.title = "Eliminar objeto";
             deleteBtn.addEventListener('click', () => {
-                cargoItems.splice(index, 1);
+                draft.cargo.splice(index, 1);
                 renderCargo();
             });
 
@@ -161,12 +152,11 @@ function initConfigAvanzadaPage() {
         });
 
         updateTotals();
-        saveCargo();
     }
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            cargoItems.push({ name: '', qty: 1, mass: 0 });
+            draft.cargo.push({ name: '', qty: 1, mass: 0 });
             renderCargo();
         });
     }

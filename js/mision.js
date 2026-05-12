@@ -19,18 +19,12 @@ async function initMisionPage() {
     }
 
     function getTotalMass() {
-        const cargoStr = localStorage.getItem('cargoItems');
-        if (!cargoStr) return 0;
-        try {
-            const items = JSON.parse(cargoStr);
-            let total = 0;
-            items.forEach(i => {
-                total += (parseInt(i.qty) || 0) * (parseFloat(i.mass) || 0);
-            });
-            return total;
-        } catch (e) {
-            return 0;
-        }
+        const items = (window.MissionAdvancedDraft && window.MissionAdvancedDraft.cargo) || [];
+        let total = 0;
+        items.forEach(i => {
+            total += (parseInt(i.qty) || 0) * (parseFloat(i.mass) || 0);
+        });
+        return total;
     }
 
     function updateCargoMass() {
@@ -229,17 +223,20 @@ async function initMisionPage() {
                 const shellVal = editingLaunch.shell || editingMission.shell || '';
                 if (shellSelect && shellVal) shellSelect.value = shellVal;
 
-                if (editingLaunch.advancedConfig) {
-                    const adv = editingLaunch.advancedConfig;
-                    localStorage.setItem('objectives-main', adv.objectivesMain || '');
-                    localStorage.setItem('objectives-secondary', adv.objectivesSecondary || '');
-                    localStorage.setItem('crew-input', adv.crew || '');
-                    localStorage.setItem('cargoItems', JSON.stringify(adv.cargo || []));
-                } else {
-                    localStorage.removeItem('objectives-main');
-                    localStorage.removeItem('objectives-secondary');
-                    localStorage.removeItem('crew-input');
-                    localStorage.removeItem('cargoItems');
+                // Sembrar el borrador en memoria desde la misión SOLO la
+                // primera vez que entramos a editar esta misión. Si el usuario
+                // ya pasó por configAvanzada y vuelve a esta página, no
+                // pisamos sus cambios con los valores originales del backend.
+                const advDraft = window.MissionAdvancedDraft;
+                if (advDraft && advDraft.seededForId !== editMissionId) {
+                    const adv = editingLaunch.advancedConfig || {};
+                    advDraft.objectivesMain = adv.objectivesMain || '';
+                    advDraft.objectivesSecondary = adv.objectivesSecondary || '';
+                    advDraft.crew = adv.crew || '';
+                    advDraft.cargo = Array.isArray(adv.cargo)
+                        ? adv.cargo.map(i => ({ ...i }))
+                        : [];
+                    advDraft.seededForId = editMissionId;
                 }
 
                 updateVehicle();
@@ -348,10 +345,10 @@ async function initMisionPage() {
                     ? (shellSelect?.value || null)
                     : null,
                 advancedConfig: {
-                    objectivesMain: localStorage.getItem('objectives-main'),
-                    objectivesSecondary: localStorage.getItem('objectives-secondary'),
-                    crew: localStorage.getItem('crew-input'),
-                    cargo: JSON.parse(localStorage.getItem('cargoItems') || '[]')
+                    objectivesMain: window.MissionAdvancedDraft?.objectivesMain || null,
+                    objectivesSecondary: window.MissionAdvancedDraft?.objectivesSecondary || null,
+                    crew: window.MissionAdvancedDraft?.crew || null,
+                    cargo: (window.MissionAdvancedDraft?.cargo) || []
                 }
             };
 
@@ -421,6 +418,9 @@ async function initMisionPage() {
                     if (result === true) {
                         localStorage.removeItem('editMissionId');
                         localStorage.removeItem('editLaunchId');
+                        if (typeof resetMissionAdvancedDraft === 'function') {
+                            resetMissionAdvancedDraft();
+                        }
                     }
                 } else {
                     const missionData = {
@@ -431,6 +431,9 @@ async function initMisionPage() {
                     result = await window.MissionService.saveMission(missionData);
                     if (result === true) {
                         clearMisionDraft();
+                        if (typeof resetMissionAdvancedDraft === 'function') {
+                            resetMissionAdvancedDraft();
+                        }
                     }
                 }
             } finally {

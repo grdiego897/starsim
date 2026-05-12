@@ -8,6 +8,25 @@ function loadSidebar() {
         });
 }
 
+// Estado en memoria del borrador de configuración avanzada (compartido
+// entre mision.js y configAvanzada.js). Vive en window para sobrevivir a
+// las navegaciones del router SPA sin depender de localStorage.
+window.MissionAdvancedDraft = {
+    objectivesMain: '',
+    objectivesSecondary: '',
+    crew: '',
+    cargo: [],
+    seededForId: null
+};
+
+function resetMissionAdvancedDraft() {
+    window.MissionAdvancedDraft.objectivesMain = '';
+    window.MissionAdvancedDraft.objectivesSecondary = '';
+    window.MissionAdvancedDraft.crew = '';
+    window.MissionAdvancedDraft.cargo = [];
+    window.MissionAdvancedDraft.seededForId = null;
+}
+
 // Función para limpiar datos de misión del localStorage
 function clearMissionData() {
     // Campos de mision.js que usan el prefijo misionDraft_
@@ -16,12 +35,6 @@ function clearMissionData() {
         'ship-select', 'booster-select', 'cargo-type-select',
         'cargo-mass-input', 'port-select', 'launch-date-input',
         'landing-type-select', 'landing-id-select'
-    ];
-
-    // Campos de configAvanzada.js
-    const configFields = [
-        'objectives-main', 'objectives-secondary',
-        'crew-input', 'cargoItems'
     ];
 
     // Limpiar variables de estado de edición
@@ -34,10 +47,12 @@ function clearMissionData() {
         localStorage.removeItem('misionDraft_' + id);
     });
 
-    // Limpiar configuraciones avanzadas
-    configFields.forEach(key => {
-        localStorage.removeItem(key);
-    });
+    // Limpiar borrador de configAvanzada (en memoria)
+    resetMissionAdvancedDraft();
+
+    // Migración: borrar restos antiguos en localStorage (versiones previas)
+    ['objectives-main', 'objectives-secondary', 'crew-input', 'cargoItems']
+        .forEach(key => localStorage.removeItem(key));
 }
 
 // Función para navegar a Nueva Misión (limpia datos primero)
