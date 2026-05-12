@@ -1,7 +1,7 @@
 
 function initConfigAvanzadaPage() {
     // 0. Persistencia de campos generales
-    const fields = ['objectives-main', 'objectives-secondary', 'duration-input', 'crew-input'];
+    const fields = ['objectives-main', 'objectives-secondary', 'crew-input'];
 
     fields.forEach(id => {
         const el = document.getElementById(id);

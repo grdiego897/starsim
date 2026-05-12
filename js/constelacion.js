@@ -23,6 +23,17 @@
     'Shell 5': { inclination: 43.0, altitude: 530 },
   };
 
+  const SHELL_CODE_TO_NAME = {
+    'S1': 'Shell 1', 'S2': 'Shell 2', 'S3': 'Shell 3', 'S4': 'Shell 4', 'S5': 'Shell 5',
+  };
+
+  function resolveShellName(code) {
+    if (!code) return 'Shell 1';
+    if (SHELL_CODE_TO_NAME[code]) return SHELL_CODE_TO_NAME[code];
+    if (STARLINK_SHELLS[code]) return code;
+    return 'Shell 1';
+  }
+
   const SATS_PER_LAUNCH = 22;
   const DEFAULT_ALTITUDE = 550;
 
@@ -73,8 +84,11 @@
 
   // Calcula el RAAN orbital y la anomalía media para que el satélite esté
   // directamente sobre la plataforma de lanzamiento en la época del lanzamiento.
-  function orbitFromPad(padLat, padLon, altitude, epochMs) {
-    const incl = Math.max(53, Math.abs(padLat) + 1);
+  function orbitFromPad(padLat, padLon, altitude, epochMs, desiredIncl) {
+    const minIncl = Math.abs(padLat) + 1;
+    const incl = desiredIncl != null
+      ? Math.max(minIncl, desiredIncl)
+      : Math.max(53, minIncl);
     const inclR = incl * Math.PI / 180;
     const padLatR = padLat * Math.PI / 180;
     const padLonR = padLon * Math.PI / 180;
@@ -108,7 +122,10 @@
     const epochMs = new Date(dateStr).getTime();
     if (!Number.isFinite(epochMs)) return [];
 
-    const orbit = orbitFromPad(pad.lat, pad.lon, DEFAULT_ALTITUDE, epochMs);
+    const shellName = resolveShellName(launch.shell || mission.shell);
+    const shellDef = STARLINK_SHELLS[shellName] || STARLINK_SHELLS['Shell 1'];
+    const altitude = shellDef.altitude;
+    const orbit = orbitFromPad(pad.lat, pad.lon, altitude, epochMs, shellDef.inclination);
     const yr2 = String(new Date(epochMs).getFullYear()).slice(2);
     const adv = launch.advancedConfig || {};
     const sats = [];
@@ -123,11 +140,11 @@
         launchDate: dateStr.slice(0, 10),
         epochMs,
         launchpad: { name: pad.name, site: pad.site, lat: pad.lat, lon: pad.lon },
-        shell: 'Shell 1',
+        shell: shellName,
         inclination: orbit.inclination,
-        altitude: DEFAULT_ALTITUDE,
-        altitudeLow: DEFAULT_ALTITUDE - 12,
-        altitudeHigh: DEFAULT_ALTITUDE + 14,
+        altitude: altitude,
+        altitudeLow: altitude - 12,
+        altitudeHigh: altitude + 14,
         country: 'USA',
         operator: 'SpaceX',
         // Metadatos derivados de la misión (obtenidos de la base de datos)
@@ -191,7 +208,7 @@
           UPCOMING_LAUNCHES.push({
             mission: m.name || 'Starlink',
             pad: pad.name,
-            shell: 'Shell 1',
+            shell: resolveShellName(l.shell || m.shell),
             destination: l.destination || '',
             cargoType: l.cargoType || '',
             cargoMassT: parseCargoMass(l.cargoMass),

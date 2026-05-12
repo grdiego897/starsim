@@ -29,6 +29,7 @@ class MisionResource extends JsonResource
             'launchDate'   => optional($this->fecha_lanzamiento)->format('Y-m-d\TH:i'),
             'landingType'  => $this->zonaAterrizaje?->type,
             'landingId'    => $this->zonaAterrizaje?->slug,
+            'shell'        => $this->shell,
             'createdAt'    => optional($this->created_at)->toISOString(),
             'advancedConfig' => [
                 'objectivesMain'      => $this->objetivos_principales,
@@ -56,6 +57,7 @@ class MisionResource extends JsonResource
             'updatedAt'   => optional($this->updated_at)->toISOString(),
             'launchDate'  => optional($this->fecha_lanzamiento)->format('Y-m-d\TH:i'),
             'port'        => $this->puertoEspacial?->slug,
+            'shell'       => $this->shell,
             'launches'    => [$launch],
         ];
     }

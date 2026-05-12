@@ -31,6 +31,7 @@ class Mision extends Model
         'duracion',
         'tripulacion',
         'cargo_items',
+        'shell',
     ];
 
     protected $casts = [

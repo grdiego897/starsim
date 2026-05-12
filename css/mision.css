@@ -140,7 +140,8 @@
     width: 160px;
 }
 
-.autocomplete-wrapper input {
+.autocomplete-wrapper input,
+.autocomplete-wrapper select {
     width: 100%;
 }
 

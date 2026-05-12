@@ -180,6 +180,7 @@ class MisionController extends Controller
             'launchDate'            => $launch['launchDate']   ?? null,
             'landingType'           => $launch['landingType']  ?? null,
             'landingId'             => $launch['landingId']    ?? null,
+            'shell'                 => $launch['shell']        ?? null,
             'objectivesMain'        => $launch['advancedConfig']['objectivesMain']      ?? null,
             'objectivesSecondary'   => $launch['advancedConfig']['objectivesSecondary'] ?? null,
             'duration'              => $launch['advancedConfig']['duration']            ?? null,
@@ -201,6 +202,7 @@ class MisionController extends Controller
             'launchDate'          => ['required', 'date'],
             'landingType'         => ['nullable', Rule::in(['tower', 'droneship'])],
             'landingId'           => ['nullable', 'string', Rule::exists('zonas_aterrizaje', 'slug')],
+            'shell'               => ['nullable', Rule::in(['S1', 'S2', 'S3', 'S4', 'S5'])],
             'objectivesMain'      => ['nullable', 'string'],
             'objectivesSecondary' => ['nullable', 'string'],
             'duration'            => ['nullable', 'string', 'max:20'],
@@ -254,6 +256,7 @@ class MisionController extends Controller
             'duracion'              => $data['duration'] ?? null,
             'tripulacion'           => isset($data['crew']) && $data['crew'] !== '' ? (int) $data['crew'] : null,
             'cargo_items'           => $data['cargo'] ?? [],
+            'shell'                 => $data['shell'] ?? null,
         ];
     }
 

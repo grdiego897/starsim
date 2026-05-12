@@ -1,24 +1,19 @@
 <section class="description-panel">
-    <h2 class="panel-title">Descripción</h2>
+    <div class="panel-header" style="display: flex; justify-content: center; position: relative; margin-bottom: 15px; align-items: center;">
+        <h2 class="panel-title" style="margin-bottom: 0;">Descripción</h2>
+        <div class="input-group" style="position: absolute; right: 0; display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <label style="font-weight: 700; font-size: 0.9rem; margin: 0;">Tripulación</label>
+            <input type="number" id="crew-input" class="styled-input small-input" value="0" min="0">
+        </div>
+    </div>
     <div class="desc-grid">
         <div class="desc-col">
             <label>Objetivos principales</label>
-            <textarea id="objectives-main" class="styled-textarea"></textarea>
+            <textarea id="objectives-main" class="styled-textarea" spellcheck="false"></textarea>
         </div>
         <div class="desc-col">
             <label>Objetivos secundarios</label>
-            <textarea id="objectives-secondary" class="styled-textarea"></textarea>
-        </div>
-        <div class="desc-inputs">
-            <div class="input-group">
-                <label>Duración</label>
-                <input type="text" id="duration-input" class="styled-input" placeholder="MM/DD/HH/mm"
-                    oninput="this.value = this.value.replace(/[^0-9/]/g, '')">
-            </div>
-            <div class="input-group">
-                <label>Tripulación</label>
-                <input type="number" id="crew-input" class="styled-input small-input" value="0" min="0">
-            </div>
+            <textarea id="objectives-secondary" class="styled-textarea" spellcheck="false"></textarea>
         </div>
     </div>
 </section>

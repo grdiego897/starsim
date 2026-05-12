@@ -20,7 +20,7 @@ function clearMissionData() {
 
     // Campos de configAvanzada.js
     const configFields = [
-        'objectives-main', 'objectives-secondary', 'duration-input',
+        'objectives-main', 'objectives-secondary',
         'crew-input', 'cargoItems'
     ];
 

@@ -60,7 +60,7 @@ async function initMisionPage() {
     };
 
     const destMap = {
-        'leo': 'img/destination/ocisly.png',
+        'leo': 'img/destination/leo.png',
         'haven': 'img/destination/haven.png',
         'axiom': 'img/destination/axiom.png',
         'orbital-reef': 'img/destination/orbital-reef.png',
@@ -86,7 +86,7 @@ async function initMisionPage() {
         if (!destSelect || !destImg) return;
         const destVal = destSelect.value;
         if (destVal === 'leo') {
-            let selectedImg = 'img/destination/ocisly.png';
+            let selectedImg = 'img/destination/leo.png';
             if (landingIdSelect) {
                 const landingVal = landingIdSelect.value;
                 const validDroneships = ['ocisly', 'jrti', 'ytml', 'asog'];
@@ -134,6 +134,20 @@ async function initMisionPage() {
     // --- Mission Input Logic ---
     const missionNameInput = document.getElementById('mission-name-input');
     const programInput = document.getElementById('program-select');
+    const shellWrapper = document.getElementById('shell-wrapper');
+    const shellSelect = document.getElementById('shell-select');
+
+    function updateShellVisibility() {
+        if (!shellWrapper || !programInput) return;
+        const isStarlink = (programInput.value || '').trim().toLowerCase() === 'starlink';
+        shellWrapper.style.display = isStarlink ? 'flex' : 'none';
+    }
+    if (programInput) {
+        programInput.addEventListener('input', updateShellVisibility);
+        programInput.addEventListener('change', updateShellVisibility);
+        programInput.addEventListener('blur', updateShellVisibility);
+    }
+    updateShellVisibility();
 
     async function loadPrograms() {
         if (!window.MissionService) return;
@@ -160,6 +174,7 @@ async function initMisionPage() {
                     e.preventDefault();
                     input.value = p;
                     list.style.display = 'none';
+                    updateShellVisibility();
                 });
                 list.appendChild(li);
             });
@@ -188,6 +203,7 @@ async function initMisionPage() {
 
             if (missionNameInput) missionNameInput.value = editingMission.name || '';
             if (programInput) programInput.value = editingMission.program || '';
+            updateShellVisibility();
 
             if (editLaunchId && editingMission.launches) {
                 editingLaunch = editingMission.launches.find(l => l.id === editLaunchId);
@@ -210,18 +226,18 @@ async function initMisionPage() {
                 setVal('launch-date-input', editingLaunch.launchDate);
                 setVal('landing-type-select', editingLaunch.landingType);
                 setVal('landing-id-select', editingLaunch.landingId);
+                const shellVal = editingLaunch.shell || editingMission.shell || '';
+                if (shellSelect && shellVal) shellSelect.value = shellVal;
 
                 if (editingLaunch.advancedConfig) {
                     const adv = editingLaunch.advancedConfig;
                     localStorage.setItem('objectives-main', adv.objectivesMain || '');
                     localStorage.setItem('objectives-secondary', adv.objectivesSecondary || '');
-                    localStorage.setItem('duration-input', adv.duration || '');
                     localStorage.setItem('crew-input', adv.crew || '');
                     localStorage.setItem('cargoItems', JSON.stringify(adv.cargo || []));
                 } else {
                     localStorage.removeItem('objectives-main');
                     localStorage.removeItem('objectives-secondary');
-                    localStorage.removeItem('duration-input');
                     localStorage.removeItem('crew-input');
                     localStorage.removeItem('cargoItems');
                 }
@@ -254,7 +270,8 @@ async function initMisionPage() {
         'port-select',
         'launch-date-input',
         'landing-type-select',
-        'landing-id-select'
+        'landing-id-select',
+        'shell-select'
     ];
 
     function saveMisionDraft() {
@@ -288,6 +305,7 @@ async function initMisionPage() {
         if (restored) {
             updateVehicle();
             updateDestination();
+            updateShellVisibility();
             const restoredPort = document.getElementById('port-select')?.value;
             if (restoredPort && mapUrls[restoredPort] && mapIframe) {
                 mapIframe.src = mapUrls[restoredPort];
@@ -326,10 +344,12 @@ async function initMisionPage() {
                 launchDate: document.getElementById('launch-date-input')?.value,
                 landingType: document.getElementById('landing-type-select')?.value,
                 landingId: document.getElementById('landing-id-select')?.value,
+                shell: ((programInput?.value || '').trim().toLowerCase() === 'starlink')
+                    ? (shellSelect?.value || null)
+                    : null,
                 advancedConfig: {
                     objectivesMain: localStorage.getItem('objectives-main'),
                     objectivesSecondary: localStorage.getItem('objectives-secondary'),
-                    duration: localStorage.getItem('duration-input'),
                     crew: localStorage.getItem('crew-input'),
                     cargo: JSON.parse(localStorage.getItem('cargoItems') || '[]')
                 }
