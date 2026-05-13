@@ -1,3 +1,21 @@
+const ENTITY_AVATAR_MAP = {
+    nasa: 'img/avatardef/nasalogo.webp',
+    esa: 'img/avatardef/esalogo.webp',
+    spacex: 'img/avatardef/spacexpfp.webp',
+    axiom: 'img/avatardef/axiomlogo.webp',
+    vast: 'img/avatardef/vastlogo.webp',
+    eutelsat: 'img/avatardef/eutellogo.webp',
+    jaxa: 'img/avatardef/jaxalogo.webp',
+    csa: 'img/avatardef/csalogo.webp',
+};
+
+function getUserAvatarSrc(user) {
+    if (user && user.profile_picture_url) return user.profile_picture_url;
+    const slug = user && user.entidad && user.entidad.slug;
+    return ENTITY_AVATAR_MAP[slug];
+}
+window.getUserAvatarSrc = getUserAvatarSrc;
+
 function loadHeader() {
     fetch('components/header.html?v=' + Date.now())
         .then(response => response.text())
@@ -14,6 +32,10 @@ function loadHeader() {
                     if (user && user.name) {
                         const el = document.querySelector('.user-name');
                         if (el) el.textContent = user.name;
+                    }
+                    if (user) {
+                        const avatarEl = document.getElementById('avatarImg');
+                        if (avatarEl) avatarEl.src = getUserAvatarSrc(user);
                     }
                     const crown = document.querySelector('.crown-icon-img');
                     if (crown) crown.hidden = !(user && user.role === 'admin');

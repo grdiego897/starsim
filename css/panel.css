@@ -308,6 +308,13 @@ tr:last-child td {
     color: #fff;
 }
 
+.badge-launched {
+    background-color: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    color: #fff;
+    cursor: default;
+}
+
 select.badge {
     appearance: none;
     -webkit-appearance: none;

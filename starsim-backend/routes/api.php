@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::patch('/me', [AuthController::class, 'updateMe']);
+    Route::post('/me/avatar', [AuthController::class, 'uploadAvatar']);
 
     // Misiones — lectura: todos los autenticados (incluido viewer)
     Route::get('/misiones',         [MisionController::class, 'index']);

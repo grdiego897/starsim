@@ -16,11 +16,11 @@ function initPanelPage() {
     }
 
     function showLoadingRow() {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
     }
 
     function showErrorRow(msg) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
     }
 
     async function renderUpcoming() {
@@ -46,7 +46,7 @@ function initPanelPage() {
         tbody.innerHTML = '';
 
         if (top3.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #888;">No hay misiones próximas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay misiones próximas.</td></tr>';
             return;
         }
 
@@ -56,6 +56,7 @@ function initPanelPage() {
             const firstLaunch = (mission.launches && mission.launches[0]) || {};
             const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            const isPast = !isNaN(dateObj.getTime()) && dateObj.getTime() < Date.now();
 
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
@@ -69,17 +70,20 @@ function initPanelPage() {
             const userData = JSON.parse(localStorage.getItem('user') || '{}');
             const isViewer = userData.role === 'viewer';
 
-            tr.innerHTML = `
-                <td>${mission.name || 'Misión'}</td>
-                <td>${dateStr}</td>
-                <td>
-                    <select class="badge badge-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
+            const statusCell = isPast
+                ? `<span class="badge badge-launched" data-id="${mission.id}">Lanzado</span>`
+                : `<select class="badge badge-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
                         <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
                         <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
                         <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
                         <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                    </select>
-                </td>
+                    </select>`;
+
+            tr.innerHTML = `
+                <td>${mission.name || 'Misión'}</td>
+                <td><span class="badge" style="background: rgba(255,255,255,0.1); color: #ccc;">${mission.entidad?.name || '-'}</span></td>
+                <td>${dateStr}</td>
+                <td>${statusCell}</td>
                 ${isViewer ? '' : `
                 <td class="actions-cell">
                     <div class="action-buttons">

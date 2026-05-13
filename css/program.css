@@ -186,6 +186,13 @@
     color: #fff;
 }
 
+.status-pill.launched {
+    background-color: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    color: #fff;
+    cursor: default;
+}
+
 select.status-pill {
     appearance: none;
     -webkit-appearance: none;

@@ -61,15 +61,54 @@ function initProgramPage() {
 
         const statusSelect = document.getElementById('status-filter');
         const launcherSelect = document.getElementById('launcher-filter');
+        const entitySelect = document.getElementById('entity-filter');
+        const programSelect = document.getElementById('program-filter');
         const currentStatusFilter = statusSelect ? statusSelect.value : 'all';
         const currentLauncherFilter = launcherSelect ? launcherSelect.value : 'all';
+        const currentEntityFilter = entitySelect ? entitySelect.value : 'all';
+        const currentProgramFilter = programSelect ? programSelect.value : 'all';
+
+        if (entitySelect) {
+            const entityNames = Array.from(new Set(
+                missions.map(m => m.entidad?.name).filter(Boolean)
+            )).sort((a, b) => a.localeCompare(b));
+            const previous = entitySelect.value;
+            entitySelect.innerHTML = '<option value="all">Entidad</option>' +
+                entityNames.map(n => `<option value="${n}">${n}</option>`).join('');
+            entitySelect.value = entityNames.includes(previous) || previous === 'all' ? previous : 'all';
+        }
+
+        if (programSelect) {
+            const programNames = Array.from(new Set(
+                missions.map(m => m.program).filter(Boolean)
+            )).sort((a, b) => a.localeCompare(b));
+            const previous = programSelect.value;
+            programSelect.innerHTML = '<option value="all">Programa</option>' +
+                programNames.map(n => `<option value="${n}">${n}</option>`).join('');
+            programSelect.value = programNames.includes(previous) || previous === 'all' ? previous : 'all';
+        }
 
         if (currentStatusFilter !== 'all') {
-            missions = missions.filter(m => (m.status || 'programado') === currentStatusFilter);
+            missions = missions.filter(m => {
+                const fl = (m.launches && m.launches[0]) || {};
+                const d = new Date(fl.launchDate || m.launchDate || m.createdAt);
+                const isPast = !isNaN(d.getTime()) && d.getTime() < Date.now();
+                if (currentStatusFilter === 'lanzado') return isPast;
+                if (isPast) return false;
+                return (m.status || 'programado') === currentStatusFilter;
+            });
         }
 
         if (currentLauncherFilter !== 'all') {
             missions = missions.filter(m => getLauncherName(m) === currentLauncherFilter);
+        }
+
+        if (currentEntityFilter !== 'all') {
+            missions = missions.filter(m => (m.entidad?.name || '') === currentEntityFilter);
+        }
+
+        if (currentProgramFilter !== 'all') {
+            missions = missions.filter(m => (m.program || '') === currentProgramFilter);
         }
 
         tbody.innerHTML = '';
@@ -85,8 +124,10 @@ function initProgramPage() {
             const tr = document.createElement('tr');
 
             const firstLaunch = (mission.launches && mission.launches[0]) || {};
-            const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
+            const launchDateRaw = firstLaunch.launchDate || mission.launchDate || mission.createdAt;
+            const dateObj = new Date(launchDateRaw);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            const isPast = !isNaN(dateObj.getTime()) && dateObj.getTime() < Date.now();
 
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
@@ -100,19 +141,21 @@ function initProgramPage() {
             const userData = JSON.parse(localStorage.getItem('user') || '{}');
             const isViewer = userData.role === 'viewer';
 
+            const statusCell = isPast
+                ? `<span class="status-pill launched" data-id="${mission.id}">Lanzado</span>`
+                : `<select class="status-pill status-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
+                        <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
+                        <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                        <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
+                        <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                    </select>`;
+
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${getLauncherName(mission)}</td>
                 <td><span class="badge" style="background: rgba(255,255,255,0.1); color: #ccc;">${mission.entidad?.name || '-'}</span></td>
                 <td>${mission.program || '-'}</td>
                 <td>${dateStr}</td>
-                <td>
-                    <select class="status-pill status-select ${currentClass}" data-id="${mission.id}" ${isViewer ? 'disabled' : ''}>
-                        <option value="programado" ${currentStatus === 'programado' ? 'selected' : ''}>Programado</option>
-                        <option value="confirmado" ${currentStatus === 'confirmado' ? 'selected' : ''}>Confirmado</option>
-                        <option value="hold"       ${currentStatus === 'hold' ? 'selected' : ''}>Hold</option>
-                        <option value="cancelado"  ${currentStatus === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                    </select>
-                </td>
+                <td>${statusCell}</td>
                 ${isViewer ? '' : `
                 <td>
                     <div class="action-buttons">
@@ -203,6 +246,12 @@ function initProgramPage() {
 
     const launcherSelect = document.getElementById('launcher-filter');
     if (launcherSelect) launcherSelect.addEventListener('change', renderTable);
+
+    const entitySelect = document.getElementById('entity-filter');
+    if (entitySelect) entitySelect.addEventListener('change', renderTable);
+
+    const programSelect = document.getElementById('program-filter');
+    if (programSelect) programSelect.addEventListener('change', renderTable);
 
     renderTable();
 

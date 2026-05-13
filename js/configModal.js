@@ -145,16 +145,26 @@
 
     function renderMiPerfil() {
         const roleLabel = ROLE_LABELS[currentUser.role] || currentUser.role;
-        const entNombre = currentUser.entidad ? currentUser.entidad.name : 'Sin entidad';
+        const entNombre = currentUser.entidad ? currentUser.entidad.name : '';
         const safeName = (currentUser.name || '').replace(/"/g, '&quot;');
         const safeEmail = (currentUser.email || '').replace(/"/g, '&quot;');
+        const avatarSrc = window.getUserAvatarSrc(currentUser);
 
         panelEl.innerHTML = `
             <div class="config-section fade-in">
                 <form class="config-form" id="formMiPerfil" autocomplete="off">
                     <div class="profile-header-row">
                         <div class="profile-avatar-group">
-                            <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                            <div class="profile-avatar-wrapper">
+                                <img src="${avatarSrc}" alt="Avatar" class="profile-avatar-img" id="miPerfilAvatarImg">
+                                <button type="button" class="profile-avatar-edit-btn" id="avatarEditBtn" aria-label="Cambiar foto de perfil" title="Cambiar foto">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"></path>
+                                    </svg>
+                                </button>
+                                <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/webp" hidden>
+                            </div>
                             <div class="profile-info-text">
                                 <h4 class="profile-name-text">Rol: ${roleLabel}</h4>
                                 <p class="profile-email-text">Entidad: ${entNombre}</p>
@@ -222,6 +232,77 @@
 
         const form = panelEl.querySelector('#formMiPerfil');
         form.addEventListener('submit', onSubmitMiPerfil);
+
+        const editBtn = panelEl.querySelector('#avatarEditBtn');
+        const fileInput = panelEl.querySelector('#avatarFileInput');
+        if (editBtn && fileInput) {
+            editBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', onAvatarFileSelected);
+        }
+    }
+
+    async function onAvatarFileSelected(e) {
+        const input = e.currentTarget;
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const MAX_BYTES = 2 * 1024 * 1024;
+        const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+
+        if (!ALLOWED.includes(file.type)) {
+            window.showPopup('Formato no válido', 'Solo se admiten imágenes JPG, PNG o WEBP.', 'error');
+            input.value = '';
+            return;
+        }
+        if (file.size > MAX_BYTES) {
+            window.showPopup('Imagen demasiado grande', 'La imagen no puede superar los 2 MB.', 'error');
+            input.value = '';
+            return;
+        }
+
+        const imgEl = panelEl.querySelector('#miPerfilAvatarImg');
+        const editBtn = panelEl.querySelector('#avatarEditBtn');
+        const previousSrc = imgEl ? imgEl.src : null;
+        const previewUrl = URL.createObjectURL(file);
+        if (imgEl) imgEl.src = previewUrl;
+        if (editBtn) {
+            editBtn.disabled = true;
+            editBtn.style.opacity = '0.6';
+            editBtn.style.cursor = 'wait';
+        }
+
+        const fd = new FormData();
+        fd.append('avatar', file);
+
+        try {
+            const res = await apiFetchMultipart('/me/avatar', fd);
+
+            if (res.user) {
+                localStorage.setItem('user', JSON.stringify(res.user));
+                currentUser = res.user;
+                const finalUrl = window.getUserAvatarSrc(res.user);
+                if (imgEl) imgEl.src = finalUrl;
+                refreshHeaderAvatar(finalUrl);
+            }
+            URL.revokeObjectURL(previewUrl);
+            window.showPopup('Éxito', 'Foto de perfil actualizada.', 'success');
+        } catch (err) {
+            URL.revokeObjectURL(previewUrl);
+            if (imgEl && previousSrc) imgEl.src = previousSrc;
+            window.showPopup('Error', err.message || 'No se pudo actualizar la foto.', 'error');
+        } finally {
+            input.value = '';
+            if (editBtn) {
+                editBtn.disabled = false;
+                editBtn.style.opacity = '';
+                editBtn.style.cursor = '';
+            }
+        }
+    }
+
+    function refreshHeaderAvatar(url) {
+        const el = document.getElementById('avatarImg');
+        if (el && url) el.src = url;
     }
 
     async function onSubmitMiPerfil(e) {
@@ -399,14 +480,14 @@
         const safeName = escapeHtml(u.name || '');
         const safeEmail = escapeHtml(u.email || '');
         const roleLabel = ROLE_LABELS[u.role] || u.role;
-        const entNombre = u.entidad ? u.entidad.name : 'Sin entidad';
+        const entNombre = u.entidad ? u.entidad.name : '';
         const currentEntId = u.entidad ? u.entidad.id : '';
 
         const roleOptions = Object.entries(ROLE_LABELS).map(([val, lbl]) =>
             `<option value="${val}" ${u.role === val ? 'selected' : ''}>${escapeHtml(lbl)}</option>`
         ).join('');
 
-        const entOptions = `<option value="">Sin entidad</option>` + cachedEntidades.map(e =>
+        const entOptions = cachedEntidades.map(e =>
             `<option value="${e.id}" ${e.id === currentEntId ? 'selected' : ''}>${escapeHtml(e.name)}</option>`
         ).join('');
 
@@ -421,7 +502,7 @@
                 <form class="config-form" id="formEditarUsuario" autocomplete="off">
                     <div class="profile-header-row">
                         <div class="profile-avatar-group">
-                            <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                            <img src="${window.getUserAvatarSrc(u)}" alt="Avatar" class="profile-avatar-img">
                             <div class="profile-info-text">
                                 <h4 class="profile-name-text">Rol: ${escapeHtml(roleLabel)}</h4>
                                 <p class="profile-email-text">Entidad: ${escapeHtml(entNombre)}</p>
@@ -593,7 +674,7 @@
         const roleOptions = Object.entries(ROLE_LABELS).map(([val, lbl]) =>
             `<option value="${val}" ${val === 'viewer' ? 'selected' : ''}>${escapeHtml(lbl)}</option>`
         ).join('');
-        const entOptions = `<option value="">Sin entidad</option>` + cachedEntidades.map(e =>
+        const entOptions = cachedEntidades.map(e =>
             `<option value="${e.id}">${escapeHtml(e.name)}</option>`
         ).join('');
 
@@ -608,7 +689,7 @@
                 <form class="config-form" id="formNuevoUsuario" autocomplete="off">
                     <div class="profile-header-row">
                         <div class="profile-avatar-group">
-                            <img src="img/avatar.jpg" alt="Avatar" class="profile-avatar-img">
+                            <img src="${window.getUserAvatarSrc({ entidad: cachedEntidades[0] }) || ''}" alt="Avatar" class="profile-avatar-img" id="nuevoUsuarioAvatarImg">
                             <div class="profile-info-text">
                                 <h4 class="profile-name-text">Nuevo usuario</h4>
                                 <p class="profile-email-text">Crear cuenta</p>
@@ -695,6 +776,15 @@
         `;
         panelEl.querySelector('#usuariosBackBtn').addEventListener('click', () => switchConfigSection('usuarios'));
         panelEl.querySelector('#formNuevoUsuario').addEventListener('submit', onSubmitNuevoUsuario);
+
+        const entSelect = panelEl.querySelector('select[name="entidad_id"]');
+        const avatarImg = panelEl.querySelector('#nuevoUsuarioAvatarImg');
+        if (entSelect && avatarImg) {
+            entSelect.addEventListener('change', () => {
+                const ent = cachedEntidades.find(e => e.id === parseInt(entSelect.value, 10));
+                avatarImg.src = window.getUserAvatarSrc({ entidad: ent }) || '';
+            });
+        }
     }
 
     async function onSubmitNuevoUsuario(e) {
@@ -754,6 +844,31 @@
      * Wrapper de fetch contra la API: añade token, content-type y maneja errores
      * de validación devolviendo un mensaje legible.
      */
+    async function apiFetchMultipart(path, formData) {
+        const token = localStorage.getItem('api_token');
+        const res = await fetch(API_BASE + path, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+            body: formData,
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            const msg = data.message || `Error HTTP ${res.status}`;
+            if (data.errors && typeof data.errors === 'object') {
+                const detallesArr = Object.values(data.errors).flat();
+                const filteredDetalles = detallesArr.filter(d => d !== msg).join('\n');
+                throw new Error(msg + (filteredDetalles ? '\n' + filteredDetalles : ''));
+            }
+            throw new Error(msg);
+        }
+
+        return data;
+    }
+
     async function apiFetch(path, { method = 'GET', body = null } = {}) {
         const token = localStorage.getItem('api_token');
         const opts = {
