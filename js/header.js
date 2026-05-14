@@ -10,7 +10,6 @@ const ENTITY_AVATAR_MAP = {
 };
 
 function getUserAvatarSrc(user) {
-    if (user && user.profile_picture_url) return user.profile_picture_url;
     const slug = user && user.entidad && user.entidad.slug;
     return ENTITY_AVATAR_MAP[slug];
 }

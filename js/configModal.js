@@ -157,13 +157,6 @@
                         <div class="profile-avatar-group">
                             <div class="profile-avatar-wrapper">
                                 <img src="${avatarSrc}" alt="Avatar" class="profile-avatar-img" id="miPerfilAvatarImg">
-                                <button type="button" class="profile-avatar-edit-btn" id="avatarEditBtn" aria-label="Cambiar foto de perfil" title="Cambiar foto">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"></path>
-                                    </svg>
-                                </button>
-                                <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/webp" hidden>
                             </div>
                             <div class="profile-info-text">
                                 <h4 class="profile-name-text">Rol: ${roleLabel}</h4>
@@ -232,72 +225,6 @@
 
         const form = panelEl.querySelector('#formMiPerfil');
         form.addEventListener('submit', onSubmitMiPerfil);
-
-        const editBtn = panelEl.querySelector('#avatarEditBtn');
-        const fileInput = panelEl.querySelector('#avatarFileInput');
-        if (editBtn && fileInput) {
-            editBtn.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', onAvatarFileSelected);
-        }
-    }
-
-    async function onAvatarFileSelected(e) {
-        const input = e.currentTarget;
-        const file = input.files && input.files[0];
-        if (!file) return;
-
-        const MAX_BYTES = 2 * 1024 * 1024;
-        const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
-
-        if (!ALLOWED.includes(file.type)) {
-            window.showPopup('Formato no válido', 'Solo se admiten imágenes JPG, PNG o WEBP.', 'error');
-            input.value = '';
-            return;
-        }
-        if (file.size > MAX_BYTES) {
-            window.showPopup('Imagen demasiado grande', 'La imagen no puede superar los 2 MB.', 'error');
-            input.value = '';
-            return;
-        }
-
-        const imgEl = panelEl.querySelector('#miPerfilAvatarImg');
-        const editBtn = panelEl.querySelector('#avatarEditBtn');
-        const previousSrc = imgEl ? imgEl.src : null;
-        const previewUrl = URL.createObjectURL(file);
-        if (imgEl) imgEl.src = previewUrl;
-        if (editBtn) {
-            editBtn.disabled = true;
-            editBtn.style.opacity = '0.6';
-            editBtn.style.cursor = 'wait';
-        }
-
-        const fd = new FormData();
-        fd.append('avatar', file);
-
-        try {
-            const res = await apiFetchMultipart('/me/avatar', fd);
-
-            if (res.user) {
-                localStorage.setItem('user', JSON.stringify(res.user));
-                currentUser = res.user;
-                const finalUrl = window.getUserAvatarSrc(res.user);
-                if (imgEl) imgEl.src = finalUrl;
-                refreshHeaderAvatar(finalUrl);
-            }
-            URL.revokeObjectURL(previewUrl);
-            window.showPopup('Éxito', 'Foto de perfil actualizada.', 'success');
-        } catch (err) {
-            URL.revokeObjectURL(previewUrl);
-            if (imgEl && previousSrc) imgEl.src = previousSrc;
-            window.showPopup('Error', err.message || 'No se pudo actualizar la foto.', 'error');
-        } finally {
-            input.value = '';
-            if (editBtn) {
-                editBtn.disabled = false;
-                editBtn.style.opacity = '';
-                editBtn.style.cursor = '';
-            }
-        }
     }
 
     function refreshHeaderAvatar(url) {
@@ -308,6 +235,16 @@
     async function onSubmitMiPerfil(e) {
         e.preventDefault();
         const form = e.currentTarget;
+
+        const submitBtn = form.querySelector('.profile-save-btn');
+        const originalBtnText = submitBtn ? submitBtn.textContent : 'Guardar cambios';
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
         const fd = new FormData(form);
 
         const payload = {};
@@ -315,15 +252,13 @@
         const email = (fd.get('email') || '').trim();
         const currentPassword = fd.get('current_password') || '';
         const password = fd.get('password') || '';
-        const passwordConfirm = fd.get('password_confirmation') || '';
 
-        // Sólo enviar campos modificados
         if (name && name !== currentUser.name) payload.name = name;
         if (email && email !== currentUser.email) payload.email = email;
 
         const currentPasswordInput = form.querySelector('input[name="current_password"]');
         if (currentPasswordInput) {
-            currentPasswordInput.style.borderBottom = ''; // reset
+            currentPasswordInput.style.borderBottom = '';
             currentPasswordInput.style.outline = '';
         }
 
@@ -334,10 +269,14 @@
                     currentPasswordInput.style.outline = 'none';
                     currentPasswordInput.focus();
                 }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '';
+                    submitBtn.style.cursor = '';
+                }
                 return;
             }
             payload.password = password;
-            // El backend podría requerir password_confirmation, así que lo enviamos igual
             payload.password_confirmation = password;
         }
 
@@ -345,39 +284,36 @@
 
         if (Object.keys(payload).length === 0) {
             window.showPopup('Sin cambios', 'No hay nada que modificar.', 'info');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
             return;
         }
 
-        const submitBtn = form.querySelector('.profile-save-btn');
-        const originalBtnText = submitBtn ? submitBtn.textContent : 'Guardar cambios';
-
-        if (submitBtn) {
-            submitBtn.textContent = 'Guardando...';
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
-            submitBtn.style.cursor = 'not-allowed';
-        }
+        submitBtn && (submitBtn.textContent = 'Guardando...');
 
         try {
             const res = await apiFetch('/me', { method: 'PATCH', body: payload });
 
-            // Si llegó token nuevo (cambio de email), rotar
             if (res.token) {
                 localStorage.setItem('api_token', res.token);
             }
 
-            // Actualizar usuario en localStorage y en memoria
             if (res.user) {
                 localStorage.setItem('user', JSON.stringify(res.user));
                 currentUser = res.user;
                 refreshHeaderName(res.user.name);
             }
 
+            // Limpiar campos de contraseña sin re-renderizar el formulario
+            form.querySelectorAll('input[type="password"]').forEach(i => { i.value = ''; });
+
             window.showPopup('Éxito', 'Perfil actualizado correctamente.', 'success');
-            // Re-renderizar para limpiar campos de contraseña
-            switchConfigSection('miPerfil');
         } catch (err) {
             window.showPopup('Error', err.message || 'No se pudo actualizar el perfil.', 'error');
+        } finally {
             if (submitBtn) {
                 submitBtn.textContent = originalBtnText;
                 submitBtn.disabled = false;
@@ -599,6 +535,15 @@
     async function onSubmitEditarUsuario(e, original) {
         e.preventDefault();
         const form = e.currentTarget;
+
+        const submitBtn = form.querySelector('.profile-save-btn');
+        const originalBtnText = submitBtn ? submitBtn.textContent : 'Guardar cambios';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
         const fd = new FormData(form);
 
         const name = (fd.get('name') || '').trim();
@@ -620,17 +565,15 @@
         const onlyAdmin = Object.keys(payload).length === 1;
         if (onlyAdmin) {
             window.showPopup('Sin cambios', 'No hay nada que modificar.', 'info');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
             return;
         }
 
-        const submitBtn = form.querySelector('.profile-save-btn');
-        const originalBtnText = submitBtn ? submitBtn.textContent : 'Guardar cambios';
-        if (submitBtn) {
-            submitBtn.textContent = 'Guardando...';
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
-            submitBtn.style.cursor = 'not-allowed';
-        }
+        submitBtn && (submitBtn.textContent = 'Guardando...');
 
         try {
             await apiFetch(`/usuarios/${original.id}`, { method: 'PUT', body: payload });
@@ -857,31 +800,6 @@
      * Wrapper de fetch contra la API: añade token, content-type y maneja errores
      * de validación devolviendo un mensaje legible.
      */
-    async function apiFetchMultipart(path, formData) {
-        const token = localStorage.getItem('api_token');
-        const res = await fetch(API_BASE + path, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : '',
-            },
-            body: formData,
-        });
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-            const msg = data.message || `Error HTTP ${res.status}`;
-            if (data.errors && typeof data.errors === 'object') {
-                const detallesArr = Object.values(data.errors).flat();
-                const filteredDetalles = detallesArr.filter(d => d !== msg).join('\n');
-                throw new Error(msg + (filteredDetalles ? '\n' + filteredDetalles : ''));
-            }
-            throw new Error(msg);
-        }
-
-        return data;
-    }
-
     async function apiFetch(path, { method = 'GET', body = null } = {}) {
         const token = localStorage.getItem('api_token');
         const opts = {

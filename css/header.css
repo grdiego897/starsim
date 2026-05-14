@@ -104,6 +104,7 @@ header {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+    overflow: hidden;
     border: 2px solid #555;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
