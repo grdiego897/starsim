@@ -634,6 +634,19 @@
 
         try {
             await apiFetch(`/usuarios/${original.id}`, { method: 'PUT', body: payload });
+
+            if (currentUser && original.id === currentUser.id) {
+                try {
+                    const meRes = await apiFetch('/me');
+                    if (meRes.user) {
+                        localStorage.setItem('user', JSON.stringify(meRes.user));
+                        currentUser = meRes.user;
+                        refreshHeaderName(meRes.user.name);
+                        refreshHeaderAvatar(window.getUserAvatarSrc(meRes.user));
+                    }
+                } catch (_) {}
+            }
+
             window.showPopup('Éxito', 'Usuario actualizado correctamente.', 'success');
             switchConfigSection('usuarios');
         } catch (err) {

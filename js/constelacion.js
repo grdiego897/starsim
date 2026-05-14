@@ -126,7 +126,7 @@
     };
   }
 
-  function buildSatsForLaunch(mission, launch, baseId) {
+  function buildSatsForLaunch(mission, launch) {
     const portSlug = launch.port || mission.port || 'starbase';
     const pad = PORT_COORDS[portSlug] || PORT_COORDS['starbase'];
     const dateStr = launch.launchDate || mission.launchDate;
@@ -138,16 +138,12 @@
     const shellDef = STARLINK_SHELLS[shellName] || STARLINK_SHELLS['Shell 1'];
     const altitude = shellDef.altitude;
     const orbit = orbitFromPad(pad.lat, pad.lon, altitude, epochMs, shellDef.inclination);
-    const yr2 = String(new Date(epochMs).getFullYear()).slice(2);
     const adv = launch.advancedConfig || {};
     const count = countStarlinkUnits(adv);
     const sats = [];
     for (let i = 0; i < count; i++) {
-      const id = baseId + i;
       sats.push({
         id: `${mission.id || 'M'}-${i + 1}`,
-        norad: 50000 + id,
-        cospar: `${yr2}-${String(id % 999).padStart(3, '0')}${String.fromCharCode(65 + (i % 26))}`,
         name: `${mission.name || 'STARLINK'} · ${String(i + 1).padStart(2, '0')}`,
         batch: mission.name || 'Starlink',
         launchDate: dateStr.slice(0, 10),
@@ -198,7 +194,6 @@
     });
     MISSIONS = starlink.slice();
     const now = Date.now();
-    let nextId = 1;
 
     for (const m of starlink) {
       const status = (m.status || 'programado').toLowerCase();
@@ -231,9 +226,7 @@
             launchDateMs: t,
           });
         } else {
-          const sats = buildSatsForLaunch(m, l, nextId);
-          nextId += sats.length;
-          ALL_SATS.push(...sats);
+          ALL_SATS.push(...buildSatsForLaunch(m, l));
         }
       }
     }
@@ -737,26 +730,13 @@
     el.innerHTML = `
     <div class="tr-sr-row"><span class="tr-sk">Nombre:</span><span class="tr-sv">${sat.name}</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Misión:</span><span class="tr-sv">${sat.batch}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Estado:</span><span class="tr-sv">${(sat.status || '—').toUpperCase()}</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Vehículo:</span><span class="tr-sv">${vehicleLabel(sat.ship)} / ${vehicleLabel(sat.booster)}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Carga:</span><span class="tr-sv">${sat.cargoType || '—'} · ${sat.cargoMassT.toFixed(2)} t</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Tripulación:</span><span class="tr-sv">${sat.crewCount}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">NORAD ID:</span><span class="tr-sv">${sat.norad}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">COSPAR:</span><span class="tr-sv">${sat.cospar}</span></div>
+    <div class="tr-sr-row"><span class="tr-sk">Carga:</span><span class="tr-sv">${sat.cargoMassT.toFixed(2)} t</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Órbita:</span><span class="tr-sv">${sat.altitudeLow} × ${sat.altitudeHigh}, ${sat.inclination.toFixed(2)}°</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Posición:</span><span class="tr-sv">${p.lat.toFixed(2)}°, ${p.lon.toFixed(2)}°</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Velocidad:</span><span class="tr-sv">${p.vKms.toFixed(2)} km/s</span></div>
     <div class="tr-sr-row"><span class="tr-sk">Lanzamiento:</span><span class="tr-sv">${sat.launchDate}</span></div>
-    <div class="tr-sr-row"><span class="tr-sk">Plataforma:</span><span class="tr-sv">${sat.launchpad.name}</span></div>
-    <button class="tr-sr-clear" id="tr-sr-clear">Limpiar selección ✕</button>`;
-    const clearBtn = document.getElementById('tr-sr-clear');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        state.selectedId = null;
-        updateSelectionReadout();
-        updateSearchList();
-      });
-    }
+    <div class="tr-sr-row"><span class="tr-sk">Plataforma:</span><span class="tr-sv">${sat.launchpad.name}</span></div>`;
   }
 
   function updateTimeControl() {
@@ -864,7 +844,7 @@
     }
 
     el.innerHTML = `
-    <input class="tr-rail-search" id="tr-search-input" placeholder="NOMBRE / NORAD / COSPAR…">
+    <input class="tr-rail-search" id="tr-search-input" placeholder="NOMBRE / SHELL…">
     <div class="tr-filter-chips" id="tr-filter-chips">${chips}</div>
     <div class="tr-search-meta" id="tr-search-meta"></div>
     <div class="tr-sat-list" id="tr-sat-list"></div>`;
@@ -899,9 +879,7 @@
       if (!q) return true;
       return s.name.toLowerCase().includes(q)
         || s.batch.toLowerCase().includes(q)
-        || s.shell.toLowerCase().includes(q)
-        || s.cospar.toLowerCase().includes(q)
-        || String(s.norad).includes(q);
+        || s.shell.toLowerCase().includes(q);
     });
 
     if (meta) meta.textContent = `${filtered.length} / ${satellites.length} OBJETOS`;

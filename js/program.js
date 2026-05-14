@@ -128,6 +128,10 @@ function initProgramPage() {
             const dateObj = new Date(launchDateRaw);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
             const isPast = !isNaN(dateObj.getTime()) && dateObj.getTime() < Date.now();
+            const shell = firstLaunch.shell || mission.shell || '';
+            const programLabel = (mission.program || '').toLowerCase() === 'starlink' && shell
+                ? `Starlink - ${shell}`
+                : (mission.program || '-');
 
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
@@ -153,7 +157,7 @@ function initProgramPage() {
             tr.innerHTML = `
                 <td><span style="font-weight: 600; color: white;">${mission.name || 'Misión'}</span> - ${getLauncherName(mission)}</td>
                 <td><span class="badge" style="background: rgba(255,255,255,0.1); color: #ccc;">${mission.entidad?.name || '-'}</span></td>
-                <td>${mission.program || '-'}</td>
+                <td>${programLabel}</td>
                 <td>${dateStr}</td>
                 <td>${statusCell}</td>
                 ${isViewer ? '' : `

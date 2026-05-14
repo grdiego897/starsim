@@ -16,11 +16,11 @@ function initPanelPage() {
     }
 
     function showLoadingRow() {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Cargando misiones...</td></tr>';
     }
 
     function showErrorRow(msg) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: #ff6b6b;">${msg}</td></tr>`;
     }
 
     async function renderUpcoming() {
@@ -46,7 +46,7 @@ function initPanelPage() {
         tbody.innerHTML = '';
 
         if (top3.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay misiones próximas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">No hay misiones próximas.</td></tr>';
             return;
         }
 
@@ -57,6 +57,10 @@ function initPanelPage() {
             const dateObj = new Date(firstLaunch.launchDate || mission.launchDate || mission.createdAt);
             const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
             const isPast = !isNaN(dateObj.getTime()) && dateObj.getTime() < Date.now();
+            const shell = firstLaunch.shell || mission.shell || '';
+            const programLabel = (mission.program || '').toLowerCase() === 'starlink' && shell
+                ? `Starlink - ${shell}`
+                : (mission.program || '-');
 
             const currentStatus = mission.status || 'programado';
             const statusClassMap = {
@@ -82,6 +86,7 @@ function initPanelPage() {
             tr.innerHTML = `
                 <td>${mission.name || 'Misión'}</td>
                 <td><span class="badge" style="background: rgba(255,255,255,0.1); color: #ccc;">${mission.entidad?.name || '-'}</span></td>
+                <td>${programLabel}</td>
                 <td>${dateStr}</td>
                 <td>${statusCell}</td>
                 ${isViewer ? '' : `
