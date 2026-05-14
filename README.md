@@ -1,112 +1,229 @@
 # StarSim
 
-StarSim es un simulador de misiones espaciales que permite planificar, gestionar y dar seguimiento a operaciones de diferentes entidades (SpaceX, NASA, ESA, Blue Origin). La plataforma ofrece una experiencia inmersiva gestionando elementos de carga, vehículos, destinos y registros meteorológicos.
+Simulador de misiones espaciales con planificación, gestión y seguimiento de operaciones para distintas agencias (SpaceX, NASA, ESA, Blue Origin). Arquitectura desacoplada: SPA en Vanilla JS contra una API REST en Laravel 11.
 
-## 🚀 Funcionalidades Principales
-
-*   **Gestión de Misiones:** Creación y modificación de misiones espaciales con diferentes vehículos y cargas.
-*   **Roles y Permisos:** 
-    *   `admin`: Control total del simulador y gestión de usuarios.
-    *   `operator`: Creación y edición operativa de misiones (CRUD).
-    *   `viewer`: Modo solo lectura y seguimiento (telemetría/estadísticas).
-*   **Integración Organizacional:** Los usuarios están atados a distintas *Entidades* (Agencias) que condicionan la estética y funciones expuestas en su panel.
-*   **Interfaz Dinámica 3D:** Uso de modelos interactivos y simulaciones integradas directamente en el frontend usando Spline.
-
-## Stack Tecnológico
-
-El proyecto cuenta con una arquitectura desacoplada:
-
-1.  **Frontend (SPA):** HTML, CSS puro y Vanilla JavaScript. Enrutamiento mediante hashes (`#`) simulando una Single Page Application, con consumos asíncronos mediante `fetch`. Modelado 3D mediante Spline 3D.
-2.  **Backend (API REST):** [Laravel 11](https://laravel.com), sirviendo endpoints en JSON.
-3.  **Base de Datos:** MySQL 8.4, totalmente normalizada contemplando relaciones entre vehículos, capacidades, programas y misiones.
-4.  **Entorno y Seguridad:** Docker ([Laravel Sail](https://laravel.com/docs/sail)) para la portabilidad del servidor, y autenticación gestionada a través de Sanctum basado en tokens.
+> 🇪🇸 Documentación en español a continuación · 🇬🇧 [English version below](#english)
 
 ---
 
-## Instalación y Puesta en Marcha
+## Estructura del repositorio
 
-Sigue estos pasos si deseas instalar y hacer funcionar el proyecto en tu máquina local. 
+```
+starsim/
+├── backend/         # API Laravel 11 (Sail + MySQL 8.4 + Sanctum)
+├── frontend/        # SPA Vanilla JS (HTML/CSS/JS, Spline 3D)
+├── database/        # Volcado SQL inicial (starsim.sql)
+├── CRUD_README.md   # Detalle técnico del CRUD de misiones
+└── starsim_erd.md   # Diagrama entidad-relación
+```
+
+## 🚀 Funcionalidades principales
+
+- **Gestión de misiones:** CRUD completo de misiones espaciales, vehículos, cargas y destinos.
+- **Roles y permisos** (middleware `role:` sobre Sanctum):
+  - `admin`: control total, gestión de usuarios y entidades.
+  - `operator`: crea, edita y elimina misiones de su entidad.
+  - `viewer`: solo lectura; las operaciones de escritura devuelven `403`.
+- **Entidades (agencias):** SpaceX, NASA, ESA, Blue Origin… La entidad del usuario condiciona estética y datos visibles.
+- **Módulos del frontend:**
+  - `panel.html` — dashboard con charts, countdown y meteorología.
+  - `program.html` — gestor de programas y misiones por entidad.
+  - `mision.html` — editor de misión (cargas, vehículo, destino).
+  - `constelacion.html` — visualización de la constelación de satélites desplegados.
+  - `configAvanzada.html` — ajustes avanzados (velocidad de simulación, información orbital, etc.).
+  - `components/configModal.html` — modal de configuración rápida y perfil.
+
+## 🧱 Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| Frontend | HTML + CSS puro + Vanilla JS (hash routing `#`, `fetch` async, [Spline 3D](https://spline.design/)) |
+| Backend | [Laravel 11](https://laravel.com) sirviendo JSON sobre HTTP |
+| Auth | [Laravel Sanctum](https://laravel.com/docs/sanctum) (tokens Bearer) |
+| Base de datos | MySQL 8.4 (normalizada — ver `starsim_erd.md`) |
+| Entorno | Docker via [Laravel Sail](https://laravel.com/docs/sail) |
+
+---
+
+## ⚙️ Instalación
 
 ### Prerrequisitos
-*   Tener instalado [Docker](https://www.docker.com/products/docker-desktop) Desktop (y funcionando).
-*   Un servidor local para el frontend (Ej: *Live Server* en VSCode).
 
-### Paso 1: Clonar y configurar Backend (Laravel)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado y corriendo.
+- Un servidor estático para el frontend (recomendado: *Live Server* en VSCode).
 
-Abre un terminal y dirígete a la carpeta `starsim-backend`.
+### 1. Instalar dependencias del backend
 
-**1. Instala las dependencias de Composer usando Docker** (no requiere PHP ni Composer instalados localmente):
+Desde la carpeta `backend/`, instala los paquetes de Composer usando el contenedor oficial (no requiere PHP ni Composer locales):
 
 ```bash
 docker run --rm -v "$($PWD):/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
 ```
 
-**2. Levanta los contenedores de Docker** (PHP + MySQL). La primera vez añade `--build` para compilar la imagen de Sail (requiere internet para descargar `ubuntu:24.04`):
+### 2. Levantar los contenedores
+
+Primera vez (compila la imagen de Sail, requiere internet):
 
 ```bash
 docker compose up -d --build
 ```
 
-Las veces siguientes, sin `--build` es suficiente (usa la imagen ya compilada en caché):
+Veces siguientes:
 
 ```bash
 docker compose up -d
 ```
 
-**3. Genera la clave de aplicación de Laravel:**
+### 3. Generar la clave de aplicación
 
 ```bash
 docker compose exec laravel.test php artisan key:generate
 ```
 
-**4. Importa la base de datos** (y los usuarios de prueba). Suponiendo que el archivo SQL se encuentra en la carpeta padre superior (`database/starsim.sql`):
+### 4. Cargar la base de datos
 
-**En Windows (PowerShell):**
+**Opción A — Volcado SQL** (`database/starsim.sql`):
+
+PowerShell (Windows):
 ```powershell
 Get-Content ..\database\starsim.sql | docker compose exec -T mysql mysql -usail -ppassword
 ```
-**En Linux/Mac:**
+
+Bash (Linux/Mac):
 ```bash
 docker compose exec -T mysql mysql -usail -ppassword < ../database/starsim.sql
 ```
 
-### Paso 2: Ejecutar el Frontend
+**Opción B — Migraciones + seeders** (regenera todo desde Laravel; ver `CRUD_README.md`):
+```bash
+docker compose exec laravel.test php artisan migrate:fresh --seed
+```
 
-1. Abre el directorio principal `starsim` en tu editor de código (fuera de la carpeta del backend).
-2. Lanza el archivo `login.html` mediante un servidor estático (Si usas VSCode, basta con click derecho -> **Open with Live Server**).
-3. Asegúrate de que el frontend está corriendo (por lo general en `http://127.0.0.1:5500` o superior).
+### 5. Levantar el frontend
 
-### Paso 3: Iniciar Sesión
-
-Una vez tengas la interfaz local visible en tu navegador y el puerto 80 del backend respondiendo sin problemas, puedes usar nuestros usuarios de prueba precargados para interactuar con la plataforma:
-
-| Rol | Email (Usuario) | Contraseña |
-|---|---|---|
-| Administrador | `admin@starsim.io` | `admin123` |
-| Operador | `operator@starsim.io` | `admin123` |
-| Espectador | `viewer@starsim.io` | `admin123` |
-
-(Aún no se reflejan, en el backend se registran como tal. En el futuro se implementará en la interfaz. Sin autorización funcional actualmente)
-***Nota de permisos:** Dependiendo con qué usuario ingreses, el sistema te aplicará restricciones distintas.*
-*   *El `admin` tiene permiso en todos los apartados globales.*
-*   *El `operator` solo puede crear/editar/eliminar misiones de su respectiva Entidad (rutas protegidas con middleware `role:admin,operator`).*
-*   *El `viewer` solo goza de acceso por lectura (`GET`). Cualquier intento de guardar cambios le devolverá un error **403 (Prohibido)**.*
-
-Las llamadas de red desde JavaScript están configuradas para consultar automáticamente al backend localizado en `http://127.0.0.1`, completando el proceso de tokenización al entrar.
+1. Abre la carpeta `frontend/` en tu editor.
+2. Lanza `frontend/login.html` con Live Server (clic derecho → *Open with Live Server*).
+3. El frontend correrá en `http://127.0.0.1:5500` (o similar) y consultará al backend en `http://127.0.0.1`.
 
 ---
 
-## Arrancar el Proyecto
+## 👥 Usuarios de prueba
 
-1. Asegúrate de tener **Docker Desktop** abierto.
-2. Levanta los contenedores en segundo plano desde el directorio `starsim-backend`:
-   ```bash
-   docker compose up -d
-   ```
-3. Lanza el Frontend con el *Live Server* de tu editor abriendo el directorio `starsim` y desplegando el archivo `login.html`.
-4. ¡Listo! Ya puedes iniciar sesión y usar la aplicación.
+Estos usuarios son cargados por los seeders / volcado SQL:
 
-Para detener los servidores sin perder los datos de tu base de MySQL, simplemente ejecuta:
+| Email | Contraseña | Rol | Entidad |
+|---|---|---|---|
+| `admin@starsim.io` | `admin123` | admin | SpaceX |
+| `operator@starsim.io` | `operator123` | operator | SpaceX |
+| `operator.nasa@starsim.io` | `operator123` | operator | NASA |
+| `operator.esa@starsim.io` | `operator123` | operator | ESA |
+| `viewer@starsim.io` | `viewer123` | viewer | SpaceX |
+
+> **Permisos:** `admin` accede a todo. `operator` solo puede crear/editar/eliminar misiones de su entidad. `viewer` recibe `403 Forbidden` ante cualquier escritura.
+
+---
+
+## 🛰️ Endpoints principales
+
+Base: `http://127.0.0.1/api` · Autenticación: header `Authorization: Bearer <token>`.
+
+| Método | Ruta | Acceso |
+|---|---|---|
+| `POST` | `/login` | público |
+| `POST` | `/logout` | autenticado |
+| `GET` `PATCH` | `/me`, `/me/avatar` | autenticado |
+| `GET` | `/misiones`, `/misiones/{id}` | autenticado (incluido `viewer`) |
+| `POST` `PUT` `PATCH` `DELETE` | `/misiones[...]` | `admin`, `operator` |
+| `GET` `POST` `PUT` | `/usuarios[...]` | `admin` |
+| `GET` | `/entidades` | `admin` |
+
+El detalle de payloads y formato de respuesta vive en [`CRUD_README.md`](./CRUD_README.md).
+
+---
+
+## ▶️ Arranque diario
+
+1. Abre Docker Desktop.
+2. Desde `backend/`: `docker compose up -d`.
+3. Lanza `frontend/login.html` con Live Server.
+
+Para detener sin perder datos:
 ```bash
 docker compose stop
 ```
+
+---
+
+<a id="english"></a>
+
+# StarSim · English
+
+Space-mission simulator with planning, management, and tracking for multiple agencies (SpaceX, NASA, ESA, Blue Origin). Decoupled architecture: Vanilla JS SPA against a Laravel 11 REST API.
+
+## Repository layout
+
+```
+starsim/
+├── backend/         # Laravel 11 API (Sail + MySQL 8.4 + Sanctum)
+├── frontend/        # Vanilla JS SPA (HTML/CSS/JS, Spline 3D)
+├── database/        # Initial SQL dump (starsim.sql)
+├── CRUD_README.md   # Mission CRUD technical reference
+└── starsim_erd.md   # Entity-relationship diagram
+```
+
+## Highlights
+
+- Full CRUD for missions, vehicles, payloads and destinations.
+- Role-based access (`admin` / `operator` / `viewer`) enforced by a Sanctum-backed `role:` middleware.
+- Per-entity scoping (each operator manages missions for their own agency).
+- Frontend modules: dashboard, program manager, mission editor, **satellite constellation view**, **advanced settings**, quick-config modal.
+
+## Stack
+
+Vanilla JS SPA (hash routing, `fetch`, [Spline 3D](https://spline.design/)) · Laravel 11 + Sanctum · MySQL 8.4 · Docker via [Laravel Sail](https://laravel.com/docs/sail).
+
+## Install
+
+Requirements: Docker Desktop and a static server for the frontend (Live Server recommended).
+
+From `backend/`:
+
+```bash
+# 1. Install Composer dependencies via container
+docker run --rm -v "$($PWD):/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
+
+# 2. Start containers (first run uses --build)
+docker compose up -d --build
+
+# 3. Generate app key
+docker compose exec laravel.test php artisan key:generate
+
+# 4a. Load the bundled SQL dump
+docker compose exec -T mysql mysql -usail -ppassword < ../database/starsim.sql
+# 4b. ...or run migrations + seeders
+docker compose exec laravel.test php artisan migrate:fresh --seed
+```
+
+Then open `frontend/login.html` with Live Server.
+
+## Test users
+
+| Email | Password | Role | Entity |
+|---|---|---|---|
+| `admin@starsim.io` | `admin123` | admin | SpaceX |
+| `operator@starsim.io` | `operator123` | operator | SpaceX |
+| `operator.nasa@starsim.io` | `operator123` | operator | NASA |
+| `operator.esa@starsim.io` | `operator123` | operator | ESA |
+| `viewer@starsim.io` | `viewer123` | viewer | SpaceX |
+
+`viewer` is read-only — any write request returns `403 Forbidden`.
+
+## Daily start
+
+```bash
+# from backend/
+docker compose up -d        # start
+docker compose stop         # stop (keeps MySQL data)
+```
+
+Then open `frontend/login.html` with Live Server. See [`CRUD_README.md`](./CRUD_README.md) for API details and [`starsim_erd.md`](./starsim_erd.md) for the data model.
