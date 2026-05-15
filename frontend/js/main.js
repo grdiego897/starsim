@@ -92,6 +92,16 @@ function initSidebarLogic() {
 
     // 1. Lógica del formulario Grok
     if (grokForm) {
+        const grokTextarea = document.querySelector('.grok-input');
+        if (grokTextarea) {
+            grokTextarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    grokForm.requestSubmit();
+                }
+            });
+        }
+
         grokForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const inputElement = document.querySelector('.grok-input');

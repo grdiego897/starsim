@@ -127,9 +127,8 @@
 
             overlay.innerHTML = `
                 <div class="popup-content">
-                    <button class="popup-close-btn" id="confirm-close-x">&times;</button>
                     <div class="popup-title ${titleClass}">${title}</div>
-                    <div class="popup-message">${message}</div>
+                    ${message ? `<div class="popup-message">${message}</div>` : ''}
                     <div class="confirm-actions">
                         <button class="popup-action-btn confirm-cancel-btn" id="confirm-cancel">${cancelText}</button>
                         <button class="popup-action-btn confirm-delete-btn" id="confirm-ok">${confirmText}</button>
@@ -151,7 +150,6 @@
                 }, 300);
             };
 
-            overlay.querySelector('#confirm-close-x').addEventListener('click', () => close(false));
             overlay.querySelector('#confirm-cancel').addEventListener('click', () => close(false));
             overlay.querySelector('#confirm-ok').addEventListener('click', () => close(true));
 

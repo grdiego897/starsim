@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -23,7 +22,6 @@ class AuthController extends Controller
             'name'                => $user->name,
             'email'               => $user->email,
             'role'                => $user->role,
-            'profile_picture_url' => $user->profile_picture_url,
             'entidad'             => $user->entidad ? [
                 'id'   => $user->entidad->id,
                 'name' => $user->entidad->name,
@@ -135,38 +133,5 @@ class AuthController extends Controller
         }
 
         return response()->json($responseData);
-    }
-
-    /**
-     * Subir/reemplazar la foto de perfil del usuario autenticado.
-     */
-    public function uploadAvatar(Request $request): JsonResponse
-    {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ], [
-            'avatar.required' => 'Debes seleccionar una imagen.',
-            'avatar.image'    => 'El archivo debe ser una imagen válida.',
-            'avatar.mimes'    => 'Formatos permitidos: JPG, PNG o WEBP.',
-            'avatar.max'      => 'La imagen no puede superar los 2 MB.',
-        ]);
-
-        $user = $request->user();
-
-        // Eliminar archivo anterior si existe
-        if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
-            Storage::disk('public')->delete($user->profile_picture);
-        }
-
-        $path = $request->file('avatar')->store('avatars', 'public');
-
-        $user->profile_picture = $path;
-        $user->save();
-        $user->load('entidad');
-
-        return response()->json([
-            'message' => 'Foto de perfil actualizada.',
-            'user'    => $this->userPayload($user),
-        ]);
     }
 }

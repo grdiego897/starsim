@@ -814,7 +814,7 @@
       <div class="tr-telem-row"><span>VEHÍCULO</span><span class="tr-telem-v">${vehicleLabel(sel.ship)} / ${vehicleLabel(sel.booster)}</span></div>
       <div class="tr-telem-row"><span>CARGA</span><span class="tr-telem-v">${sel.cargoType || '—'} · ${sel.cargoMassT.toFixed(2)} t</span></div>
       <div class="tr-telem-row"><span>TRIPULACIÓN</span><span class="tr-telem-v">${sel.crewCount}</span></div>
-      <div class="tr-telem-row"><span>ÉPOCA</span><span class="tr-telem-v">${sel.launchDate}</span></div>
+      <div class="tr-telem-row"><span>FECHA</span><span class="tr-telem-v">${sel.launchDate}</span></div>
       <div class="tr-telem-row"><span>RAAN</span><span class="tr-telem-v">${sel.raan.toFixed(2)}°</span></div>
       <div class="tr-telem-row"><span>ALT</span><span class="tr-telem-v">${sel.altitude} km</span></div>
       <div class="tr-telem-row"><span>VELOCIDAD</span><span class="tr-telem-v">${p.vKms.toFixed(2)} km/s</span></div>`;

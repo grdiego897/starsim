@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class Usuario extends Authenticatable
@@ -18,15 +17,10 @@ class Usuario extends Authenticatable
         'password',
         'role',
         'entidad_id',
-        'profile_picture',
     ];
 
     protected $hidden = [
         'password',
-    ];
-
-    protected $appends = [
-        'profile_picture_url',
     ];
 
     protected function casts(): array
@@ -34,15 +28,6 @@ class Usuario extends Authenticatable
         return [
             'password' => 'hashed',
         ];
-    }
-
-    // ── Accessors ──
-
-    public function getProfilePictureUrlAttribute(): ?string
-    {
-        return $this->profile_picture
-            ? Storage::disk('public')->url($this->profile_picture)
-            : null;
     }
 
     // ── Relaciones ──

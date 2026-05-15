@@ -157,9 +157,9 @@ function initProfileDropdown() {
             // Usar el sistema de confirmación existente (popup.js → showConfirm)
             const confirmed = await window.showConfirm(
                 'Cerrar sesión',
-                '¿Estás seguro de que deseas cerrar tu sesión? Tendrás que ingresar tus credenciales de nuevo para acceder.',
+                'Tendrás que ingresar de nuevo tus credenciales.',
                 {
-                    confirmText: 'Cerrar sesión',
+                    confirmText: 'Confirmar',
                     cancelText: 'Cancelar',
                     type: 'error'
                 }
