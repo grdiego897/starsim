@@ -141,6 +141,40 @@ El detalle de payloads y formato de respuesta vive en [`CRUD_README.md`](./CRUD_
 
 ---
 
+## 🧪 Pruebas
+
+Los tests de backend son pruebas de Feature (HTTP + base de datos) y Unit. Usan **SQLite en memoria** configurado en `phpunit.xml`, por lo que **no requieren Docker** para ejecutarse.
+
+```bash
+# Desde backend/ — con Sail (Docker levantado):
+docker compose exec laravel.test php artisan test
+
+# Sin Docker, si tienes PHP y Composer instalados localmente:
+php artisan test
+```
+
+Suites disponibles:
+
+| Suite | Archivos | Qué cubre |
+|---|---|---|
+| Feature | `AuthTest`, `MisionCrudTest`, `UsuarioCrudTest`, `EntidadTest` | Endpoints REST, roles y permisos |
+| Unit | `ExampleTest` | Lógica aislada |
+
+Para ejecutar solo una suite:
+
+```bash
+docker compose exec laravel.test php artisan test --testsuite=Feature
+docker compose exec laravel.test php artisan test --testsuite=Unit
+```
+
+Para ejecutar un archivo concreto:
+
+```bash
+docker compose exec laravel.test php artisan test tests/Feature/MisionCrudTest.php
+```
+
+---
+
 ## ▶️ Arranque diario
 
 1. Abre Docker Desktop.
@@ -217,6 +251,32 @@ Then open `frontend/login.html` with Live Server.
 | `viewer@starsim.io` | `viewer123` | viewer | SpaceX |
 
 `viewer` is read-only — any write request returns `403 Forbidden`.
+
+## Tests
+
+Backend tests are Feature (HTTP + DB) and Unit tests. They use an **in-memory SQLite** database (configured in `phpunit.xml`) — **Docker is not required** to run them.
+
+```bash
+# From backend/ — with Sail (Docker running):
+docker compose exec laravel.test php artisan test
+
+# Without Docker (requires local PHP + Composer):
+php artisan test
+```
+
+Available suites:
+
+| Suite | Files | Coverage |
+|---|---|---|
+| Feature | `AuthTest`, `MisionCrudTest`, `UsuarioCrudTest`, `EntidadTest` | REST endpoints, roles, permissions |
+| Unit | `ExampleTest` | Isolated logic |
+
+Run a single suite or file:
+
+```bash
+docker compose exec laravel.test php artisan test --testsuite=Feature
+docker compose exec laravel.test php artisan test tests/Feature/MisionCrudTest.php
+```
 
 ## Daily start
 

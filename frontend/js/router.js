@@ -5,7 +5,7 @@ class Router {
             'panel': {
                 template: 'pages/panel.html',
                 style: 'css/panel.css',
-                title: 'Panel - Starsim',
+                title: 'Panel',
                 init: () => window.initPanelPage && window.initPanelPage()
             },
             'mision': {
@@ -17,7 +17,7 @@ class Router {
             'configAvanzada': {
                 template: 'pages/configAvanzada.html',
                 style: 'css/configAvanzada.css',
-                title: 'Configuración Avanzada de Misión',
+                title: 'Misión Av',
                 init: () => window.initConfigAvanzadaPage && window.initConfigAvanzadaPage()
             },
             'program': {
@@ -29,7 +29,7 @@ class Router {
             'constelacion': {
                 template: 'pages/constelacion.html',
                 style: 'css/constelacion.css',
-                title: 'Constelación · Starlink — StarSim',
+                title: 'Constelación',
                 init: () => window.initConstelacionPage && window.initConstelacionPage()
             }
         };
