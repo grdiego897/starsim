@@ -4,10 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Boilerplate de Laravel: infraestructura del sistema de colas.
+ * `jobs` = trabajos pendientes, `job_batches` = lotes agrupados,
+ * `failed_jobs` = registro de fallos para reintentos y diagnóstico.
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta las migraciones.
      */
     public function up(): void
     {
@@ -46,7 +51,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte las migraciones.
      */
     public function down(): void
     {

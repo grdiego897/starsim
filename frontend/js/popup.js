@@ -101,11 +101,11 @@
     };
 
     /**
-     * Show Confirm Dialog (reuses popup glassmorphism style)
-     * @param {string} title 
-     * @param {string} message 
-     * @param {object} options  Optional { confirmText, cancelText, type }
-     * @returns {Promise<boolean>} Resolves true if confirmed, false if cancelled
+     * Mostrar Diálogo de Confirmación (reutiliza el estilo glassmorphism del popup)
+     * @param {string} title
+     * @param {string} message
+     * @param {object} options  Opcional { confirmText, cancelText, type }
+     * @returns {Promise<boolean>} Resuelve true si se confirma, false si se cancela
      */
     window.showConfirm = function (title, message, options = {}) {
         const {
@@ -115,7 +115,7 @@
         } = options;
 
         return new Promise((resolve) => {
-            // Remove any previous confirm overlay
+            // Eliminar cualquier overlay de confirmación previo
             const prev = document.getElementById('custom-confirm-overlay');
             if (prev) prev.remove();
 
@@ -138,7 +138,7 @@
 
             document.body.appendChild(overlay);
 
-            // Show with animation
+            // Mostrar con animación
             overlay.style.display = 'flex';
             setTimeout(() => overlay.classList.add('active'), 10);
 
@@ -153,7 +153,7 @@
             overlay.querySelector('#confirm-cancel').addEventListener('click', () => close(false));
             overlay.querySelector('#confirm-ok').addEventListener('click', () => close(true));
 
-            // Close on click outside
+            // Cerrar al hacer clic fuera
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) close(false);
             });

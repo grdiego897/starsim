@@ -27,12 +27,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    /* Align top instead of center */
+    /* Alinear arriba en lugar de centrado */
     padding: 30px 20px;
-    /* Adjust vertical position */
+    /* Ajustar posición vertical */
     z-index: 5;
     position: relative;
-    /* For absolute button positioning */
+    /* Para el posicionamiento absoluto del botón */
     height: 100%;
     background-color: rgba(60, 60, 60, 0.45);
     backdrop-filter: blur(16px);
@@ -134,7 +134,7 @@
     background-color: #aaa;
 }
 
-/* Autocomplete Custom Styling */
+/* Estilo personalizado del Autocompletar */
 .autocomplete-wrapper {
     position: relative;
     width: 160px;
@@ -270,7 +270,7 @@
     align-items: center;
     justify-content: flex-start;
     padding-top: 30px;
-    /* Reduced from 100px to move images up */
+    /* Reducido desde 100px para subir las imágenes */
     height: 100%;
     position: relative;
 }
@@ -343,7 +343,7 @@
 
 .launch-button-wrapper:hover {
     transform: scale(1.05);
-    /* Slight hover effect */
+    /* Ligero efecto al pasar el ratón */
     background-color: #f0f0f0;
 }
 

@@ -32,7 +32,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     flex: 1;
     max-height: calc(100vh - 180px);
-    /* Prevent overflow */
+    /* Evitar desbordamiento */
 }
 
 .card-header {
@@ -151,7 +151,7 @@
     display: inline-block;
     padding: 6px 16px;
     border-radius: 8px;
-    /* Slightly rounder for glass effect */
+    /* Ligeramente más redondeado para el efecto glass */
     font-size: 0.85rem;
     font-weight: 600;
     min-width: 120px;

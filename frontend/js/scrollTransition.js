@@ -34,44 +34,44 @@
     let viewportEl = null;
     let initialized = false;
 
-    // Accumulated delta for smoother detection
+    // Delta acumulado para una detección más suave
     let accumulatedDelta = 0;
     const DELTA_THRESHOLD = 120;
     let deltaResetTimer = null;
 
-    // Toggles the full-bleed body class so Constelación occupies the full window
-    // (header hidden, viewport expanded to 100vh) when it's the active section.
+    // Alterna la clase de pantalla completa en el body para que Constelación ocupe la ventana
+    // (cabecera oculta, viewport ampliado a 100vh) cuando es la sección activa.
     function applyFullBleed(index) {
         const isConst = SECTIONS[index] && SECTIONS[index].route === 'constelacion';
         document.body.classList.toggle('constelacion-active', isConst);
     }
 
     /**
-     * Build the scroll viewport with all sections
+     * Construye el viewport de scroll con todas las secciones
      */
     async function initScrollTransition(startRoute) {
-        // Determine starting section
+        // Determinar la sección inicial
         activeIndex = SECTIONS.findIndex(s => s.route === startRoute);
         if (activeIndex < 0) activeIndex = 0;
 
         const appContent = document.getElementById('app-content');
         if (!appContent) return;
 
-        // Clear previous content
+        // Limpiar contenido previo
         appContent.innerHTML = '';
 
-        // Create viewport
+        // Crear viewport
         viewportEl = document.createElement('div');
         viewportEl.className = 'scroll-viewport';
 
-        // Fetch and inject all section templates
+        // Obtener e inyectar todas las plantillas de sección
         for (let i = 0; i < SECTIONS.length; i++) {
             const sec = SECTIONS[i];
             const sectionEl = document.createElement('div');
             sectionEl.id = sec.id;
             sectionEl.className = 'scroll-section';
 
-            // Position classes
+            // Clases de posición
             if (i === activeIndex) {
                 sectionEl.classList.add('active');
             } else if (i > activeIndex) {
@@ -93,15 +93,15 @@
 
         appContent.appendChild(viewportEl);
 
-        // Init page scripts
+        // Inicializar scripts de página
         for (const sec of SECTIONS) {
             setTimeout(sec.init, 80);
         }
 
-        // Attach scroll listener to viewport
+        // Asociar el listener de scroll al viewport
         viewportEl.addEventListener('wheel', handleWheel, { passive: false });
 
-        // Update hash silently
+        // Actualizar el hash de forma silenciosa
         silentHashUpdate(SECTIONS[activeIndex].route);
 
         applyFullBleed(activeIndex);
@@ -110,7 +110,7 @@
     }
 
     /**
-     * Handle wheel events for section transition
+     * Gestiona los eventos de rueda para la transición de sección
      */
     function handleWheel(e) {
         if (transitioning) {
@@ -129,7 +129,7 @@
 
         const deltaY = e.deltaY;
 
-        // Scrolling down at the bottom → go to next section
+        // Scroll hacia abajo al llegar al final → ir a la siguiente sección
         if (deltaY > 0 && atBottom && activeIndex < SECTIONS.length - 1) {
             e.preventDefault();
             accumulatedDelta += Math.abs(deltaY);
@@ -143,7 +143,7 @@
             return;
         }
 
-        // Scrolling up at the top → go to previous section
+        // Scroll hacia arriba al llegar al inicio → ir a la sección anterior
         if (deltaY < 0 && atTop && activeIndex > 0) {
             e.preventDefault();
             accumulatedDelta += Math.abs(deltaY);
@@ -157,11 +157,11 @@
             return;
         }
 
-        // Normal scroll within the section — allow
+        // Scroll normal dentro de la sección — permitir
     }
 
     /**
-     * Transition to a specific section index
+     * Transita a un índice de sección concreto
      */
     function transitionTo(newIndex) {
         if (newIndex === activeIndex || transitioning) return;
@@ -177,7 +177,7 @@
             el.classList.remove('active', 'above', 'below');
             if (i === newIndex) {
                 el.classList.add('active');
-                // Reset scroll to top if coming from above
+                // Reiniciar el scroll al inicio si venimos desde arriba
                 if (newIndex > oldIndex) {
                     el.scrollTop = 0;
                 }
@@ -190,16 +190,16 @@
 
         applyFullBleed(newIndex);
 
-        // Update hash
+        // Actualizar el hash
         silentHashUpdate(SECTIONS[newIndex].route);
 
-        // Update page title
+        // Actualizar el título de la página
         const routeConfig = window.router && window.router.routes
             ? window.router.routes[SECTIONS[newIndex].route]
             : null;
         if (routeConfig) document.title = routeConfig.title;
 
-        // Cooldown
+        // Tiempo de espera
         clearTimeout(cooldownTimer);
         cooldownTimer = setTimeout(() => {
             transitioning = false;
@@ -207,7 +207,7 @@
     }
 
     /**
-     * Update hash without triggering hashchange
+     * Actualiza el hash sin disparar hashchange
      */
     function silentHashUpdate(route) {
         if (window._scrollTransitionSilent) return;
@@ -217,10 +217,10 @@
     }
 
     /**
-     * Cleanup — called when navigating away from scroll-enabled routes
+     * Limpieza — se invoca al navegar fuera de las rutas con scroll habilitado
      */
     function destroyScrollTransition() {
-        // Sections may register a cleanup hook (e.g. Constelación stops its rAF loop here).
+        // Las secciones pueden registrar un hook de limpieza (p. ej. Constelación detiene aquí su bucle rAF).
         if (typeof window._constelacionCleanup === 'function') {
             try { window._constelacionCleanup(); } catch (_) { }
             window._constelacionCleanup = null;
@@ -237,7 +237,7 @@
     }
 
     /**
-     * Navigate to a specific route within the scroll viewport (e.g. from sidebar)
+     * Navega a una ruta concreta dentro del viewport de scroll (p. ej. desde la sidebar)
      */
     function goToRoute(route) {
         const idx = SECTIONS.findIndex(s => s.route === route);
@@ -245,13 +245,13 @@
     }
 
     /**
-     * Check if a route is scroll-transition enabled
+     * Comprueba si una ruta tiene la transición de scroll habilitada
      */
     function isScrollRoute(route) {
         return SECTIONS.some(s => s.route === route);
     }
 
-    // Expose globally
+    // Exponer globalmente
     window.ScrollTransition = {
         init: initScrollTransition,
         destroy: destroyScrollTransition,

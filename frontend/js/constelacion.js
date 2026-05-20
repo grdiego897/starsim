@@ -428,7 +428,7 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Graticule (red de coordenadas)
+    // Retícula (red de coordenadas)
     if (state.showGrid) {
       ctx.strokeStyle = 'rgba(255,255,255,0.06)';
       ctx.lineWidth = 0.7;

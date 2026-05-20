@@ -173,7 +173,7 @@ function initPanelPage() {
 
     renderUpcoming();
 
-    // --- Countdown ---
+    // --- Cuenta atrás ---
     const cdDays = document.getElementById('cd-days');
     const cdHours = document.getElementById('cd-hours');
     const cdMins = document.getElementById('cd-mins');

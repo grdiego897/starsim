@@ -8,17 +8,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factoría del modelo User de Laravel (boilerplate).
+ * Nota: la aplicación usa el modelo {@see \App\Models\Usuario};
+ * esta factoría se mantiene para compatibilidad con el código base
+ * de Laravel, pero los tests reales se apoyan en UsuarioFactory.
+ *
  * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Contraseña actual utilizada por la factoría.
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Define el estado por defecto del modelo.
      *
      * @return array<string, mixed>
      */
@@ -34,7 +39,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indica que la dirección de correo del modelo debe quedar sin verificar.
      */
     public function unverified(): static
     {

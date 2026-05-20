@@ -1,8 +1,8 @@
 /* ======================= */
-/* SCROLL TRANSITION       */
+/* TRANSICIÓN DE SCROLL    */
 /* ======================= */
 
-/* Viewport: fills all available height, clips overflow */
+/* Viewport: ocupa toda la altura disponible y recorta el desbordamiento */
 .scroll-viewport {
     position: relative;
     width: 100%;
@@ -10,7 +10,7 @@
     overflow: hidden;
 }
 
-/* Each section: absolute-positioned, full size, transition-ready */
+/* Cada sección: posicionada en absoluto, tamaño completo, lista para transición */
 .scroll-section {
     position: absolute;
     top: 0;
@@ -23,7 +23,7 @@
     will-change: transform, opacity;
 }
 
-/* Active section: visible in-place */
+/* Sección activa: visible en su posición */
 .scroll-section.active {
     transform: translateY(0);
     opacity: 1;
@@ -31,7 +31,7 @@
     z-index: 2;
 }
 
-/* Section waiting below (next) */
+/* Sección en espera debajo (siguiente) */
 .scroll-section.below {
     transform: translateY(40px);
     opacity: 0;
@@ -39,7 +39,7 @@
     z-index: 1;
 }
 
-/* Section waiting above (previous) */
+/* Sección en espera arriba (anterior) */
 .scroll-section.above {
     transform: translateY(-40px);
     opacity: 0;
@@ -47,7 +47,7 @@
     z-index: 1;
 }
 
-/* ---- Hide scrollbar but keep scroll functionality ---- */
+/* ---- Ocultar barra de scroll manteniendo la funcionalidad ---- */
 .scroll-section {
     scrollbar-width: none;
     /* Firefox */
@@ -63,9 +63,8 @@
 
 
 
-
 /* ======================= */
-/* SCROLL HINT ARROW       */
+/* FLECHA DE INDICACIÓN    */
 /* ======================= */
 
 .scroll-hint {
@@ -108,31 +107,31 @@
 
 
 /* ======================= */
-/* PAGE TRANSITION (fade)  */
+/* TRANSICIÓN DE PÁGINA    */
 /* ======================= */
 
-/* The app-content container handles its own transition */
+/* El contenedor app-content gestiona su propia transición */
 #app-content {
     transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
         transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: opacity, transform;
 }
 
-/* Phase 1: fade-out — applied before content swap */
+/* Fase 1: desvanecer — se aplica antes del intercambio de contenido */
 #app-content.page-leaving {
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
 }
 
-/* Phase 2: prepare entry — applied after content swap, before triggering fade-in */
+/* Fase 2: preparar entrada — se aplica tras el intercambio, antes de disparar el fade-in */
 #app-content.page-entering {
     opacity: 0;
     transform: translateY(-12px);
     pointer-events: none;
     transition: none;
-    /* disable transition so we can snap to start position */
+    /* desactivar transición para poder saltar a la posición inicial */
 }
 
-/* Phase 3: fade-in — remove page-entering class to animate in */
-/* (handled by removing the class, letting the base transition kick in) */
+/* Fase 3: fade-in — se quita la clase page-entering para animar la entrada */
+/* (gestionado al quitar la clase, dejando que la transición base haga su trabajo) */

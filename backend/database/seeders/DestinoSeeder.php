@@ -5,6 +5,12 @@ namespace Database\Seeders;
 use App\Models\Destino;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeder de destinos: catálogo de objetivos orbitales/planetarios.
+ * Los slugs coinciden con los `value` de los <option> en mision.html
+ * y con las claves del mapa `destMap` de mision.js (acoplamiento
+ * deliberado para evitar tablas de traducción extra en el frontend).
+ */
 class DestinoSeeder extends Seeder
 {
     public function run(): void

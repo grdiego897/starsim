@@ -78,7 +78,7 @@
     font-weight: 300;
 }
 
-/* Card wrapper for hover graphs */
+/* Envoltorio de la tarjeta para los gráficos al pasar el ratón */
 .card-wrapper {
     position: relative;
 }
@@ -87,7 +87,7 @@
     position: relative;
     z-index: 1;
     will-change: opacity;
-    /* unhover: longer, eased fade-in so it blends with tooltip fade-out */
+    /* sin hover: fade-in más largo y suavizado para integrarse con el fade-out del tooltip */
     transition: opacity 0.3s ease-in-out;
 }
 
@@ -105,20 +105,20 @@
     opacity: 0;
     pointer-events: none;
     will-change: opacity;
-    /* unhover: longer, eased fade-out matched to card */
+    /* sin hover: fade-out más largo y suavizado, sincronizado con la tarjeta */
     transition: opacity 0.3s ease-in-out;
 }
 
 .card-wrapper:hover .card-graph-tooltip {
     opacity: 1;
     pointer-events: auto;
-    /* hover: keep snappy */
+    /* hover: mantener respuesta rápida */
     transition: opacity 0.3s ease;
 }
 
 .card-wrapper:hover .card {
     opacity: 0;
-    /* hover: keep snappy */
+    /* hover: mantener respuesta rápida */
     transition: opacity 0.3s ease;
 }
 

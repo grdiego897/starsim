@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ============================================================
-   LAYOUT OVERRIDES — active only when tierra page is open
+   AJUSTES DE LAYOUT — activos solo cuando la página de tierra está abierta
    ============================================================ */
 body.constelacion-active .main-content {
   padding: 0;
@@ -13,8 +13,8 @@ body.constelacion-active #header-container {
   display: none;
 }
 
-/* When the page lives inside the shared ScrollTransition viewport,
-   override its `calc(100vh - 120px)` so Constelación gets the full window. */
+/* Cuando la página vive dentro del viewport compartido de ScrollTransition,
+   sobreescribimos su `calc(100vh - 120px)` para que Constelación ocupe toda la ventana. */
 body.constelacion-active .scroll-viewport {
   height: 100vh;
 }
@@ -27,7 +27,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   STAGE — fills the app-content area (right of sidebar)
+   ESCENARIO — ocupa el área de app-content (a la derecha de la sidebar)
    ============================================================ */
 .constelacion-stage {
   position: absolute;
@@ -44,7 +44,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   TOP-RIGHT STACK
+   STACK SUPERIOR DERECHO
    ============================================================ */
 .tr-top-right {
   position: absolute;
@@ -57,7 +57,7 @@ body.constelacion-active #app-content {
   z-index: 10;
 }
 
-/* Time control — segmented */
+/* Control de tiempo — segmentado */
 .tr-time-ctrl {
   display: flex;
   gap: 4px;
@@ -101,7 +101,7 @@ body.constelacion-active #app-content {
   color: #000;
 }
 
-/* Selection readout */
+/* Lectura de selección */
 .tr-sel-readout {
   width: 280px;
   background: rgba(0,0,0,0.55);
@@ -164,7 +164,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   BOTTOM STACKS — dropdown panels
+   STACKS INFERIORES — paneles desplegables
    ============================================================ */
 .tr-bottom-left {
   position: absolute;
@@ -259,7 +259,7 @@ body.constelacion-active #app-content {
 .tr-dp-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 /* ============================================================
-   CONSTELLATION STATS PANEL
+   PANEL DE ESTADÍSTICAS DE LA CONSTELACIÓN
    ============================================================ */
 .tr-stats-panel {
   display: flex;
@@ -327,7 +327,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   TELEMETRY PANEL
+   PANEL DE TELEMETRÍA
    ============================================================ */
 .tr-telem-panel {
   display: flex;
@@ -359,7 +359,7 @@ body.constelacion-active #app-content {
 .tr-telem-ok { color: #2ecc71; }
 
 /* ============================================================
-   SEARCH PANEL
+   PANEL DE BÚSQUEDA
    ============================================================ */
 .tr-rail-search {
   width: 100%;
@@ -479,7 +479,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   UPCOMING LAUNCHES PANEL
+   PANEL DE PRÓXIMOS LANZAMIENTOS
    ============================================================ */
 .tr-upcoming-panel {
   display: flex;
@@ -521,7 +521,7 @@ body.constelacion-active #app-content {
 }
 
 /* ============================================================
-   BOTTOM-CENTER IDENTITY STRIP
+   FRANJA DE IDENTIDAD INFERIOR CENTRAL
    ============================================================ */
 .tr-id-strip {
   position: absolute;

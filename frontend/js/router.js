@@ -45,10 +45,10 @@ class Router {
     }
 
     async handleLocation() {
-        // Skip if this hash change was triggered silently by ScrollTransition
+        // Omitir si el cambio de hash fue disparado de forma silenciosa por ScrollTransition
         if (window._scrollTransitionSilent) return;
 
-        // Get path from hash, default to panel
+        // Obtener la ruta desde el hash, por defecto panel
         let path = window.location.hash.slice(1) || 'panel';
 
         // Manejar parámetros de consulta si existen (ignorar para coincidencia de rutas)
@@ -78,15 +78,15 @@ class Router {
 
         const pageCss = document.getElementById('page-css');
 
-        // --- Scroll Transition Routes ---
+        // --- Rutas con transición de scroll ---
         if (window.ScrollTransition && window.ScrollTransition.isScrollRoute(path)) {
-            // Clear page-specific CSS for scroll routes
-            // since both panel.css and program.css are loaded globally
+            // Limpiar el CSS específico de página para las rutas con scroll,
+            // ya que tanto panel.css como program.css se cargan globalmente
             if (pageCss) {
                 pageCss.href = '';
             }
             if (window.ScrollTransition.isInitialized()) {
-                // Already in scroll mode — transition to the requested section
+                // Ya estamos en modo scroll — transitar a la sección solicitada
                 window.ScrollTransition.goToRoute(path);
             } else {
                 await window.ScrollTransition.init(path);
@@ -94,8 +94,8 @@ class Router {
             return;
         }
 
-        // --- Normal Routes ---
-        // Cleanup scroll transition if navigating away
+        // --- Rutas normales ---
+        // Limpiar la transición de scroll si navegamos fuera
         if (window.ScrollTransition) {
             window.ScrollTransition.destroy();
         }
@@ -103,10 +103,10 @@ class Router {
         const appContent = document.getElementById('app-content');
         if (!appContent) return;
 
-        // Determine if we should animate (only if there is existing content)
+        // Determinar si debemos animar (sólo si ya hay contenido)
         const hasExistingContent = appContent.innerHTML.trim().length > 0;
 
-        // --- Phase 1: Fade-out current content ---
+        // --- Fase 1: Desvanecer el contenido actual ---
         if (hasExistingContent) {
             appContent.classList.add('page-leaving');
             await new Promise(resolve => {
@@ -115,12 +115,12 @@ class Router {
                     resolve();
                 };
                 appContent.addEventListener('transitionend', onEnd);
-                // Safety timeout in case transitionend doesn't fire
+                // Temporizador de seguridad por si transitionend no se dispara
                 setTimeout(resolve, 400);
             });
         }
 
-        // --- Phase 2: Swap CSS & content ---
+        // --- Fase 2: Intercambiar CSS y contenido ---
         if (pageCss && route.style) {
             pageCss.href = route.style;
         }
@@ -129,12 +129,12 @@ class Router {
             const response = await fetch(route.template);
             const html = await response.text();
 
-            // Snap to entry position (invisible, no transition)
+            // Saltar a la posición de entrada (invisible, sin transición)
             appContent.classList.remove('page-leaving');
             appContent.classList.add('page-entering');
             appContent.innerHTML = html;
 
-            // Preload all images in the new content before revealing
+            // Precargar todas las imágenes del nuevo contenido antes de mostrarlo
             const images = appContent.querySelectorAll('img[src]');
             if (images.length > 0) {
                 const imagePromises = Array.from(images).map(img => {
@@ -144,24 +144,24 @@ class Router {
                         img.addEventListener('error', resolve, { once: true });
                     });
                 });
-                // Wait for images but cap at 800ms to avoid hanging
+                // Esperar las imágenes con un tope de 800ms para evitar bloqueos
                 await Promise.race([
                     Promise.all(imagePromises),
                     new Promise(resolve => setTimeout(resolve, 800))
                 ]);
             }
 
-            // Initialize page logic before revealing
+            // Inicializar la lógica de la página antes de mostrarla
             if (route.init) {
                 route.init();
             }
 
-            // Force a reflow so the browser registers the entry position
+            // Forzar un reflow para que el navegador registre la posición de entrada
             void appContent.offsetHeight;
 
-            // --- Phase 3: Fade-in new content ---
+            // --- Fase 3: Aparecer con el nuevo contenido ---
             appContent.classList.remove('page-entering');
-            // The base CSS transition will animate opacity/transform back to normal
+            // La transición CSS base animará opacity/transform de vuelta a la normalidad
 
         } catch (error) {
             console.error('Error loading page:', error);

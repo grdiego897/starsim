@@ -1,6 +1,6 @@
 
 async function initMisionPage() {
-    // --- Capacities & Mass Calculation ---
+    // --- Capacidades y cálculo de masa ---
     const CAPACITIES = {
         'falcon9': { 'leo': 22.8, 'haven': 22.8, 'axiom': 22.8, 'orbital-reef': 22.8 },
         'falconheavy': { 'leo': 63.8, 'haven': 63.8, 'axiom': 63.8, 'orbital-reef': 63.8 },
@@ -35,7 +35,7 @@ async function initMisionPage() {
         }
     }
 
-    // --- Image Logic ---
+    // --- Lógica de imagen ---
     const shipSelect = document.getElementById('ship-select');
     const boosterSelect = document.getElementById('booster-select');
     const vehicleImg = document.getElementById('vehicle-img');
@@ -106,7 +106,7 @@ async function initMisionPage() {
         updateDestination();
     }
 
-    // --- Map Logic ---
+    // --- Lógica del mapa ---
     const portSelect = document.getElementById('port-select');
     const mapIframe = document.getElementById('map-iframe');
 
@@ -125,7 +125,7 @@ async function initMisionPage() {
         });
     }
 
-    // --- Mission Input Logic ---
+    // --- Lógica del formulario de misión ---
     const missionNameInput = document.getElementById('mission-name-input');
     const programInput = document.getElementById('program-select');
     const shellWrapper = document.getElementById('shell-wrapper');
@@ -183,7 +183,7 @@ async function initMisionPage() {
     }
     loadPrograms();
 
-    // --- Edit Mode ---
+    // --- Modo de edición ---
     const editMissionId = localStorage.getItem('editMissionId');
     const editLaunchId = localStorage.getItem('editLaunchId');
     let isEditing = false;
@@ -312,7 +312,7 @@ async function initMisionPage() {
 
     updateCargoMass();
 
-    // --- Advanced Button ---
+    // --- Botón Avanzado ---
     const btnAdvanced = document.getElementById('btn-advanced');
     if (btnAdvanced) {
         btnAdvanced.addEventListener('click', () => {
@@ -324,7 +324,7 @@ async function initMisionPage() {
         });
     }
 
-    // --- Launch Button (Save) ---
+    // --- Botón de lanzamiento (Guardar) ---
     const btnLaunch = document.querySelector('.launch-button');
     if (btnLaunch) {
         btnLaunch.addEventListener('click', async () => {

@@ -1,4 +1,4 @@
-/* Popup Overlay - Glassmorphism Backdrop */
+/* Overlay del Popup - Fondo Glassmorphism */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -10,7 +10,7 @@
     -webkit-backdrop-filter: blur(8px);
     z-index: 9999;
     display: none;
-    /* Hidden by default */
+    /* Oculto por defecto */
     justify-content: center;
     align-items: center;
     opacity: 0;
@@ -22,7 +22,7 @@
     opacity: 1;
 }
 
-/* Popup Content Box */
+/* Caja de Contenido del Popup */
 .popup-content {
     background: rgba(20, 20, 20, 0.6);
     backdrop-filter: blur(24px);
@@ -45,7 +45,7 @@
     transform: scale(1);
 }
 
-/* Typography */
+/* Tipografía */
 .popup-title {
     font-size: 1.2rem;
     font-weight: 600;
@@ -70,7 +70,7 @@
     margin-bottom: 25px;
 }
 
-/* Close Button (Icon) */
+/* Botón de Cerrar (Icono) */
 .popup-close-btn {
     position: absolute;
     top: 10px;
@@ -88,7 +88,7 @@
     color: #fff;
 }
 
-/* Optional Bottom Action Button */
+/* Botón de Acción Inferior Opcional */
 .popup-action-btn {
     background: rgba(255, 255, 255, 0.1);
     color: white;
@@ -107,7 +107,7 @@
     transform: translateY(-2px);
 }
 
-/* Confirm Dialog Actions */
+/* Acciones del Diálogo de Confirmación */
 .confirm-actions {
     display: flex;
     gap: 12px;

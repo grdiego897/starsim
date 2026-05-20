@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Usuario de la aplicación.
+ * Gestiona la autenticación vía Sanctum (tokens API) y el control de
+ * permisos basado en roles: admin > operator > viewer.
+ * Puede pertenecer opcionalmente a una entidad.
+ */
 class Usuario extends Authenticatable
 {
     use HasApiTokens;
@@ -19,10 +25,12 @@ class Usuario extends Authenticatable
         'entidad_id',
     ];
 
+    // La contraseña nunca se serializa en las respuestas JSON.
     protected $hidden = [
         'password',
     ];
 
+    // Hashing automático de la contraseña al asignarla.
     protected function casts(): array
     {
         return [
@@ -32,6 +40,7 @@ class Usuario extends Authenticatable
 
     // ── Relaciones ──
 
+    // Entidad a la que pertenece el usuario (puede ser null).
     public function entidad()
     {
         return $this->belongsTo(Entidad::class, 'entidad_id');
@@ -39,16 +48,19 @@ class Usuario extends Authenticatable
 
     // ── Helpers roles ──
 
+    // Rol con permisos completos sobre la aplicación.
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    // Puede crear y editar misiones, pero no gestionar usuarios.
     public function isOperator(): bool
     {
         return $this->role === 'operator';
     }
 
+    // Sólo lectura: no puede modificar ni crear recursos.
     public function isViewer(): bool
     {
         return $this->role === 'viewer';
