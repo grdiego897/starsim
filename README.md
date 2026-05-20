@@ -1,4 +1,4 @@
-# StarSim
+# Starsim
 
 Simulador de misiones espaciales con planificación, gestión y seguimiento de operaciones para distintas agencias (SpaceX, NASA, ESA, Blue Origin). Arquitectura desacoplada: SPA en Vanilla JS contra una API REST en Laravel 11.
 
