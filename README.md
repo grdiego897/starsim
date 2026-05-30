@@ -1,6 +1,6 @@
 # Starsim
 
-Simulador de misiones espaciales con planificación, gestión y seguimiento de operaciones para distintas agencias (SpaceX, NASA, ESA, Blue Origin). Arquitectura desacoplada: SPA en Vanilla JS contra una API REST en Laravel 11.
+Simulador de misiones espaciales con planificación, gestión y seguimiento de operaciones. Arquitectura desacoplada: SPA en Vanilla JS contra una API REST en Laravel 11.
 
 > 🇪🇸 Documentación en español a continuación · 🇬🇧 [English version below](#english)
 
@@ -190,9 +190,9 @@ docker compose stop
 
 <a id="english"></a>
 
-# StarSim · English
+# Starsim · English
 
-Space-mission simulator with planning, management, and tracking for multiple agencies (SpaceX, NASA, ESA, Blue Origin). Decoupled architecture: Vanilla JS SPA against a Laravel 11 REST API.
+Space-mission simulator with planning, management, and tracking. Decoupled architecture: Vanilla JS SPA against a Laravel 11 REST API.
 
 ## Repository layout
 
